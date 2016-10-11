@@ -169,7 +169,7 @@ Define one : p -> a -> p -> prop
   ; one (new P) A (new Q) := nabla x, one (P x) A (Q x)
   .
 \end{verbatim}
-\caption{A Bedwyr definition for the labeled semantics of finite CCS}
+\caption{A Bedwyr definition for the labled semantics of finite CCS}
 \label{fig:ccsone}
 \end{figure}
 \section{Bisimulation Testing Graph}
