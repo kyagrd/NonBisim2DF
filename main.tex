@@ -7,6 +7,9 @@
 %
 \usepackage[utf8]{inputenc}
 % \usepackage{makeidx}  % allows for indexgeneration
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{semantic}
 \usepackage{hyperref}
 %
 \begin{document}
@@ -34,22 +37,37 @@
 }
 
 \maketitle              % typeset the title of the contribution
-%% \begin{abstract}
-\vspace*{-3ex}
-\keywords{bisimulation, modal logic, distinguishing formula, process calculus %, process algebra
+\begin{abstract}
+We study a problem of providing a certificate for two non-bisimilar processes
+from a failed bisimulation test. Such a certificate is helpful for detecting
+false-negative bugs and also for enhancing user experience of the tools based
+on process equivalence checking. Our approach is to have the bisimulation test
+provide a graph that logs the visited pairs of process states during the test,
+regardless of whether the test succeeds or fails. This graph is
+a generalization of a bisimulation relation, which is only defined for
+bisimilar processes, that is when the test succeeds. From a graph with
+a disproved root node, one can extract a modal logic formula, known as
+the distinguishing formula, that satisfied by one process but not by the other.
+Our approach requires little modification to existing bisimulation testing
+algorithms (or procedures) and is also flexible to be extended for systems
+with infinite states.
+\keywords{bisimulation, process calculus, process algebra, process equivalence,
+labeled transition systems, modal logic, distinguishing formula,
+logic programming, tabling, model checking
 }
-%% \end{abstract}
+\end{abstract}
 
-\paragraph{}
+\section{Introduction}\label{sec:intro}
+
 We study a problem of providing a certificate for two non-bisimilar processes,
 assuming we already have a procedure for testing bisimilarity. The problem
 with such an assumption is realistic within various tools [TODO cite]
 equipped with equivalence checking features based on bisimulation.
 Providing a certificate for failure has two benefits. First, false negatives
-can be detected by a checker independent from the bisimulation test procedure
-of the tool. Second, users are provided with useful information to analyze why
-the processes are not equivalent when the test fails, which occurs very frequently
-in practice. A typical usage scenario would involve
+can be detected by a checker independent from the bisimulation test procedure.
+Second, users are provided with useful information to analyze why
+the processes are not equivalent when the test fails, which occurs very
+frequently in practice. A typical usage scenario would involve
 (a) defining a \emph{specification} process preferably with a simple structure
     that clearly describes its desired properties and
 (b) testing for equivalence of an \emph{instance} process that is closer to
@@ -59,7 +77,49 @@ specification that abstracts the essence of the system and to refine
 the instance to match the specification being developed, which amounts to
 numerous failures before a few successful bisimulation tests.
 
-\paragraph{} % problem description
+\paragraph{Our contribution} TODO
+
+
+\paragraph{Our approach} requires the bisimulation test to produce
+a \emph{bisimulation testing graph} (in abbr., \emph{bisim-graph}),
+which is a generalization of the \emph{bisimulation set}
+(in abbr., \emph{bisim-set}) (a.k.a., bisimulation relation),
+so that we can extract a \emph{distinguishing formula} from that graph
+when the test fails.
+By definition of the bisim-set, it is natural to assume that bisimulation
+testing procedures should be able produce a bisimulation set ($R$), which is
+a set of process state pairs ($R \subset S\times S$) when the test succeeds.
+In principle, this set $R$ has enough information to serve as a proof
+certificate for a pair of bisimilar processes. More generally, to produce
+a disproof certificate as well, we require that the bisimulation test
+to produce a bisim-graph $G=(V,E)$ whose vertexes
+($V\subset\{\texttt{p},\texttt{d}\}\times(S\times S)$) are process state pairs
+with an additional tag whether the two process states ($p, q\in S$) are proved
+($\texttt{p}(p,q)$) or disproved ($\texttt{d}(p,q)$) to be bisimilar and edges
+are common transitions (or actions) over process state pairs
+$(E\subset(S\times S)\times A\times(S\times S))$ where
+$(p,q)\xrightarrow{\pi}(p',q') \in E$ means that both $p\xrightarrow{\pi}p'$
+and $q\xrightarrow{\pi}q'$. Intuitively, the bisim-graph $G=(V,E)$ logs
+the information of process state pairs visited during the bisimulation test
+along with their transition steps. When the test succeeds,
+the subset of $V$ consisting of only the proved pairs, ignoring their tags,
+($\{(P,Q) \mid \texttt{p}(p,q)\in V\}$) exactly corresponds to the bisim-set.
+When the test fails, the bisim-graph provides enough information to
+construct a \emph{distinguishing formula} $\varphi_{(p,q)}$ such that
+$p |= \varphi_{(p,q)}$ but $q \not{|=} \varphi_{(p,q)}$ in a modal logic
+known to be adequate for characterizing bisimilar processes in
+a labeled transition system.
+
+\paragraph{Our method} TODO
+and 
+two processes are
+bisimulation testing procedure
+
+states are represented as terms in process calculi (e.g., $\pi$-calculus)
+that evolve by tacking next possible action rather than transitions over
+predetermined set of process states as in LTS-style presentation.
+
+%% Our Method (tools we use)
 
 \paragraph{} TODO contributions and how we approach??\\
 Hennessy--Milner Logic (HML) is known to be \emph{adequate}
@@ -67,7 +127,22 @@ labeled transition systems TODO TODO
 
 \paragraph{} TODO paper organization and future work???
 
-\paragraph{}
+\section{Finite CCS}
+\begin{align*}
+p,q,r &::= 0 \mid \pi.p \mid p + q \mid q|q \mid (\nu a)q \\
+\pi &::= a \mid \bar a \mid \tau
+\end{align*}
+\section{Finite $\pi$-calculus}
+\begin{align*}
+p,q,r &::= 0 \mid \pi.p \mid p + q \mid q|q \mid (\nu a)q \\
+\pi &::= a(x) \mid \bar a \mid \tau
+\end{align*}
+
+
+\section{Discussions}
+TODO
+\subsection{Systems with Infinite States}
+\paragraph{TODO references here}
 papers to cite
 
 A framework for proof certificates in finite state exploration\\
@@ -80,6 +155,14 @@ Proof Search Specifications of Bisimulation and Modal Logics for the $\pi$-calcu
 \url{https://arxiv.org/abs/0805.2785}
 
 \end{document}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% below is from llncs.tex template %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Hamiltonian Mechanics unter besonderer Ber\"ucksichtigung der
 h\"ohreren Lehranstalten}
