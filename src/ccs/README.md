@@ -43,6 +43,7 @@ $ cat query0.out
 ```
 
 To add more examples you only need to `query*.prefix` file and run make.
+Try running `make clean` and re-run `make` when things are not working as expected.
 
 
 TODO:

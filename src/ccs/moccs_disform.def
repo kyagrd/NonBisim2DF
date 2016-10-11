@@ -10,7 +10,13 @@ by nextlbs null L L
  ; nextlbs (inp X P) L R := insert (dn X) L R
  ; nextlbs (out X P) L R := insert (up X) L R
  % ; nextlbs (match X X P) L R := nextlbs P L R
- % ; nextlbs (bang P) L R := nextlbs P L R
+ ; nextlbs (bang P) L R := nextlbs P L L1
+   /\ _if (det_mem tau L1) (R = L1) (
+          nextdns P nil Pds /\ nextups P nil Pus
+       /\ _if (intersect? Pds Qus)
+              (insert tau L1 R)
+              (R = L1)
+      )
  ; nextlbs (plus P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 R
  ; nextlbs (par P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 L2
    /\ _if (det_mem tau L2) (R = L2) (
@@ -28,7 +34,7 @@ by nextlbs null L L
  ; nextdns (inp X P) L R := insert X L R
  ; nextdns (out X P) L L
  % ; nextdns (match X X P) L R := nextdns P L R
- % ; nextdns (bang P) L R := nextdns P L R
+ ; nextdns (bang P) L R := nextdns P L R
  ; nextdns (plus P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
  ; nextdns (par P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
  ; nextdns (new P) L R := nabla x, nextdns (P x) L L1
@@ -39,7 +45,7 @@ by nextlbs null L L
  ; nextups (inp X P) L L
  ; nextups (out X P) L R := insert X L R
  % ; nextups (match X X P) L R := nextups P L R
- % ; nextups (bang P) L R := nextups P L R
+ ; nextups (bang P) L R := nextups P L R
  ; nextups (plus P Q) L R := nextups P L L1 /\ nextups Q L1 R
  ; nextups (par P Q) L R := nextups P L L1 /\ nextups Q L1 R
  ; nextups (new P) L R := nabla x, nextups (P x) L L1

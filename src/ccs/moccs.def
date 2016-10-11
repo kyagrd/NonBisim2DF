@@ -9,7 +9,7 @@ Type taup p -> p.
 Type inp nm -> p -> p.
 Type out nm -> p -> p.
 % Type match nm -> nm -> p -> p.
-% Type bang p -> p.
+Type bang p -> p.
 Type plus p -> p -> p.
 Type par p -> p -> p.
 Type new (nm -> p) -> p.
@@ -37,8 +37,8 @@ Define one : p -> a -> p -> prop
   ; one (plus P Q) A R := one P A R
   ; one (plus P Q) A R := one Q A R
   % ; one (match X X P) A R := one P A R
-  % ; one (bang P) A (par Q (bang P)) := one P A Q
-  % ; one (bang P) tau (par (par P1 Q1) (bang P)) := exists X, one P (up X) P1 /\ one P (dn X) Q1
+  ; one (bang P) A (par Q (bang P)) := one P A Q
+  ; one (bang P) tau (par (par P1 Q1) (bang P)) := exists X, one P (up X) P1 /\ one P (dn X) Q1
   ; one (par P Q) A (par P1 Q) := one P A P1
   ; one (par P Q) A (par P Q1) := one Q A Q1
   ; one (par P Q) tau (par P1 Q1) := exists X, one P (up X) P1 /\ one Q (dn X) Q1
