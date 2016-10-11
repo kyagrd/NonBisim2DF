@@ -1,0 +1,177 @@
+% vim: ts=2: sw=2: expandtab: ai: syntax=bedwyr
+#include "basic.def". % to use list definition
+
+Kind nm type.
+
+Kind p type.
+Type null p.
+Type taup p -> p.
+Type inp nm -> p -> p.
+Type out nm -> p -> p.
+% Type match nm -> nm -> p -> p.
+% Type bang p -> p.
+Type plus p -> p -> p.
+Type par p -> p -> p.
+Type new (nm -> p) -> p.
+
+Kind a type.
+%
+Type tau  a.
+Type up    nm -> a.
+Type dn    nm -> a.
+
+Kind o' type.
+%
+Type tt    o'.
+Type ff    o'.
+Type neg   o' -> o'.
+Type conj  o' -> o' -> o'.
+Type disj  o' -> o' -> o'.
+Type box   a -> o' -> o'.
+Type dia   a -> o' -> o'.
+
+Define one : p -> a -> p -> prop
+ by one (taup P) tau P
+  ; one (inp X P) (dn X) P
+  ; one (out X P) (up X) P
+  ; one (plus P Q) A R := one P A R
+  ; one (plus P Q) A R := one Q A R
+  % ; one (match X X P) A R := one P A R
+  % ; one (bang P) A (par Q (bang P)) := one P A Q
+  % ; one (bang P) tau (par (par P1 Q1) (bang P)) := exists X, one P (up X) P1 /\ one P (dn X) Q1
+  ; one (par P Q) A (par P1 Q) := one P A P1
+  ; one (par P Q) A (par P Q1) := one Q A Q1
+  ; one (par P Q) tau (par P1 Q1) := exists X, one P (up X) P1 /\ one Q (dn X) Q1
+  ; one (par P Q) tau (par P1 Q1) := exists X, one P (dn X) P1 /\ one Q (up X) Q1
+  ; one (new P) A (new Q) := nabla x, one (P x) A (Q x)
+  .
+
+Define satisfy : p -> o' -> prop
+by satisfy P tt := true
+ ; satisfy P ff := false
+ ; satisfy P (conj A B) := satisfy P A /\ satisfy P B
+ ; satisfy P (disj A B) := satisfy P A \/ satisfy P B
+ ; satisfy P (box X A) := forall Q, one P X Q -> satisfy Q A
+ ; satisfy P (dia X A) := exists Q, one P X Q /\ satisfy Q A
+ ; satisfy P (neg tt) := satisfy P ff
+ ; satisfy P (neg tt) := satisfy P ff
+ ; satisfy P (neg (box X A)) := satisfy P (dia X (neg A))
+ ; satisfy P (neg (dia X A)) := satisfy P (box X (neg A))
+ ; satisfy P (neg (conj A B)) := satisfy P (disj (neg A) (neg B))
+ ; satisfy P (neg (disj A B)) := satisfy P (conj (neg A) (neg B))
+ .
+
+
+/*
+%%%%%%%%%% example assertions
+
+Type a nm.
+Type b nm.
+Type c nm.
+Type d nm.
+
+#assert satisfy (inp a null) (box (dn a) tt). % finds sol.
+#assert satisfy (inp a null) (dia (dn a) tt). % finds sol.
+#assert satisfy (inp a null) (box (up a) tt). % finds sol. vacuously (lhs of -> fail)
+#assert_not satisfy (inp a null) (dia (up a) tt). % no sol. because no output transition
+
+
+% there exists a transition and forall transition satisfy tt
+#assert satisfy (inp a null) (conj (dia (dn a) tt) (box (dn a) tt)).
+#assert satisfy (inp a (inp b null)) (dia (dn a) (dia (dn b) tt)).
+#assert satisfy (inp a (inp b null)) (box (dn a) (dia (dn b) tt)).
+*/
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+% Bisimulation
+
+Define
+   coinductive bisim : p -> p -> prop
+ % bisim_step* are additional tabling not to be used elsewhere
+ , bisim_step : p -> p -> a -> p -> p -> prop
+ , bisim_step_1st : p -> p -> a -> p -> prop
+ , bisim_step_2nd : p -> p -> a -> p -> prop
+ , bisim_step_label : p -> p -> a -> prop
+ , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
+by bisim P P
+% ; bisim (bang P) (bang Q) := bisim P Q
+ ; bisim P Q :=
+      (forall P1 X, one P X P1
+      -> exists Q1, one Q X Q1
+                 /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
+   /\ (forall Q1 X, one Q X Q1
+      -> exists P1, one P X P1
+                 /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
+ ; bisim_step_tbl N P Q X P1 Q1
+ ; bisim_step P Q X P1 Q1 := bisim_step_tbl 0 P Q X P1 Q1
+                          /\ bisim_step_1st P Q X P1
+                          /\ bisim_step_2nd P Q X Q1
+                          /\ bisim_step_label P Q X
+ ; bisim_step_1st P Q X P1 := bisim_step_tbl 1 P Q X P1 null
+ ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X null Q1
+ ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X null null
+ .
+
+/*
+Define
+   query1  : prop, query2  : prop, query3  : prop, query4  : prop
+ , query5  : prop, query6  : prop, query7  : prop, query8  : prop
+ , query9  : prop, query10 : prop, query11 : prop, query12 : prop
+ , query13 : prop, query14 : prop, query15 : prop, query16 : prop
+by query1  := bisim null null
+ ; query2  := bisim (bang (inp a null)) (bang (bang (inp a null)))
+ ; query3  := bisim (inp a (plus (inp b null) (inp c null)))
+                    (plus (inp a (inp b null)) (inp a (inp c null)))
+ ; query4  := bisim (plus (inp a (inp b null)) (inp a (plus (inp b null) (inp c null))))
+                    (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp c null)))
+ ; query5  := bisim (par (inp a null) (par (inp a null) (out a null))) (par (inp a null) (out a null))
+ ; query6  := bisim (bang (par (inp a null) (par (inp a null) (out a null)))) (bang (par (inp a null) (out a null)))
+ ; query7  := bisim (plus (inp b null) (plus (inp a null) (out a null))) (plus (inp a null) (out a null))
+ ; query8  := bisim (par (inp b null) (par (inp a null) (out a null))) (par (inp a null) (out a null))
+ ; query9  := bisim (bang (inp a (plus (inp b null) (inp c null))))
+                    (bang (plus (inp a (inp b null)) (inp a (inp c null))))
+ ; query10 := bisim (plus (inp a (plus (inp a null) (inp b null))) (inp a (plus (inp b null) (inp c null))))
+                    (plus (inp a (plus (inp a null) (inp b null))) (inp a (plus (inp b null) (inp c null))))
+ ; query11 := bisim (bang (par (inp a null) (par (inp a null) (out a null))))
+                    (bang (par (inp a null) (out a null)))
+ ; query12 := bisim (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp c null)))
+                    (plus (inp a (inp b null)) (inp a (plus (inp b null) (inp c null))))
+ ; query13 := bisim (plus (inp a (inp b null)) (inp a (inp c null)))
+                    (inp a (plus (inp b null) (inp c null)))
+ ; query14 := bisim (plus (inp a (inp b null)) (inp a (inp c null)))
+                    (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp b null)))
+ ; query15 := bisim (inp a (plus (inp b null) (inp c null)))
+                    (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp b null)))
+ ; query16 := bisim (plus (inp a (plus (inp b (inp c null)) (inp b (inp d null))))
+                          (inp a (inp b (plus (inp c null) (inp d null)))))
+                    (inp a (inp b (plus (inp c null) (inp d null))))
+ .
+*/
+
+/*
+query6.
+
+#save_table bisim "tbl_query6_bisim.def".
+#save_table bisim_step_tbl "tbl_query6_bisim_step.def".
+sed -i "s/proved /proved' /g" "tbl_query6_bisim_step.def"
+
+
+
+query15.
+
+#save_table bisim "tbl_query15_bisim.def".
+#save_table bisim_step_tbl "tbl_query15_bisim_step.def".
+sed -i "s/proved /proved' /g" "tbl_query15_bisim_step.def"
+
+query16.
+
+#save_table bisim "tbl_query16_bisim.def".
+#save_table bisim_step_tbl "tbl_query16_bisim_step.def".
+sed -i "s/proved /proved' /g" "tbl_query16_bisim_step.def"
+
+
+
+
+*/
+
+

@@ -1,3 +1,8 @@
+src/ccs/bedwyr
+src/ccs/query*.def
+src/ccs/query*.sh
+src/ccs/tbl*.def
+
 ## Vim backup files
 *~
 .*.swp

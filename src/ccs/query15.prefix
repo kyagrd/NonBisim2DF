@@ -1,0 +1,3 @@
+NAMES="a,b,c"
+P="(par (inp a null) (out a null))"
+Q="(par (inp a null) (par (inp a null) (out a null)))"

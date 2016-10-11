@@ -1,0 +1,144 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SPEC                                                                     
+% Copyright (C) 2011-2012 Alwen Tiu                                             
+%
+% This program is free software; you can redistribute it and/or modify     
+% it under the terms of the GNU General Public License as published by     
+% the Free Software Foundation; either version 2 of the License, or        
+% (at your option) any later version.                                      
+%
+% This program is distributed in the hope that it will be useful,          
+% but WITHOUT ANY WARRANTY; without even the implied warranty of           
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            
+% GNU General Public License for more details.                             
+%
+% You should have received a copy of the GNU General Public License        
+% along with this code; if not, write to the Free Software Foundation,     
+% Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA             
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Some basic predicates for list manipulations.
+
+% Deterministic member predicate: stops as soon as a match is found.
+
+Define det_mem : A -> list A -> prop by
+det_mem X ((::) Y L) :=
+  _if (X = Y) true (det_mem X L).
+
+Define subset : list A -> list A -> prop by 
+subset nil L ; 
+subset ((::) X L1) L2 := det_mem X L2 /\ subset L1 L2. 
+
+Define equal : list A -> list A -> prop by
+equal L R := subset L R /\ subset R L.
+
+Define append : list A -> list A -> list A -> prop by 
+append nil L L ;
+append ((::) X L1) L2 ((::) X L3) := append L1 L2 L3.
+
+Define rev : list A ->  list A -> list A -> prop by 
+rev nil L L ; 
+rev ((::) X L1) L2 L3 := rev L1 ((::) X L2) L3. 
+
+Define reverse : list A -> list A -> prop by 
+reverse L R := rev L nil R.
+
+Define select : list A -> A -> list A -> prop by 
+select ((::) X L) X L ;
+select ((::) Y L) X ((::) Y R) := select L X R.
+
+% Insert an element into a list, avoiding duplication. 
+Define insert : A -> list A -> list A -> prop by 
+insert X L R :=
+  _if (det_mem X L) 
+      (L = R)
+      (R = (::) X L).
+
+
+Define ground_list : list A -> list A -> prop by 
+ground_list L R :=
+  _if (L = nil) 
+      (R = nil)
+      (L = (::) X K /\ ground_list K M /\ R = (::) X M).
+
+% deterministic OR: if P is true then Q is not executed.
+Define det_or : prop -> prop -> prop by 
+det_or P Q := _if P true Q.
+
+% enumerating solutions to a higher-order predicate
+
+Define enum : (A -> prop) -> list A -> prop by 
+enum P L := (forall x, P x -> det_mem x R) /\ ground_list R L.
+
+Define enuml : (A -> B -> prop) -> list A -> list B -> prop by
+enuml P nil L ; 
+enuml P ((::) Y R) L :=  (forall x, P Y x -> det_mem x L) /\ enuml P R L. 
+
+Define enum_list : (A -> B -> prop) -> list A -> list B -> prop by
+enum_list P R L :=  enuml P R X /\ ground_list X L.
+
+Define map : (A -> B -> prop) -> list A -> list B -> prop by
+map P nil nil ; 
+map P ((::) X L) ((::) Y R) := P X Y /\ map P L R.
+
+Define all : (A -> prop) -> list A -> prop by 
+all P nil ; 
+all P ((::) X L) :=  P X /\ all P L.
+
+Define any : (A -> prop) -> list A -> prop by 
+any P ((::) X L) :=  P X \/ any P L.
+
+Define det_any : (A -> prop) -> list A -> prop by 
+det_any P nil ; 
+det_any P ((::) X L) :=  det_or (P X) (any P L).
+
+
+Define concat : list (list A) -> list A -> prop
+by concat nil nil
+ ; concat ((::) L Ls) Ys := concat Ls Xs /\ append L Xs Ys
+ .
+
+Define foldr : (A -> B -> B -> prop) -> B -> list A -> B -> prop 
+by foldr P V0 nil V0
+ ; foldr P V0 (X :: Xs) V := foldr P V0 Xs V1 /\ P X V1 V
+ .
+
+Define foldl : (B -> A -> B -> prop) -> B -> list A -> B -> prop
+by foldl P V0 nil V0
+ ; foldl P V0 (X :: Xs) V := P V0 X V1 /\ foldl P V1 Xs V
+ .
+
+Define union : list A -> list A -> list A -> prop
+by union Xs Ys Zs := foldr insert Ys Xs Zs.
+
+Define setminus : list A -> list A -> list A -> prop
+by setminus nil Ys nil
+ ; setminus ((::) X Xs) Ys Zs := setminus Xs Ys Ds
+   /\ _if (det_mem X Ys) (Zs = Ds) (Zs = (::) X Ds)
+ .
+
+
+Define intersect? : list A -> list A -> prop by
+intersect? Xs Ys := det_any (x\ det_mem x Ys) Xs.
+
+
+Define foldr_fun : (A -> B -> B) -> B -> list A -> B -> prop
+by foldr_fun P V0 nil V0
+ ; foldr_fun P V0 (X :: Xs) (P X V) := foldr_fun P V0 Xs V
+ .
+
+Define foldl_fun : (B -> A -> B) -> B -> list A -> B -> prop
+by foldl_fun P V0 nil V0
+ ; foldl_fun P V0 (X :: Xs) V := foldl_fun P (P V0 X) Xs V
+ .
+
+
+Define filter : (A -> prop) -> list A -> list A -> prop by
+filter P nil nil ;
+filter P (X :: Xs) Zs := filter P Xs Ys /\ _if (P X) (Zs = X :: Ys) (Zs = Ys).
+
+Define none? : option A -> prop by none? opnone.
+
+Define some : A -> option A -> prop by some X (opsome X).
+

@@ -1,0 +1,263 @@
+% vim: ts=2: sw=2: expandtab: ai: syntax=bedwyr
+#include "moccs.def".
+
+Define
+   nextlbs : p -> list a -> list a -> prop
+ , nextups : p -> list nm -> list nm -> prop
+ , nextdns : p -> list nm -> list nm -> prop
+by nextlbs null L L
+ ; nextlbs (taup P) L R := insert tau L R
+ ; nextlbs (inp X P) L R := insert (dn X) L R
+ ; nextlbs (out X P) L R := insert (up X) L R
+ % ; nextlbs (match X X P) L R := nextlbs P L R
+ % ; nextlbs (bang P) L R := nextlbs P L R
+ ; nextlbs (plus P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 R
+ ; nextlbs (par P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 L2
+   /\ _if (det_mem tau L2) (R = L2) (
+          nextdns P nil Pds /\ nextups P nil Pus
+       /\ nextdns Q nil Qds /\ nextups Q nil Qus
+       /\ _if (det_or (intersect? Pds Qus) (intersect? Pus Qds))
+              (insert tau L2 R)
+              (R = L2)
+      )
+ ; nextlbs (new P) L R := nabla x, nextlbs (P x) L L1
+                                /\ setminus L1 (dn x :: up x :: nil) R
+ %
+ ; nextdns null L L
+ ; nextdns (taup P) L L
+ ; nextdns (inp X P) L R := insert X L R
+ ; nextdns (out X P) L L
+ % ; nextdns (match X X P) L R := nextdns P L R
+ % ; nextdns (bang P) L R := nextdns P L R
+ ; nextdns (plus P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
+ ; nextdns (par P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
+ ; nextdns (new P) L R := nabla x, nextdns (P x) L L1
+                                /\ setminus L1 (x :: nil) R
+ %
+ ; nextups null L L
+ ; nextups (taup P) L L
+ ; nextups (inp X P) L L
+ ; nextups (out X P) L R := insert X L R
+ % ; nextups (match X X P) L R := nextups P L R
+ % ; nextups (bang P) L R := nextups P L R
+ ; nextups (plus P Q) L R := nextups P L L1 /\ nextups Q L1 R
+ ; nextups (par P Q) L R := nextups P L L1 /\ nextups Q L1 R
+ ; nextups (new P) L R := nabla x, nextups (P x) L L1
+                                /\ setminus L1 (x :: nil) R
+ .
+
+Define nextlabels : p -> list a -> prop by nextlabels P L := nextlbs P nil L.
+
+/*
+enum (one (plus (inp a null) (inp b null)) (dn a)) L /\ enum_list (P\ A\ one (plus (inp a null) (inp b null)) A P) L L2.
+
+map (x\ enum (one (plus (inp a null) (inp b null)) x)) ((::) (dn a) ((::) (dn b) nil)) Pss.
+
+
+enum_list (disform (plus (inp a null) (inp b null))) ((::) null nil) Fs.
+
+((::) ((::) null nil) ((::) ((::) null nil) nil)) Fs.
+
+(::) ((::) null nil) ((::) ((::) null nil) nil)
+
+nextlabels (inp a (plus (inp b null) (inp c null))) Xs.
+
+nextlabels (plus (inp a (inp b null)) (inp a (inp c null))) Xs.
+
+nextlabels (plus (inp b null) (inp c null)) Xs.
+
+nextlabels (par (inp b null) (out c null)) Xs.
+
+nextlabels (par (inp b null) (out b null)) Xs.
+
+nextlabels (par (inp b null) (out b null)) Xs /\ map (x\ enum (one (par (inp b null) (out b null)) x)) Xs L.
+
+*/
+
+Define all_o' : list o' -> o' -> prop
+by all_o' L F := foldl_fun conj tt L F.
+Define any_o' : list o' -> o' -> prop by any_o' L F := foldl_fun disj ff L F.
+
+
+Define const_fold_o' : o' -> o' -> prop
+by const_fold_o' tt tt
+ ; const_fold_o' ff ff
+ ; const_fold_o' (conj A B) C :=
+      const_fold_o' A A1 /\ _if (A1 = ff) (C = ff) (
+      const_fold_o' B B1 /\ _if (B1 = ff) (C = ff) (
+      _if (A1 = tt) (C = B1) ( _if (B1 = tt) (C = A1) (
+      _if (A1 = B1) (C = A1) (C = conj A1 B1) ) ) ) )
+ ; const_fold_o' (disj A B) C := 
+      const_fold_o' A A1 /\ _if (A1 = tt) (C = tt) (
+      const_fold_o' B B1 /\ _if (B1 = tt) (C = tt) (
+      _if (A1 = ff) (C = B1) ( _if (B1 = ff) (C = A1) (
+      _if (A1 = B1) (C = A1) (C = disj A1 B1) ) ) ) )
+ ; const_fold_o' (box X A) (box X B) := const_fold_o' A B
+ ; const_fold_o' (dia X A) (dia X B) := const_fold_o' A B
+ ; const_fold_o' (neg A) C := const_fold_o' A B /\
+      _if (B = tt) (C = ff) (_if (B = ff) (C = tt) (C = neg B))
+ .
+
+
+
+/* %% this seems to have a cycle
+query6.
+
+#show_table bisim.
+
+#show_table bisim_step.
+
+#save_table bisim "tbl_query6_bisim.def".
+*/
+% #include "tbl_query6_bisim.def".
+% #include "tbl_query6_bisim_step.def".
+/*
+chk_disform (bang (par (inp a null) (par (inp a null) (out a null)))) (bang (par (inp a null) (out a null))) F.
+*/
+
+/*
+query9.
+*/
+
+% #include "tbl_query9_bisim.def" "tbl_query9_bisim_step.def".
+/*
+P = (bang (inp a (plus (inp b null) (inp c null)))) /\ Q = (bang (plus (inp a (inp b null)) (inp a (inp c null)))) /\ proved' bisim_step P Q X P1 Q1.
+
+P = (bang (inp a (plus (inp b null) (inp c null)))) /\ Q = (bang (plus (inp a (inp b null)) (inp a (inp c null)))) /\ disform P Q Fs.
+*/
+
+
+/*
+query15.
+*/
+% #include "tbl_query15_bisim.def".
+% #include "tbl_query15_bisim_step.def".
+/*
+disform (inp a (plus (inp b null) (inp c null))) (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp b null))) F.
+*/
+
+/*
+query16.
+*/
+% #include "tbl_query16_bisim.def".
+% #include "tbl_query16_bisim_step.def".
+/*
+chk_disform (plus (inp a (plus (inp b (inp c null)) (inp b (inp d null)))) (inp a (inp b (plus (inp c null) (inp d null))))) (inp a (inp b (plus (inp c null) (inp d null)))) F.
+
+ */
+
+
+Define
+   tbl_bisim_step : p -> p -> a -> p -> p -> prop
+ , tbl_bisim_step_1st : p -> p -> a -> p -> prop
+ , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
+ , tbl_bisim_step_label : p -> p -> a -> prop
+by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
+ ; tbl_bisim_step_1st P Q X P1 := proved' bisim_step_tbl 1 P Q X P1 null
+ ; tbl_bisim_step_2nd P Q X Q1 := proved' bisim_step_tbl 2 P Q X null Q1
+ ; tbl_bisim_step_label P Q X := proved' bisim_step_tbl 3 P Q X null null
+ .
+
+%% for finite process this will work but for infinite process???
+Define
+   disform : p -> p -> option o' -> prop %%% using list as option
+ , combine_forms : list a -> list (option p) -> list (option p) -> option o' -> prop
+by disform P Q F :=
+   _if (proved bisim P Q)
+       (F = opnone)
+       (_if (disproved bisim P Q)
+            (  nextlabels P Xs /\ nextlabels Q Ys
+            /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
+            /\ _if (det_mem X1 Xs_Ys) (F = opsome (dia X1 tt)) (
+               _if (det_mem Y1 Ys_Xs) (F = opsome (box Y1 ff)) (
+               enum (tbl_bisim_step_label P Q) Zs
+            /\ (det_or (det_or
+                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
+                /\ enum (tbl_bisim_step P Q Z P1) Q1s /\ map (disform P1) Q1s OFs
+                /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
+                %
+                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs /\ println "here" /\ println Zs /\ println Z
+                /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ println Q1s /\ member Q1 Q1s 
+                /\ println Q1
+                /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s /\ map (p\ disform p Q1) P1s OFs
+                /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
+                %
+               ) (F = opnone) )
+            ) ) )
+            ( println "ERROR: neither in proved nor in disproved bisim table"
+            /\ println P /\ println Q /\ false )
+       )
+  .
+
+
+Define chk_disform : p -> p -> o' -> prop
+by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
+                       /\ satisfy P1 G /\ _not (satisfy P2 G).
+
+
+/*
+
+% query4
+chk_disform (inp a (plus (inp b null) (inp c null)))
+            (plus (inp a (inp b null)) (inp a (inp c null)))
+            F.
+
+% query4 the other way
+chk_disform (plus (inp a (inp b null)) (inp a (inp c null)))
+            (inp a (plus (inp b null) (inp c null)))
+            F.
+
+% query5
+chk_disform (par (inp a null) (par (inp a null) (out a null))) (par (inp a null) (out a null)) F.
+
+
+
+% query11
+
+chk_disform (bang (par (inp a null) (par (inp a null) (out a null))))
+            (bang (par (inp a null) (out a null)))
+            F.
+
+
+
+% query6
+chk_disform (bang (par (inp a null) (par (inp a null) (out a null)))) (bang (par (inp a null) (out a null))) F.
+
+% on query7
+chk_disform (plus (inp b null) (plus (inp a null) (out a null))) (plus (inp a null) (out a null)) F.
+
+% on query8
+chk_disform (par (inp b null) (par (inp a null) (out a null))) (par (inp a null) (out a null)) F.
+
+
+
+
+
+disform (plus (inp a (inp b null)) (inp a (inp c null))) (inp a (plus (inp b null) (inp c null))) F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P1 P2 F /\ satisfy P1 F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P1 P2 F /\ satisfy P2 F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P1 P2 F /\ satisfy P1 F /\ _not (satisfy P2 F).
+
+disform (inp a (plus (inp b null) (inp c null))) (plus (inp a (inp b null)) (inp a (inp c null))) F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P2 P1 F /\ satisfy P2 F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P2 P1 F /\ satisfy P1 F.
+
+P1 = (inp a (plus (inp b null) (inp c null))) /\ P2 = (plus (inp a (inp b null)) (inp a (inp c null))) /\ disform P2 P1 F /\ satisfy P2 F /\ _not (satisfy P1 F).
+
+
+P1 = (plus (inp a (inp b null)) (inp a (plus (inp b null) (inp c null)))) /\ P2 = (plus (inp a (plus (inp b null) (inp c null))) (inp a (inp c null))) /\ chk_disform P1 P2 F.
+
+
+/\ _not (satisfy P1 F).
+
+
+
+
+
+ */
