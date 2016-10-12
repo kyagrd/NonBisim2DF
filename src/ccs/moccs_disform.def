@@ -18,13 +18,14 @@ by nextlbs null L L
               (R = L1)
       )
  ; nextlbs (plus P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 R
- ; nextlbs (par P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 L2
-   /\ _if (det_mem tau L2) (R = L2) (
+ ; nextlbs (par P Q) L R :=
+      nextlbs P nil L1 /\ nextlbs Q nil L2 /\ nextlbs Q L1 L3
+   /\ _if (det_or (det_mem tau L1) (det_mem tau L2)) (R = L3) (
           nextdns P nil Pds /\ nextups P nil Pus
        /\ nextdns Q nil Qds /\ nextups Q nil Qus
        /\ _if (det_or (intersect? Pds Qus) (intersect? Pus Qds))
-              (insert tau L2 R)
-              (R = L2)
+              (insert tau L3 R)
+              (R = L3)
       )
  ; nextlbs (new P) L R := nabla x, nextlbs (P x) L L1
                                 /\ setminus L1 (dn x :: up x :: nil) R
@@ -189,7 +190,8 @@ by disform P Q F :=
                 %
                ) (F = opnone) )
             ) ) )
-            ( println "ERROR: neither in proved nor in disproved bisim table"
+            (  printstr "unvisited process state pairs "
+            /\ printstr "(neither in proved nor in disproved bisim table)\n"
             /\ println P /\ println Q /\ false )
        )
   .

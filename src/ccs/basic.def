@@ -120,7 +120,7 @@ by setminus nil Ys nil
 
 
 Define intersect? : list A -> list A -> prop by
-intersect? Xs Ys := det_any (x\ det_mem x Ys) Xs.
+intersect? Xs Ys := member X Xs /\ det_mem X Ys.
 
 
 Define foldr_fun : (A -> B -> B) -> B -> list A -> B -> prop

@@ -96,19 +96,19 @@ certificate for a pair of bisimilar processes. More generally, to produce
 a disproof certificate as well, we require that the bisimulation test
 to produce a bisim-graph $G=(V,E)$ whose vertexes
 ($V\subset\{\texttt{p},\texttt{d}\}\times(S\times S)$) are process state pairs
-with an additional tag whether the two process states ($p, q\in S$) are proved
-($\texttt{p}(p,q)$) or disproved ($\texttt{d}(p,q)$) to be bisimilar and edges
+with an additional tag whether the two process states ($P, Q\in S$) are proved
+($\texttt{p}(P,Q)$) or disproved ($\texttt{d}(P,Q)$) to be bisimilar and edges
 are common transitions (or actions) over process state pairs
 $(E\subset(S\times S)\times A\times(S\times S))$ where
-$(p,q)\xrightarrow{\pi}(p',q') \in E$ means that both $p\xrightarrow{\pi}p'$
-and $q\xrightarrow{\pi}q'$. Intuitively, the bisim-graph $G=(V,E)$ logs
+$(P,Q)\xrightarrow{\pi}(P',Q') \in E$ means that both $P\xrightarrow{\pi}P'$
+and $Q\xrightarrow{\pi}Q'$. Intuitively, the bisim-graph $G=(V,E)$ logs
 the information of process state pairs visited during the bisimulation test
 along with their transition steps. When the test succeeds,
 the subset of $V$ consisting of only the proved pairs, ignoring their tags,
-($\{(p,q) \mid \texttt{p}(p,q)\in V\}$) exactly corresponds to the bisim-set.
+($\{(P,Q) \mid \texttt{p}(P,Q)\in V\}$) exactly corresponds to the bisim-set.
 When the test fails, the bisim-graph provides enough information to
-construct a \emph{distinguishing formula} $\varphi_{(p,q)}$ such that
-$p |= \varphi_{(p,q)}$ but $q \not{|=} \varphi_{(p,q)}$ in a modal logic
+construct a \emph{distinguishing formula} $\varphi_{(P,Q)}$ such that
+$P |= \varphi_{(P,Q)}$ but $Q \not{|=} \varphi_{(P,Q)}$ in a modal logic
 known to be adequate for characterizing bisimilar processes.
 
 TODO Our method TODO
@@ -131,25 +131,25 @@ labeled transition systems TODO TODO
 % \begin{figure}
 \begin{align*}
 &\text{Syntax} &
-p,q,r &::= 0 \mid \pi.p \mid p + q \mid p|q \mid (\nu a)p \\ &&
+P,Q &::= 0 \mid \pi.P \mid P + Q \mid P|Q \mid (\nu a)P \\ &&
 \pi &::= a \mid \bar{a} \mid \tau
 \\
 &\text{Semantics} &
-\tau.p &\xrightarrow{\tau} p \\ &&
-a.p &\xrightarrow{\downarrow a} p \\ &&
-\bar{a}.p &\xrightarrow{\uparrow a} p \\ &&
-p+q &\xrightarrow{\pi} p' \qquad\text{when}\quad p \xrightarrow{\pi} p' \\ &&
-p+q &\xrightarrow{\pi} q' \qquad\text{when}\quad q \xrightarrow{\pi} q' \\ &&
-p|q &\xrightarrow{\pi} p'|q ~~\quad\text{when}\quad p \xrightarrow{\pi} p' \\ &&
-p|q &\xrightarrow{\pi} p|q' ~~\quad\text{when}\quad q \xrightarrow{\pi} q' \\ &&
-p|q &\xrightarrow{\tau} p'|q' ~\;\quad\text{when}\quad
-  p \xrightarrow{\uparrow a} p' ~\text{and}~
-  q \xrightarrow{\downarrow a} q' \\ &&
-p|q &\xrightarrow{\tau} p'|q' ~\;\quad\text{when}\quad
-  p \xrightarrow{\downarrow a} p' ~\text{and}~
-  q \xrightarrow{\uparrow a} q' \\ &&
-(\nu a)p &\xrightarrow{\tau} (\nu a)p' \quad\text{when}\quad
-  p \xrightarrow{\pi} p' ~\text{and}~ \pi \notin \{\downarrow a, \uparrow a\}
+\tau.P &\xrightarrow{\tau} P \\ &&
+a.P &\xrightarrow{\downarrow a} P \\ &&
+\bar{a}.P &\xrightarrow{\uparrow a} P \\ &&
+P+Q &\xrightarrow{\pi} P' \qquad\text{when}\quad P \xrightarrow{\pi} P' \\ &&
+P+Q &\xrightarrow{\pi} Q' \qquad\text{when}\quad Q \xrightarrow{\pi} Q' \\ &&
+P|Q &\xrightarrow{\pi} P'|Q ~~\quad\text{when}\quad P \xrightarrow{\pi} P' \\ &&
+P|Q &\xrightarrow{\pi} P|Q' ~~\quad\text{when}\quad Q \xrightarrow{\pi} Q' \\ &&
+P|Q &\xrightarrow{\tau} P'|Q' ~\;\quad\text{when}\quad
+  P \xrightarrow{\uparrow a} P' ~\text{and}~
+  Q \xrightarrow{\downarrow a} Q' \\ &&
+P|Q &\xrightarrow{\tau} P'|Q' ~\;\quad\text{when}\quad
+  P \xrightarrow{\downarrow a} P' ~\text{and}~
+  Q \xrightarrow{\uparrow a} Q' \\ &&
+(\nu a)P &\xrightarrow{\tau} (\nu a)P' \quad\text{when}\quad
+  P \xrightarrow{\pi} P' ~\text{and}~ \pi \notin \{\downarrow a, \uparrow a\}
 \end{align*}
 % \vspace*{-4ex}
 % \caption{Syntax and Semantics of Finite CCS}
@@ -181,7 +181,8 @@ by bisim P P % shortcut for obvious case
  .
 \end{verbatim}
 \vspace*{-4ex}
-\caption{Bedwyr Definitions of the Labeled Semantics and Bisimulation for finite CCS}
+\caption{Bedwyr definitions of labeled transition semantics and
+  bisim-set for finite CCS}
 \label{fig:ccsone}
 \end{figure}
 
@@ -195,13 +196,13 @@ Define coinductive bisim : p -> p -> prop
      , bisim_step_2nd : p -> p -> a -> p -> prop
      , bisim_step_label : p -> p -> a -> prop
      , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
-by bisim P P % shortcut for obvious case
+by bisim P P % shortcut for obvious cases
  ; bisim P Q :=
       (forall P1 X, one P X P1 -> exists Q1, one Q X Q1
                               /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
    /\ (forall Q1 X, one Q X Q1 -> exists P1, one P X P1
                               /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
- ; bisim_step_tbl N P Q X P1 Q1   % always succeeds when called
+ ; bisim_step_tbl N P Q X P1 Q1   % always succeeds when invoked
  ; bisim_step P Q X P1 Q1 := bisim_step_tbl 0 P Q X P1 Q1
                           /\ bisim_step_1st P Q X P1
                           /\ bisim_step_2nd P Q X Q1
@@ -214,7 +215,9 @@ by bisim P P % shortcut for obvious case
 \label{fig:ccsbisim}
 \end{figure}
 
-\section{Distinguishing Formula from Bisim-Graphs}\label{sec:ccsdf}
+Bedwyr system supports exporting the table data and importing as
+
+\section{Distinguishing Formulae from Bisim-Graphs}\label{sec:ccsdf}
 Hennessy-Milner Logic
 \begin{align*}
 &\text{Syntax} &
@@ -241,8 +244,10 @@ by satisfy P tt := true
  .
 \end{verbatim}
 
+
 \begin{figure}
 \begin{verbatim}
+% helper predicates for querying the edges of bisim-graph
 Define tbl_bisim_step : p -> p -> a -> p -> p -> prop
      , tbl_bisim_step_1st : p -> p -> a -> p -> prop
      , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
@@ -260,34 +265,36 @@ by disform P Q F :=
        (_if (disproved bisim P Q)
             (  nextlabels P Xs /\ nextlabels Q Ys
             /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
-            /\ _if (det_mem X1 Xs_Ys) (F = opsome (dia X1 tt)) (
-               _if (det_mem Y1 Ys_Xs) (F = opsome (box Y1 ff)) (
+            /\ _if (det_mem X1 Xs_Ys) (F = opsome (dia X1 tt)) ( %%% case 1
+               _if (det_mem Y1 Ys_Xs) (F = opsome (box Y1 ff)) ( %%% case 2
                enum (tbl_bisim_step_label P Q) Zs
             /\ (det_or (det_or
                 (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
                 /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
                 /\ enum (tbl_bisim_step P Q Z P1) Q1s
                 /\ map (disform P1) Q1s OFs
-                /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
-                %
+                /\ map some Fs OFs /\ all_o' Fs F1
+                /\ F = opsome (dia Z F1) ) %%%%%%%%%%%%%%%%%%%%%%%%% case 3
                 (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
                 /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
                 /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s
                 /\ map (p\ disform p Q1) P1s OFs
-                /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
-                %
+                /\ map some Fs OFs /\ any_o' Fs F1
+                /\ F = opsome (box Z F1) ) %%%%%%%%%%%%%%%%%%%%%%%%% case 4
                ) (F = opnone) )
             ) ) )
-            ( println "ERROR: neither in proved nor in disproved bisim table"
+            (  printstr "unvisited process state pairs "
+            /\ printstr "(neither in proved nor in disproved bisim table)\n"
             /\ println P /\ println Q /\ false )
        )
   .
-
 
 Define chk_disform : p -> p -> o' -> prop
 by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
                        /\ satisfy P1 G /\ _not (satisfy P2 G).
 \end{verbatim}
+\caption{A Bedwyr implementation of extracting the distinguishing formula
+  from a bisim-graph}
 \end{figure}
 
 
