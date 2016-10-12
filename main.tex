@@ -94,12 +94,12 @@ which is a set of process state pairs, when the test succeeds.
 In principle, this set $R$ has enough information to serve as a proof
 certificate for a pair of bisimilar processes. More generally, to produce
 a disproof certificate as well, we require that the bisimulation test
-to produce a bisim-graph $G=(V,E)$ whose vertexes
+to produce a bisim-graph $G=(V,E)$ whose nodes
 ($V\subset\{\texttt{p},\texttt{d}\}\times(S\times S)$) are process state pairs
 with an additional tag whether the two process states ($P, Q\in S$) are proved
-($\texttt{p}(P,Q)$) or disproved ($\texttt{d}(P,Q)$) to be bisimilar and edges
-are common transitions (or actions) over process state pairs
-$(E\subset(S\times S)\times A\times(S\times S))$ where
+($\texttt{p}(P,Q)$) or disproved ($\texttt{d}(P,Q)$) to be bisimilar and whose
+labeled edges $(E\subset(S\times S)\times A\times(S\times S))$ are
+common single-step transitions over process state pairs where
 $(P,Q)\xrightarrow{\pi}(P',Q') \in E$ means that both $P\xrightarrow{\pi}P'$
 and $Q\xrightarrow{\pi}Q'$. Intuitively, the bisim-graph $G=(V,E)$ logs
 the information of process state pairs visited during the bisimulation test
@@ -111,10 +111,15 @@ construct a \emph{distinguishing formula} $\varphi_{(P,Q)}$ such that
 $P |= \varphi_{(P,Q)}$ but $Q \not{|=} \varphi_{(P,Q)}$ in a modal logic
 known to be adequate for characterizing bisimilar processes.
 
-TODO Our method TODO
-and 
-two processes are
-bisimulation testing procedure
+TODO Our method TODO\\
+Bedwyr [TODO cite] is a model checking system based on higher-order of
+logic programming over higher-order abstract syntax, supporting both
+least fixpoints (\texttt{inductive} predicates) and greatext fixpoints
+(\texttt{coinductive} predicates). In particular, these coinductive
+definitions in Bedwyr are especially useful for executable specifications
+of bisimulation in various theories for concurrent systems (e.g., LTS, CCS,
+and $\pi$-calculus).\\
+TODO fwd ref section TODO
 
 %% states are represented as terms in process calculi that evolve by tacking
 %% next possible action rather than transitions over predetermined set of
@@ -128,7 +133,7 @@ labeled transition systems TODO TODO
 
 \section{Bisim-Graphs for Finite CCS} \label{sec:ccsbisim}
 
-% \begin{figure}
+\begin{figure}
 \begin{align*}
 &\text{Syntax} &
 P,Q &::= 0 \mid \pi.P \mid P + Q \mid P|Q \mid (\nu a)P \\ &&
@@ -150,14 +155,20 @@ P|Q &\xrightarrow{\tau} P'|Q' ~\;\quad\text{when}\quad
   Q \xrightarrow{\uparrow a} Q' \\ &&
 (\nu a)P &\xrightarrow{\tau} (\nu a)P' \quad\text{when}\quad
   P \xrightarrow{\pi} P' ~\text{and}~ \pi \notin \{\downarrow a, \uparrow a\}
+  \\[2ex]
+  &\text{Bisimulation} & (\sim)\quad &
+  \text{is a maximal relation that satisfies:}
 \end{align*}
-% \vspace*{-4ex}
-% \caption{Syntax and Semantics of Finite CCS}
-% \label{fig:ccsdef}
-% \end{figure}
-
-
-\begin{figure}
+\vspace{-6ex}
+\begin{align*}
+  &&P \sim Q \quad\text{when}\quad
+&(\forall P ~ \pi,~ P\xrightarrow{\pi}P' ~\text{implies}~
+        \exists Q',~ Q\xrightarrow{\pi}Q' \;\text{and}\; P'\sim Q') \\ &&
+      \quad\text{and}~
+&(\forall Q ~ \pi,~ Q\xrightarrow{\pi}Q' ~\text{implies}~
+        \exists P',~ P\xrightarrow{\pi}P' \;\text{and}\; P'\sim Q')
+\end{align*}
+\vspace*{-3ex}
 \begin{verbatim}
 Define one : p -> a -> p -> prop
 by one (taup P) tau P
@@ -167,10 +178,8 @@ by one (taup P) tau P
  ; one (plus P Q) A R := one Q A R
  ; one (par P Q) A (par P1 Q) := one P A P1
  ; one (par P Q) A (par P Q1) := one Q A Q1
- ; one (par P Q) tau (par P1 Q1) :=
-     exists X, one P (up X) P1 /\ one Q (dn X) Q1
- ; one (par P Q) tau (par P1 Q1) :=
-     exists X, one P (dn X) P1 /\ one Q (up X) Q1
+ ; one (par P Q) tau (par P1 Q1) := one P (up X) P1 /\ one Q (dn X) Q1
+ ; one (par P Q) tau (par P1 Q1) := one P (dn X) P1 /\ one Q (up X) Q1
  ; one (new P) A (new Q) := nabla x, one (P x) A (Q x)
  .
 Define coinductive bisim : p -> p -> prop
@@ -180,23 +189,40 @@ by bisim P P % shortcut for obvious case
    /\ (forall Q1 X, one Q X Q1 -> exists P1, one P X P1 /\ bisim P1 Q1)
  .
 \end{verbatim}
-\vspace*{-4ex}
-\caption{Bedwyr definitions of labeled transition semantics and
-  bisim-set for finite CCS}
-\label{fig:ccsone}
+\vspace*{-3ex}
+\caption{Syntax, one-step labeled transtion semantics, and bisimulation
+  for finite CCS along with their transcription in Bedwyr.}
+\label{fig:ccsdef}
 \end{figure}
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
 \begin{figure}
 \begin{verbatim}
 Define coinductive bisim : p -> p -> prop
-     % bisim_step* below are for tabling edges of bisim-graph
+     , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
      , bisim_step : p -> p -> a -> p -> p -> prop
      , bisim_step_1st : p -> p -> a -> p -> prop
      , bisim_step_2nd : p -> p -> a -> p -> prop
      , bisim_step_label : p -> p -> a -> prop
-     , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
-by bisim P P % shortcut for obvious cases
+by bisim P P % shortcut for obvious case
  ; bisim P Q :=
       (forall P1 X, one P X P1 -> exists Q1, one Q X Q1
                               /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
@@ -212,13 +238,36 @@ by bisim P P % shortcut for obvious cases
  ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X null null
  .
 \end{verbatim}
+\vspace*{-3ex}
+\caption{TODO TODO TODO TODO TODO TODO TODO TODO TODO}
 \label{fig:ccsbisim}
 \end{figure}
 
 Bedwyr system supports exporting the table data and importing as
 
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+
+
 \section{Distinguishing Formulae from Bisim-Graphs}\label{sec:ccsdf}
-Hennessy-Milner Logic
+
+\begin{figure}
 \begin{align*}
 &\text{Syntax} &
 \varphi & ::= \texttt{tt} \mid \texttt{ff}
@@ -226,38 +275,53 @@ Hennessy-Milner Logic
     \mid \langle\pi\rangle \varphi \mid \lbrack\pi\rbrack \varphi
 \\
 &\text{Semantics} &
-  p & |= \top \\&&
-  p & |= \varphi_1 \land \varphi_2 \quad\text{when}\quad p |= \varphi_1 ~~\text{and}~~ p |= \varphi_2 \\&&
-  p & |= \varphi_1 \lor \varphi_2 \quad\text{when}\quad p |= \varphi_1 ~~~\text{or}~~~ p |= \varphi_2 \\&&
-  p & |= \langle \pi \rangle \varphi \quad\text{when}\quad \forall q,~ p\xrightarrow{\pi} q ~\;\text{implies}~\; q |= \varphi \\&&
-  p & |= \lbrack \pi \rbrack \varphi \;\quad\text{when}\quad \exists q,~ p\xrightarrow{\pi} p ~\quad\text{and}\quad\; q |= \varphi \\&&
+  P & |= \top \\&&
+  P & |= \varphi_1 \land \varphi_2 \quad\text{when}\quad P |= \varphi_1 ~~\text{and}~~ P |= \varPhi_2 \\&&
+  P & |= \varphi_1 \lor \varphi_2 \quad\text{when}\quad P |= \varphi_1 ~~~\text{or}~~~ P |= \varphi_2 \\&&
+  P & |= \langle \pi \rangle \varphi \quad\text{when}\quad \exists Q,~ P\xrightarrow{\pi} Q \;\quad\text{and}\quad\;\, Q |= \varphi \\&&
+  P & |= \lbrack \pi \rbrack \varphi \;\quad\text{when}\quad \forall Q,~ P\xrightarrow{\pi} Q ~\;\text{implies}~\; Q |= \varphi
 \end{align*}
-
+\vspace*{-3ex}
 \begin{verbatim}
-Define satisfy : p -> o' -> prop
-by satisfy P tt := true
- ; satisfy P ff := false
- ; satisfy P (conj A B) := satisfy P A /\ satisfy P B
- ; satisfy P (disj A B) := satisfy P A \/ satisfy P B
- ; satisfy P (dia X A) := exists Q, one P X Q /\ satisfy Q A
- ; satisfy P (box X A) := forall Q, one P X Q -> satisfy Q A
- .
-\end{verbatim}
+        Kind o' type.
+        Type tt,ff       o'.
+        Type conj,disj   o' -> o' -> o'.
+        Type dia,box     a  -> o' -> o'. 
 
+        Define satisfy : p -> o' -> prop
+        by satisfy P tt := true
+         ; satisfy P ff := false
+         ; satisfy P (conj A B) := satisfy P A /\ satisfy P B
+         ; satisfy P (disj A B) := satisfy P A \/ satisfy P B
+         ; satisfy P (dia X A) := exists Q, one P X Q /\ satisfy Q A
+         ; satisfy P (box X A) := forall Q, one P X Q -> satisfy Q A
+         .
+\end{verbatim}
+\vspace*{-2ex}
+\caption{Hennesy--Milner Logic and its transcription in Bedwyr.}
+  \label{TODO}
+\end{figure}
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 \begin{figure}
 \begin{verbatim}
-% helper predicates for querying the edges of bisim-graph
-Define tbl_bisim_step : p -> p -> a -> p -> p -> prop
-     , tbl_bisim_step_1st : p -> p -> a -> p -> prop
-     , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
-     , tbl_bisim_step_label : p -> p -> a -> prop
-by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
- ; tbl_bisim_step_1st P Q X P1 := proved' bisim_step_tbl 1 P Q X P1 null
- ; tbl_bisim_step_2nd P Q X Q1 := proved' bisim_step_tbl 2 P Q X null Q1
- ; tbl_bisim_step_label P Q X := proved' bisim_step_tbl 3 P Q X null null
- .
-
 Define disform : p -> p -> option o' -> prop
 by disform P Q F :=
    _if (proved bisim P Q)
@@ -288,13 +352,26 @@ by disform P Q F :=
             /\ println P /\ println Q /\ false )
        )
   .
-
+% helper predicates for querying the tabled data for the bisim-graph edges
+Define tbl_bisim_step : p -> p -> a -> p -> p -> prop
+     , tbl_bisim_step_1st : p -> p -> a -> p -> prop
+     , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
+     , tbl_bisim_step_label : p -> p -> a -> prop
+by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
+ ; tbl_bisim_step_1st P Q X P1 := proved' bisim_step_tbl 1 P Q X P1 null
+ ; tbl_bisim_step_2nd P Q X Q1 := proved' bisim_step_tbl 2 P Q X null Q1
+ ; tbl_bisim_step_label P Q X := proved' bisim_step_tbl 3 P Q X null null
+ .
+% check that the formula from disform is indeed a distinguishing formula
 Define chk_disform : p -> p -> o' -> prop
 by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
                        /\ satisfy P1 G /\ _not (satisfy P2 G).
 \end{verbatim}
-\caption{A Bedwyr implementation of extracting the distinguishing formula
-  from a bisim-graph}
+\vspace*{-3ex}
+\caption{A Bedwyr implementation for
+  extracting a distinguishing formula from the tabled result
+  of a bisim-graph.}
+\label{fig:hml}
 \end{figure}
 
 
