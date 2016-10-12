@@ -87,7 +87,7 @@ Type d nm.
 
 Define
    coinductive bisim : p -> p -> prop
- % bisim_step* are additional tabling not to be used elsewhere
+ % bisim_step* below are for tabling edges of bisim-graph
  , bisim_step : p -> p -> a -> p -> p -> prop
  , bisim_step_1st : p -> p -> a -> p -> prop
  , bisim_step_2nd : p -> p -> a -> p -> prop

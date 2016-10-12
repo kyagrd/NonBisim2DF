@@ -166,8 +166,7 @@ by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
 
 %% for finite process this will work but for infinite process???
 Define
-   disform : p -> p -> option o' -> prop %%% using list as option
- , combine_forms : list a -> list (option p) -> list (option p) -> option o' -> prop
+   disform : p -> p -> option o' -> prop
 by disform P Q F :=
    _if (proved bisim P Q)
        (F = opnone)
@@ -183,9 +182,8 @@ by disform P Q F :=
                 /\ enum (tbl_bisim_step P Q Z P1) Q1s /\ map (disform P1) Q1s OFs
                 /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
                 %
-                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs /\ println "here" /\ println Zs /\ println Z
-                /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ println Q1s /\ member Q1 Q1s 
-                /\ println Q1
+                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
                 /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s /\ map (p\ disform p Q1) P1s OFs
                 /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
                 %

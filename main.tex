@@ -126,9 +126,9 @@ labeled transition systems TODO TODO
 
 \paragraph{} TODO paper organization and future work???
 
-\section{Bisim-Graphs for Finite CCS} \label{sec:ccs}
+\section{Bisim-Graphs for Finite CCS} \label{sec:ccsbisim}
 
-Syntax and Semantics of Finite CCS
+% \begin{figure}
 \begin{align*}
 &\text{Syntax} &
 p,q,r &::= 0 \mid \pi.p \mid p + q \mid p|q \mid (\nu a)p \\ &&
@@ -142,44 +142,80 @@ p+q &\xrightarrow{\pi} p' \qquad\text{when}\quad p \xrightarrow{\pi} p' \\ &&
 p+q &\xrightarrow{\pi} q' \qquad\text{when}\quad q \xrightarrow{\pi} q' \\ &&
 p|q &\xrightarrow{\pi} p'|q ~~\quad\text{when}\quad p \xrightarrow{\pi} p' \\ &&
 p|q &\xrightarrow{\pi} p|q' ~~\quad\text{when}\quad q \xrightarrow{\pi} q' \\ &&
-p|q &\xrightarrow{\tau} p|q' ~~\quad\text{when}\quad
-  p \xrightarrow{\downarrow a} p' ~\text{and}~
-  q \xrightarrow{\uparrow a} q' \\ &&
-p|q &\xrightarrow{\tau} p|q' ~~\quad\text{when}\quad
+p|q &\xrightarrow{\tau} p'|q' ~\;\quad\text{when}\quad
+  p \xrightarrow{\uparrow a} p' ~\text{and}~
+  q \xrightarrow{\downarrow a} q' \\ &&
+p|q &\xrightarrow{\tau} p'|q' ~\;\quad\text{when}\quad
   p \xrightarrow{\downarrow a} p' ~\text{and}~
   q \xrightarrow{\uparrow a} q' \\ &&
 (\nu a)p &\xrightarrow{\tau} (\nu a)p' \quad\text{when}\quad
   p \xrightarrow{\pi} p' ~\text{and}~ \pi \notin \{\downarrow a, \uparrow a\}
 \end{align*}
+% \vspace*{-4ex}
+% \caption{Syntax and Semantics of Finite CCS}
+% \label{fig:ccsdef}
+% \end{figure}
+
 
 \begin{figure}
 \begin{verbatim}
 Define one : p -> a -> p -> prop
- by one (taup P) tau P
-  ; one (inp X P) (dn X) P
-  ; one (out X P) (up X) P
-  ; one (plus P Q) A R := one P A R
-  ; one (plus P Q) A R := one Q A R
-  ; one (par P Q) A (par P1 Q) := one P A P1
-  ; one (par P Q) A (par P Q1) := one Q A Q1
-  ; one (par P Q) tau (par P1 Q1) :=
-      exists X, one P (up X) P1 /\ one Q (dn X) Q1
-  ; one (par P Q) tau (par P1 Q1) :=
-      exists X, one P (dn X) P1 /\ one Q (up X) Q1
-  ; one (new P) A (new Q) := nabla x, one (P x) A (Q x)
-  .
+by one (taup P) tau P
+ ; one (inp X P) (dn X) P
+ ; one (out X P) (up X) P
+ ; one (plus P Q) A R := one P A R
+ ; one (plus P Q) A R := one Q A R
+ ; one (par P Q) A (par P1 Q) := one P A P1
+ ; one (par P Q) A (par P Q1) := one Q A Q1
+ ; one (par P Q) tau (par P1 Q1) :=
+     exists X, one P (up X) P1 /\ one Q (dn X) Q1
+ ; one (par P Q) tau (par P1 Q1) :=
+     exists X, one P (dn X) P1 /\ one Q (up X) Q1
+ ; one (new P) A (new Q) := nabla x, one (P x) A (Q x)
+ .
+Define coinductive bisim : p -> p -> prop
+by bisim P P % shortcut for obvious case
+ ; bisim P Q :=
+      (forall P1 X, one P X P1 -> exists Q1, one Q X Q1 /\ bisim P1 Q1)
+   /\ (forall Q1 X, one Q X Q1 -> exists P1, one P X P1 /\ bisim P1 Q1)
+ .
 \end{verbatim}
-\caption{Bedwyr definitions of the labeled semantics and bisimulation for finite CCS}
+\vspace*{-4ex}
+\caption{Bedwyr Definitions of the Labeled Semantics and Bisimulation for finite CCS}
 \label{fig:ccsone}
 \end{figure}
-<<<<<<< HEAD
-=======
 
-\section{Bisimulation Testing Graph}
 
->>>>>>> 10185d83aafc61e078769730798d35a8cde6a2ab
+\begin{figure}
+\begin{verbatim}
+Define coinductive bisim : p -> p -> prop
+     % bisim_step* below are for tabling edges of bisim-graph
+     , bisim_step : p -> p -> a -> p -> p -> prop
+     , bisim_step_1st : p -> p -> a -> p -> prop
+     , bisim_step_2nd : p -> p -> a -> p -> prop
+     , bisim_step_label : p -> p -> a -> prop
+     , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
+by bisim P P % shortcut for obvious case
+ ; bisim P Q :=
+      (forall P1 X, one P X P1 -> exists Q1, one Q X Q1
+                              /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
+   /\ (forall Q1 X, one Q X Q1 -> exists P1, one P X P1
+                              /\ bisim_step P Q X P1 Q1 /\ bisim P1 Q1)
+ ; bisim_step_tbl N P Q X P1 Q1   % always succeeds when called
+ ; bisim_step P Q X P1 Q1 := bisim_step_tbl 0 P Q X P1 Q1
+                          /\ bisim_step_1st P Q X P1
+                          /\ bisim_step_2nd P Q X Q1
+                          /\ bisim_step_label P Q X
+ ; bisim_step_1st P Q X P1 := bisim_step_tbl 1 P Q X P1 null
+ ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X null Q1
+ ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X null null
+ .
+\end{verbatim}
+\label{fig:ccsbisim}
+\end{figure}
 
-\section{Hennessy-Milner Logic}\label{sec:hml}
+\section{Distinguishing Formula from Bisim-Graphs}\label{sec:ccsdf}
+Hennessy-Milner Logic
 \begin{align*}
 &\text{Syntax} &
 \varphi & ::= \texttt{tt} \mid \texttt{ff}
@@ -204,6 +240,56 @@ by satisfy P tt := true
  ; satisfy P (box X A) := forall Q, one P X Q -> satisfy Q A
  .
 \end{verbatim}
+
+\begin{figure}
+\begin{verbatim}
+Define tbl_bisim_step : p -> p -> a -> p -> p -> prop
+     , tbl_bisim_step_1st : p -> p -> a -> p -> prop
+     , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
+     , tbl_bisim_step_label : p -> p -> a -> prop
+by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
+ ; tbl_bisim_step_1st P Q X P1 := proved' bisim_step_tbl 1 P Q X P1 null
+ ; tbl_bisim_step_2nd P Q X Q1 := proved' bisim_step_tbl 2 P Q X null Q1
+ ; tbl_bisim_step_label P Q X := proved' bisim_step_tbl 3 P Q X null null
+ .
+
+Define disform : p -> p -> option o' -> prop
+by disform P Q F :=
+   _if (proved bisim P Q)
+       (F = opnone)
+       (_if (disproved bisim P Q)
+            (  nextlabels P Xs /\ nextlabels Q Ys
+            /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
+            /\ _if (det_mem X1 Xs_Ys) (F = opsome (dia X1 tt)) (
+               _if (det_mem Y1 Ys_Xs) (F = opsome (box Y1 ff)) (
+               enum (tbl_bisim_step_label P Q) Zs
+            /\ (det_or (det_or
+                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
+                /\ enum (tbl_bisim_step P Q Z P1) Q1s
+                /\ map (disform P1) Q1s OFs
+                /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
+                %
+                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
+                /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s
+                /\ map (p\ disform p Q1) P1s OFs
+                /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
+                %
+               ) (F = opnone) )
+            ) ) )
+            ( println "ERROR: neither in proved nor in disproved bisim table"
+            /\ println P /\ println Q /\ false )
+       )
+  .
+
+
+Define chk_disform : p -> p -> o' -> prop
+by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
+                       /\ satisfy P1 G /\ _not (satisfy P2 G).
+\end{verbatim}
+\end{figure}
+
 
 
 \section{Finite $\pi$-calculus}\label{sec:pic}
