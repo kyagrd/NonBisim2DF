@@ -10,6 +10,7 @@ src/ccs/tbl*.def
 
 
 ## Vim backup files
+.*~
 *~
 .*.swp
 .*.swo
