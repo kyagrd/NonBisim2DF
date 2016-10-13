@@ -12,7 +12,31 @@
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{semantic}
+\usepackage{xcolor}
 \usepackage{listings}
+\lstset{
+  numbers=left, numberstyle=\tiny\sf\color{gray},
+  basicstyle=\small\ttfamily, basewidth=.5em,
+  moredelim=[s][\color{darkgray}]{"}{"},
+  comment=[l]{\%}, commentstyle=\itshape\color{gray},
+  classoffset=0,
+  keywords={Define,by,Kind,Type}, keywordstyle=\color{teal},
+  classoffset=1,
+  morekeywords={inductive,coinductive}, keywordstyle=\color{blue},
+  classoffset=2,
+  morekeywords={forall,exists,nabla,prop,type,_if,_not}, keywordstyle=\color{brown},
+  classoffset=0,
+  alsoletter={\\},
+  literate=%
+    {:}{{{\color{teal}:}}}1
+    {=}{{{\color{brown}=}}}1
+    {:=}{{{\color{teal}:=}}}2
+    {;}{{{\color{teal};}}}1
+    {.}{{{\color{teal}.}}}1
+    {->}{{{\color{brown}->}}}2
+    {/\\}{{{\color{brown}/\char`\\}}}2
+    {\\/}{{{\color{brown}\char`\\/}}}2
+}
 \usepackage{hyperref}
 %
 \begin{document}
@@ -169,7 +193,7 @@ P|Q &\xrightarrow{\tau} P'|Q' ~\;\quad\text{when}\quad
         \exists P',~ P\xrightarrow{\pi}P' \;\text{and}\; P'\sim Q')
 \end{align*}
 \vspace*{-3ex}
-\begin{verbatim}
+\begin{lstlisting}
 Define one : p -> a -> p -> prop
 by one (taup P) tau P
  ; one (inp X P) (dn X) P
@@ -188,8 +212,8 @@ by bisim P P % shortcut for obvious case
       (forall P1 X, one P X P1 -> exists Q1, one Q X Q1 /\ bisim P1 Q1)
    /\ (forall Q1 X, one Q X Q1 -> exists P1, one P X P1 /\ bisim P1 Q1)
  .
-\end{verbatim}
-\vspace*{-3ex}
+\end{lstlisting}
+\vspace*{-2ex}
 \caption{Syntax, one-step labeled transtion semantics, and bisimulation
   for finite CCS along with their transcription in Bedwyr.}
 \label{fig:ccsdef}
@@ -204,6 +228,43 @@ TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
+\subsection{Properties of a disproved node in a bisim-graph}
+
+\begin{itemize}
+\item[]\hspace{-2ex}{\it\texttt{case\;1}}\quad
+$\exists P_1\;\pi,~ P\xrightarrow{\pi}P_1 ~\text{but}~
+ \text{not}\,(\exists Q_1,~ Q\xrightarrow{\pi}Q_1)$
+    \\
+    $\varphi_{(P,Q)} = \langle\pi\rangle\texttt{tt}$
+
+\item[]\hspace{-2ex}{\it\texttt{case\;2}}\quad
+$\exists Q_1\;\pi,~ Q\xrightarrow{\pi}Q_1 ~\text{but}~
+ \text{not}\,(\exists P_1,~ P\xrightarrow{\pi}P_1)$
+    \\
+    $\varphi_{(P,Q)} = [\pi]\texttt{ff}
+                     = \neg\langle\pi\rangle\texttt{tt}
+                     = \neg\varphi_{(Q,P)}$
+
+\item[]\hspace{-2ex}{\it\texttt{case\;3}}\quad
+$ \exists P_1\;\pi,~ P \xrightarrow{\pi} P_1 ~\text{and}~
+  \forall Q_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~
+  \texttt{d}(P_1,Q_1)\in V $
+    \\
+    $\varphi_{(P,Q)} = \langle\pi\rangle\bigwedge_{Q_1}\varphi_{(P_1,Q_1)}$
+
+\item[]\hspace{-2ex}{\it\texttt{case\;4}}\quad
+$ \exists Q_1\;\pi,~ Q \xrightarrow{\pi} P_1 ~\text{and}~
+  \forall P_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~
+  \texttt{d}(P_1,Q_1)\in V $
+    \\
+    $ \varphi_{(P,Q)} = [\pi]\bigvee_{P_1}\varphi_{(P_1,Q_1)}
+    = \neg\langle\pi\rangle\bigwedge_{P_1}\varphi_{(Q_1,P_1)}
+    = \neg\varphi_{(Q,P)} 
+    $
+
+\end{itemize}
+
+
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
@@ -215,7 +276,7 @@ TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
 \begin{figure}
-\begin{verbatim}
+\begin{lstlisting}
 Define coinductive bisim : p -> p -> prop
      , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
      , bisim_step : p -> p -> a -> p -> p -> prop
@@ -237,8 +298,8 @@ by bisim P P % shortcut for obvious case
  ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X null Q1
  ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X null null
  .
-\end{verbatim}
-\vspace*{-3ex}
+\end{lstlisting}
+\vspace*{-2ex}
 \caption{TODO TODO TODO TODO TODO TODO TODO TODO TODO}
 \label{fig:ccsbisim}
 \end{figure}
@@ -272,17 +333,17 @@ TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 &\text{Syntax} &
 \varphi & ::= \texttt{tt} \mid \texttt{ff}
     \mid \varphi \land \varphi \mid \varphi \lor \varphi
-    \mid \langle\pi\rangle \varphi \mid \lbrack\pi\rbrack \varphi
+    \mid \langle\pi\rangle \varphi \mid [\pi] \varphi
 \\
 &\text{Semantics} &
   P & |= \top \\&&
   P & |= \varphi_1 \land \varphi_2 \quad\text{when}\quad P |= \varphi_1 ~~\text{and}~~ P |= \varPhi_2 \\&&
   P & |= \varphi_1 \lor \varphi_2 \quad\text{when}\quad P |= \varphi_1 ~~~\text{or}~~~ P |= \varphi_2 \\&&
   P & |= \langle \pi \rangle \varphi \quad\text{when}\quad \exists Q,~ P\xrightarrow{\pi} Q \;\quad\text{and}\quad\;\, Q |= \varphi \\&&
-  P & |= \lbrack \pi \rbrack \varphi \;\quad\text{when}\quad \forall Q,~ P\xrightarrow{\pi} Q ~\;\text{implies}~\; Q |= \varphi
+  P & |= [\pi] \varphi \;\quad\text{when}\quad \forall Q,~ P\xrightarrow{\pi} Q ~\;\text{implies}~\; Q |= \varphi
 \end{align*}
 \vspace*{-3ex}
-\begin{verbatim}
+\begin{lstlisting}
         Kind o' type.
         Type tt,ff       o'.
         Type conj,disj   o' -> o' -> o'.
@@ -296,7 +357,7 @@ TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
          ; satisfy P (dia X A) := exists Q, one P X Q /\ satisfy Q A
          ; satisfy P (box X A) := forall Q, one P X Q -> satisfy Q A
          .
-\end{verbatim}
+\end{lstlisting}
 \vspace*{-2ex}
 \caption{Hennesy--Milner Logic and its transcription in Bedwyr.}
   \label{TODO}
@@ -321,7 +382,7 @@ TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 \begin{figure}
-\begin{verbatim}
+\begin{lstlisting}
 Define disform : p -> p -> option o' -> prop
 by disform P Q F :=
    _if (proved bisim P Q)
@@ -366,7 +427,7 @@ by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
 Define chk_disform : p -> p -> o' -> prop
 by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
                        /\ satisfy P1 G /\ _not (satisfy P2 G).
-\end{verbatim}
+\end{lstlisting}
 \vspace*{-3ex}
 \caption{A Bedwyr implementation for
   extracting a distinguishing formula from the tabled result
