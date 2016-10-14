@@ -9,13 +9,14 @@
 
 
 
-
 FILEPREFIX=`basename "$0" | cut -d'.' -f1`
 (echo "% vim: ts=2: sw=2: expandtab: ai: syntax=bedwyr";\
  echo "#include \"moccs.def\".";\
  echo "Type $NAMES nm.";\
  echo "Define getP : p -> prop, getQ : p -> prop by getP $P; getQ $Q.";\
 ) > ${FILEPREFIX}.def
+
+rm tbl_${FILEPREFIX}_bisim.def || rm tbl_${FILEPREFIX}_bisim_step.def || true
 
 (echo "#include \"${FILEPREFIX}.def\".";\
  echo "#assert getP(P) /\\ getQ(Q) /\\ det_or (bisim $P $Q) true.";\
