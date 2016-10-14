@@ -2,6 +2,8 @@
 ccs/bedwyr
 ccs/query*.def
 ccs/query*.sh
+ccs/query*.out
+ccs/query*.log
 ccs/tbl*.def
 pic/bedwyr
 
