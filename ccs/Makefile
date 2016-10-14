@@ -9,7 +9,7 @@ clean:
 	- rm query*.def
 	- rm query*.sh
 	- rm query*.log
-	- rm query*.out
+#	- rm query*.out
 
 %.sh: %.prefix query_sh_template_suffix moccs.def moccs_disform.def
 	cat $< query_sh_template_suffix > $@

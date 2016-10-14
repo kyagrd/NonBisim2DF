@@ -32,7 +32,7 @@ FILEPREFIX=`basename "$0" | cut -d'.' -f1`
  echo "#include \"moccs_disform.def\".";\
 ) > tbl_${FILEPREFIX}.def
 
-echo "getP(P) /\\ getQ(Q) /\\ det_or (chk_disform P Q F) true." | ./bedwyr -t tbl_${FILEPREFIX}.def | tee ${FILEPREFIX}.log
+echo "getQ(Q) /\\ getP(P) /\\ det_or (chk_disform P Q F) true." | ./bedwyr -t tbl_${FILEPREFIX}.def | tee ${FILEPREFIX}.log
 
-tac ${FILEPREFIX}.log | grep " = " > ${FILEPREFIX}.out
+# tac ${FILEPREFIX}.log | grep " = " > ${FILEPREFIX}.out
 

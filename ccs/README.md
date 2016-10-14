@@ -13,8 +13,7 @@ Plugins (+/-):
 Then, run the `make` (or `gmake`) command to invoke GNU Make.
 Runnning make will generate `query*.sh` from `query*.prefix` and
 also run the shell script, which invokes bedwyer several times.
-The result will be saved in `query*.log` (raw redirected output) and
-`query*.out` (result lines only) files.
+The result will be saved in `query*.log` files.
 See the content of the `Makefile` for further details.
 
 ```
@@ -22,10 +21,18 @@ $ cat query4.prefix
 NAMES="a,b,c"
 P="(plus (inp a (inp b null)) (inp a (plus (inp b null) (inp c null))))"
 Q="(plus (inp a (plus (inp b null) (inp c null))) (inp a (inp c null)))"
-$ cat query4.out 
+$ cat query4.log
+Bedwyr 1.4-beta13 (revision 1080) welcomes you.
+
+For a little help, type "#help."
+
+?= 
+Found a solution:
+ F = dia (dn a) (conj (box (dn c) ff) (dia (dn b) tt))
  P = plus (inp a (inp b null)) (inp a (plus (inp b null) (inp c null)))
  Q = plus (inp a (plus (inp b null) (inp c null))) (inp a (inp c null))
- F = dia (dn a) (conj (box (dn c) ff) (dia (dn b) tt))
+More [y] ? Search stopped.
+?= 
 ```
 
 In case is there is no distinguishing formula (because the two process are bisimilar)
@@ -36,10 +43,17 @@ $ cat query0.prefix
 NAMES="a"
 P="null"
 Q="null"
-$ cat query0.out 
+$ cat query0.log
+Bedwyr 1.4-beta13 (revision 1080) welcomes you.
+
+For a little help, type "#help."
+
+?= Found a solution:
+ F = F
  P = null
  Q = null
- F = F
+More [y] ? Search stopped.
+?= 
 ```
 
 To add more examples you only need to `query*.prefix` file and run make.
