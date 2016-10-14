@@ -1,0 +1,3 @@
+NAMES="a,b,c,d,e,f"
+P="(plus (inp a (plus (inp b null) (inp c (inp e null)))) (inp a (plus (inp c (inp d null)) (inp f null))))"
+Q="(plus (inp a (plus (inp b null) (inp c (inp d null)))) (inp a (plus (inp c (inp e null)) (inp f null))))"
