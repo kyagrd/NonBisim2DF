@@ -219,62 +219,6 @@ by bisim P P % shortcut for obvious case
 \label{fig:ccsdef}
 \end{figure}
 
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-
-\subsection{Properties of a disproved node in a bisim-graph}
-
-\begin{itemize}
-\item[]\hspace{-2ex}{\it\texttt{case\;1}}\quad
-$\exists P_1\;\pi,~ P\xrightarrow{\pi}P_1 ~\text{but}~
- \text{not}\,(\exists Q_1,~ Q\xrightarrow{\pi}Q_1)$
-    \\
-    $\varphi_{(P,Q)} = \langle\pi\rangle\texttt{tt}$
-
-\item[]\hspace{-2ex}{\it\texttt{case\;2}}\quad
-$\exists Q_1\;\pi,~ Q\xrightarrow{\pi}Q_1 ~\text{but}~
- \text{not}\,(\exists P_1,~ P\xrightarrow{\pi}P_1)$
-    \\
-    $\varphi_{(P,Q)} = [\pi]\texttt{ff}
-                     = \neg\langle\pi\rangle\texttt{tt}
-                     = \neg\varphi_{(Q,P)}$
-
-\item[]\hspace{-2ex}{\it\texttt{case\;3}}\quad
-$ \exists P_1\;\pi,~ P \xrightarrow{\pi} P_1 ~\text{and}~
-  \forall Q_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~
-  \texttt{d}(P_1,Q_1)\in V $
-    \\
-    $\varphi_{(P,Q)} = \langle\pi\rangle\bigwedge_{Q_1}\varphi_{(P_1,Q_1)}$
-
-\item[]\hspace{-2ex}{\it\texttt{case\;4}}\quad
-$ \exists Q_1\;\pi,~ Q \xrightarrow{\pi} P_1 ~\text{and}~
-  \forall P_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~
-  \texttt{d}(P_1,Q_1)\in V $
-    \\
-    $ \varphi_{(P,Q)} = [\pi]\bigvee_{P_1}\varphi_{(P_1,Q_1)}
-    = \neg\langle\pi\rangle\bigwedge_{P_1}\varphi_{(Q_1,P_1)}
-    = \neg\varphi_{(Q,P)} 
-    $
-
-\end{itemize}
-
-
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-
-
 \begin{figure}
 \begin{lstlisting}
 Define coinductive bisim : p -> p -> prop
@@ -303,6 +247,72 @@ by bisim P P % shortcut for obvious case
 \caption{TODO TODO TODO TODO TODO TODO TODO TODO TODO}
 \label{fig:ccsbisim}
 \end{figure}
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+
+% \subsection{Properties of a disproved node in a bisim-graph}
+
+\begin{figure}
+\begin{itemize}
+\item[]\hspace{-2ex}{\it\texttt{case\;1}}\quad
+$\exists P_1\;\pi,~ P\xrightarrow{\pi}P_1 ~\text{but}~
+ \text{not}\,(\exists Q_1,~ Q\xrightarrow{\pi}Q_1)$
+    \qquad
+    \fbox{ $\displaystyle
+    \varphi_{(P,Q)} = \langle\pi\rangle\texttt{tt}$ }
+    \\
+\item[]\hspace{-2ex}{\it\texttt{case\;2}}\quad
+$\exists Q_1\;\pi,~ Q\xrightarrow{\pi}Q_1 ~\text{but}~
+ \text{not}\,(\exists P_1,~ P\xrightarrow{\pi}P_1)$
+    \qquad
+    \fbox{ $\displaystyle
+    \varphi_{(P,Q)} = [\pi]\texttt{ff} $ \,}
+%                     = \neg\langle\pi\rangle\texttt{tt}
+%                     = \neg\varphi_{(Q,P)}$ }
+    \\
+\item[]\hspace{-2ex}\!\!\!
+$\displaystyle\begin{array}{ll}
+  \text{\it\texttt{case\;3}}~~
+  &\exists P_1\;\pi,~ P \xrightarrow{\pi} P_1 ~\text{and}~ \\
+  &\quad\forall Q_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~ \\
+  &\qquad\qquad\qquad\quad~\texttt{d}(P_1,Q_1)\in V \end{array} $
+    \qquad
+    \fbox{ $\displaystyle
+    \varphi_{(P,Q)} = \langle\pi\rangle\bigwedge_{Q_1}\varphi_{(P_1,Q_1)}$ }
+    \\
+\item[]\hspace{-2ex}\!\!\!
+$\displaystyle\begin{array}{ll}
+  \text{\it\texttt{case\;4}}~~
+  &\exists Q_1\;\pi,~ Q \xrightarrow{\pi} P_1 ~\text{and}~ \\
+  &\quad\forall P_1,~ (P,Q)\xrightarrow{\pi}(P_1,Q_1) ~\text{and}~ \\
+  &\qquad\qquad\qquad\quad~\texttt{d}(P_1,Q_1)\in V \end{array} $
+    \qquad
+    \fbox{ $\displaystyle
+    \varphi_{(P,Q)} = [\pi]\bigvee_{P_1}\varphi_{(P_1,Q_1)} $ \;}
+%    = \neg\langle\pi\rangle\bigwedge_{P_1}\varphi_{(Q_1,P_1)}
+%    = \neg\varphi_{(Q,P)}$ }
+\end{itemize}
+\label{fig:}
+\end{figure}
+
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+
 
 Bedwyr system supports exporting the table data and importing as
 
