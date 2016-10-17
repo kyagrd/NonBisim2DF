@@ -130,14 +130,17 @@ Define assert : nat -> form -> prop by
   assert 4 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x m bot)))) ; 
   assert 5 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x n bot)))).
 
-Define process : nat -> p -> prop by
-  process 1 (in x (y\ z));
-  process 2 (in x (y\ in x u\ z));
-  process 3 (in x u\ (plus (taup (taup z)) (taup z)));
-  process 4 (in x u\ nu y\ ((plus (taup (taup z))
-                           (plus (taup z)
-                                 (taup (match u y (taup z))))))) ;
-  process 5 (nu m\ out a m (in a (x\ nu n\ out a n z))).
+Define process : nat -> p -> prop
+by process 1 (in x (y\ z))
+ ; process 2 (in x (y\ in x u\ z))
+ ; process 3 (in x u\ (plus (taup (taup z)) (taup z)))
+ ; process 4 (in x u\ nu y\ ((plus (taup (taup z))
+                            (plus (taup z)
+                                  (taup (match u y (taup z)))))))
+ ; process 5 (nu m\ out a m (in a (x\ nu n\ out a n z)))
+ ; process 6 (in x u\ in x v\ (match u v (taup z)))
+ ; process 7 (in x u\ in x y\ taup z)
+ .
 
 
 
