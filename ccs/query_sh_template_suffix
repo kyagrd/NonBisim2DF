@@ -36,5 +36,3 @@ rm -f tbl_${FILEPREFIX}_bisim_step.def
 
 echo "getQ(Q) /\\ getP(P) /\\ det_or (chk_disform P Q F) true." | ./bedwyr -t tbl_${FILEPREFIX}.def | tee ${FILEPREFIX}.log
 
-# tac ${FILEPREFIX}.log | grep " = " > ${FILEPREFIX}.out
-

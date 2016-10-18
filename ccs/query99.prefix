@@ -1,0 +1,3 @@
+NAMES="a"
+P="(new a\ (par (inp a null) (out a null)))"
+Q="(new a\ (par (inp a null) (out a null)))"

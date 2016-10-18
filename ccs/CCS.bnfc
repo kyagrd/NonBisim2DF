@@ -1,0 +1,13 @@
+-- CCS.bnfc
+token LIdent (lower (letter | digit | '_')*) ;
+
+PLUS. P  ::= P1 "+" P  ;
+PAR.  P1 ::= P2 "|" P1 ;
+BANG. P2 ::= "!" P2 ;
+TAUP. P2 ::= "tau" "." P2 ;
+INP.  P2 ::= LIdent "." P2 ;
+OUT.  P2 ::= "-" LIdent "." P2 ;
+NULL. P2 ::= "0" ;
+NEW.  P2 ::= "(" "new" LIdent ")" P2 ;
+
+coercions P 2 ;

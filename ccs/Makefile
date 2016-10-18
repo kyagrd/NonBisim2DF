@@ -1,17 +1,37 @@
-SHELLSCRIPTS := $(patsubst %.prefix,%.sh,$(wildcard query*.prefix))
+PREFIXES:=$(patsubst %.ccs,%.prefix,$(wildcard query*.ccs))
+SHELLSCRIPTS:=$(patsubst %.ccs,%.sh,$(wildcard query*.ccs))
+LOGS:=$(patsubst %.ccs,%.log,$(wildcard query*.ccs))
 
 .PHONEY: all clean
 
-all: $(SHELLSCRIPTS)
+all: TestCCS $(PREFIXES) $(SHELLSCRIPTS) $(LOGS)
 
 clean:
 	- rm tbl_query*.def
 	- rm query*.def
 	- rm query*.sh
 	- rm query*.log
-#	- rm query*.out
+
+%.log: %.sh
+	sh $<
 
 %.sh: %.prefix query_sh_template_suffix moccs.def moccs_disform.def
 	cat $< query_sh_template_suffix > $@
 	chmod +x $@
-	./$@
+
+%.prefix: %.ccs
+	echo `(sed -n 1p $< | ./TestCCS | sed -n 6p; sed -n 2p $< | ./TestCCS | sed -n 6p) | grep -o '"[^"]*"' | sed 's/"//g' | sort | uniq` | sed 's/ /,/g;s/^$$/a/;s/^/NAMES="/;s/$$/"/' > $@
+	sed -n 1p $< | ./TestCCS | sed -n 6p | tr '[:upper:]' '[:lower:]' | sed 's/(lident "//g;s/")//g;s/^/P="(/;s/$$/)"/;s/[^a-z0-9_]new[ ][ ]*[^ ][^ ]*/&\\/g' >> $@
+	sed -n 2p $< | ./TestCCS | sed -n 6p | tr '[:upper:]' '[:lower:]' | sed 's/(lident "//g;s/")//g;s/^/Q="(/;s/$$/)"/;s/[^a-z0-9_]new[ ][ ]*[^ ][^ ]*/&\\/g' >> $@
+
+TestCCS: TestCCS.hs LexCCS.hs ParCCS.hs
+	ghc --make $<
+
+# TestCCS.hs: CCS.bnfc
+# 	bnfc --haskell $<
+# 
+# LexCCS.hs: LexCCS.x
+# 	alex $<
+# 
+# ParCCS.hs: ParCCS.y
+# 	happy $<
