@@ -5,6 +5,9 @@ ccs/query*.sh
 ccs/query*.out
 ccs/query*.log
 ccs/tbl*.def
+ccs/*.hi
+ccs/*.o
+ccs/TestCCS
 pic/bedwyr
 
 
