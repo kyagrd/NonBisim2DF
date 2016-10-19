@@ -59,7 +59,4 @@ More [y] ? Search stopped.
 To add more examples you only need to `query*.prefix` file and run make.
 Try running `make clean` and re-run `make` when things are not working as expected.
 
-
-TODO:
-maybe add a parser program to generate `query*.prefix` file from concrete syntax and
-also format the output print the concrete syntax instead of bedwyr terms.
+Parser is added. TODO documentation about giving parser input by `query*.ccs` file.
