@@ -1,3 +1,5 @@
+%vim: sw=2: ts=2: expandtab: syntax=bedwyr: ai:
+%
 % Specification of late pi-calculus and open bisimulation
 %
 % Please refer to one of the following paper for background.  They
@@ -13,22 +15,26 @@
 %%%%     lambda-tree syntax for pi-calculus expressions     %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Kind    name    type.
-Type    a,b,c,x,y name.     % some names
+Kind name    type.
+Type a,b,c,x,y name.     % some names
 
-Kind    a           type.   % exactly three action constructors
-Type    tau         a.
-Type    dn,up       name -> name -> a.
+Kind a           type.   % exactly three action constructors
+Type tau         a.
+Type dn,up       name -> name -> a.
 
-Kind    p           type.   % Processes
-Type    in   	    name -> (name -> p) -> p.
-Type    out  	    name -> name -> p -> p.
-Type    taup 	    p -> p.
-Type    match       name -> name -> p -> p.
-Type    plus, par   p -> p -> p.
-Type    nu          (name -> p) -> p.
-Type    bang        p -> p.
-Type    z           p.
+Kind p           type.   % Processes
+Type in          name -> (name -> p) -> p.
+Type out         name -> name -> p -> p.
+Type taup        p -> p.
+Type match       name -> name -> p -> p.
+Type plus, par   p -> p -> p.
+Type nu          (name -> p) -> p.
+Type bang        p -> p.
+Type z           p.
+
+Kind act type.
+Type act  a -> act.
+Type actp (name -> a) -> act.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%             A few simple example processes             %%%%
@@ -62,24 +68,24 @@ Define example : nat -> p -> prop by
 %%%%     Place here a list of defined pi-calculus agents    %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Type  quiet  p.
+Type quiet  p.
 % The following constants are used to present an approach to arithmetic
-Type  null   name.
-Type  zz     name.
-Type  s      name -> name.
-Type  zero   name -> p.
-Type  suc    name -> name -> p.
-Type  num    name -> name -> p.
-Type  add    name -> name -> name -> p.
+Type null   name.
+Type zz     name.
+Type s      name -> name.
+Type zero   name -> p.
+Type suc    name -> name -> p.
+Type num    name -> name -> p.
+Type add    name -> name -> name -> p.
 % The following constants are used to encode the lambda-calculus, following
 % the first Milner, Parrow, & Walker paper.
-Type    zzero, un, deux   name -> name -> p.
-Type    succ, copy        name -> name -> name -> name -> p.
-Type    ssum              name -> name -> name -> name -> name -> name -> p.
-Kind    ch_nat            type.
-Type    church            name -> name -> ch_nat -> p.
-Type    zzz               ch_nat.
-Type    sss               ch_nat -> ch_nat.
+Type zzero, un, deux   name -> name -> p.
+Type succ, copy        name -> name -> name -> name -> p.
+Type ssum              name -> name -> name -> name -> name -> name -> p.
+Kind ch_nat            type.
+Type church            name -> name -> ch_nat -> p.
+Type zzz               ch_nat.
+Type sss               ch_nat -> ch_nat.
 
 Define pidef : p -> p -> prop
 by pidef quiet       (nu x\ out x x z)
@@ -88,8 +94,8 @@ by pidef quiet       (nu x\ out x x z)
 ;  pidef (suc P C)   (in C s\ in C n\ out s P z)
 ;  pidef (add P Q R) (nu s\ nu n\ out P s (out P n
                      (in R ss\ in R nn\
-                      (plus (in s k\ nu kk\ (par (out ss kk z) (add k Q kk)))
-                            (in n null\ out Q ss (out Q nn z))))))
+                     (plus (in s k\ nu kk\ (par (out ss kk z) (add k Q kk)))
+                           (in n null\ out Q ss (out Q nn z))))))
 ;  pidef (num (s N) C) (in C s\ in C zz\ nu n\ par (out s n z) (num N n))
 ;  pidef (num zz    C) (zero C)
 % The follow define processes related to encoding the lambda-calculus
@@ -181,30 +187,36 @@ by onep (in X M) (dn X) M;
 
 Define coinductive sim :  p -> p -> prop by
   sim P Q :=
-	(forall A P1, one P A P1 -> exists Q1, one Q A Q1 /\ sim P1 Q1) /\
-	(forall X M, onep P (dn X) M -> exists N, onep Q (dn X) N /\
-					forall w, sim (M w) (N w)) /\
-	(forall X M, onep P (up X) M -> exists N, onep Q (up X) N /\
-					nabla w, sim (M w) (N w)).
+  (forall A P1, one P A P1 -> exists Q1, one Q A Q1 /\ sim P1 Q1) /\
+  (forall X M, onep P (dn X) M -> exists N, onep Q (dn X) N /\
+          forall w, sim (M w) (N w)) /\
+  (forall X M, onep P (up X) M -> exists N, onep Q (up X) N /\
+          nabla w, sim (M w) (N w)).
 
-Define coinductive bisim : p -> p -> prop by
-  bisim P Q :=
-    (forall A P1, one P A P1 ->
-      exists Q1, one Q A Q1 /\ bisim P1 Q1) /\
-    (forall X M, onep P (dn X) M ->
-      exists N, onep Q (dn X) N /\
-      forall w, bisim (M w) (N w)) /\
-    (forall X M, onep P (up X) M ->
-      exists N, onep Q (up X) N /\
-      nabla w, bisim (M w) (N w)) /\
-    (forall A Q1, one Q A Q1 ->
-      exists P1, one P A P1 /\ bisim P1 Q1) /\
-    (forall X N, onep Q (dn X) N ->
-      exists M, onep P (dn X) M /\
-      forall w, bisim (M w) (N w)) /\
-    (forall X N, onep Q (up X) N ->
-      exists M, onep P (up X) M /\
-      nabla w, bisim (M w) (N w)).
+Define
+   coinductive bisim : p -> p -> prop
+ , coinductive bisim_step : p -> p -> act -> p -> p -> prop
+by bisim P Q :=
+      (forall A P1, one P A P1 ->
+         exists Q1, one Q A Q1 /\ bisim_step P Q (act A) P1 Q1
+                               /\ bisim P1 Q1)
+   /\ (forall X M, onep P (dn X) M ->
+         exists N, onep Q (dn X) N /\ bisim_step P Q (actp (dn X)) P1 Q1
+                                   /\ forall w, bisim (M w) (N w))
+   /\ (forall X M, onep P (up X) M ->
+         exists N, onep Q (up X) N /\ bisim_step P Q (actp (up X)) P1 Q1
+                                   /\ nabla w, bisim (M w) (N w))
+   /\ (forall A Q1, one Q A Q1 ->
+         exists P1, one P A P1 /\ bisim_step P Q (act A) P1 Q1
+                               /\ bisim P1 Q1)
+   /\ (forall X N, onep Q (dn X) N ->
+         exists M, onep P (dn X) M /\ bisim_step P Q (actp (dn X)) P1 Q1
+                                   /\ forall w, bisim (M w) (N w))
+   /\ (forall X N, onep Q (up X) N ->
+         exists M, onep P (up X) M /\ bisim_step P Q (actp (up X)) P1 Q1
+                                   /\ nabla w, bisim (M w) (N w))
+ ; bisim_step P Q A P1 Q1
+ .
 
 %% Of the finite pi-calculus examples above (numbered 1-11), the following
 %% three pairs name (open) bisimilar pi-expressions:
@@ -244,22 +256,22 @@ Define coinductive weak_sim : p -> p -> prop by
 
 Define coinductive weak_bisim : p -> p -> prop by
   weak_bisim P Q :=
-	(forall A P1, one P A P1      -> exists Q1, weak_one Q A Q1 /\
+  (forall A P1, one P A P1      -> exists Q1, weak_one Q A Q1 /\
                                                 weak_bisim P1 Q1) /\
 
-	(forall X M, onep P (dn X) M -> exists N, weak_onep Q (dn X) N /\
-					        forall w, weak_bisim (M w) (N w)) /\
+  (forall X M, onep P (dn X) M -> exists N, weak_onep Q (dn X) N /\
+                  forall w, weak_bisim (M w) (N w)) /\
 
-	(forall X M, onep P (up X) M -> exists N, weak_onep Q (up X) N /\
-					        nabla w, weak_bisim (M w) (N w)) /\
+  (forall X M, onep P (up X) M -> exists N, weak_onep Q (up X) N /\
+                  nabla w, weak_bisim (M w) (N w)) /\
 
-	(forall A Q1, one Q A Q1     -> exists P1, weak_one P A P1 /\
+  (forall A Q1, one Q A Q1     -> exists P1, weak_one P A P1 /\
                                                 weak_bisim P1 Q1) /\
 
-	(forall X N, onep Q (dn X) N -> exists M, weak_onep P (dn X) M /\
+  (forall X N, onep Q (dn X) N -> exists M, weak_onep P (dn X) M /\
                                                 forall w, weak_bisim (M w) (N w)) /\
 
-	(forall X N, onep Q (up X) N -> exists M, weak_onep P (up X) M /\
+  (forall X N, onep Q (up X) N -> exists M, weak_onep P (up X) M /\
                                                 nabla w, weak_bisim (M w) (N w)).
 
 %% Of the finite pi-calculus examples above (numbered 1-11), the following
