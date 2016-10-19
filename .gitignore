@@ -8,6 +8,7 @@ ccs/tbl*.def
 ccs/*.hi
 ccs/*.o
 ccs/TestCCS
+ccs/parseCCS
 pic/bedwyr
 
 
