@@ -1,0 +1,3 @@
+NAMES="a,b"
+P="(bang (inp a null))"
+Q="(bang (inp b null))"
