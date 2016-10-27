@@ -1,3 +1,5 @@
+% vim: syntax=bedwyr: sw=2: ts=2: expandtab: ai:
+%
 % A specification of Modal Logic for pi-calculus.
 % Based on the paper
 %  "Modal logics for mobile processes", by R. Milner, J. Parrow and D. Walker
@@ -35,11 +37,13 @@
 %   boxInE, diaInE : name -> (name -> form) -> form. ('early' bound input)
 
 #include "pi.def".
+#include "../ccs/basic.def".
 
 Kind form                type.
 Type top, bot            form.
 Type land, lor           form -> form -> form.
-Type boxMatch, diaMatch  name -> name -> form -> form.
+Type boxMatch, boxDiff,       
+     diaMatch, diaDiff   name -> name -> form -> form.
 Type boxAct, diaAct      a -> form -> form.
 Type boxOut, diaOut,
      boxIn, diaIn,
@@ -48,69 +52,73 @@ Type boxOut, diaOut,
 
 % A "lazy" but incomplete encoding.
 
-Define inductive sat : p -> form -> prop
-by sat _ top
-;  sat P (land A B) := sat P A /\ sat P B
-;  sat P (lor A B) := sat P A \/ sat P B
-;  sat P (boxMatch X Y A) := (X = Y) -> sat P A
-;  sat P (diaMatch X Y A) := (X = Y) /\ sat P A
-;  sat P (boxAct X A) :=
-     forall P1, one P X P1 -> sat P1 A
-;  sat P (diaAct X A) :=
-     exists P1, one P X P1 /\ sat P1 A
-;  sat P (boxOut X A) :=
-     forall Q, onep P (up X) Q -> nabla y, sat (Q y) (A y)
-;  sat P (diaOut X A) :=
-     exists Q, onep P (up X) Q /\ nabla y, sat (Q y) (A y)
-;  sat P (boxIn X A) :=
-     forall Q, onep P (dn X) Q -> forall y, sat (Q y) (A y)
-;  sat P (diaIn X A) :=
-     exists Q, onep P (dn X) Q /\ exists y, sat (Q y) (A y)
-;  sat P (boxInL X A) :=
-     forall Q, onep P (dn X) Q -> exists y, sat (Q y) (A y)
-;  sat P (diaInL X A) :=
-     exists Q, onep P (dn X) Q /\ forall y, sat (Q y) (A y)
-;  sat P (boxInE X A) :=
-     exists y, forall Q, onep P (dn X) Q -> sat (Q y) (A y)
-;  sat P (diaInE X A) :=
-     forall y, exists Q, onep P (dn X) Q /\ sat (Q y) (A y)
-.
+Define inductive diff : name -> name -> list (name * name) -> prop
+by diff X Y C := _if (X = Y) false (det_mem (X,Y) C).
+
+Define inductive sat : list (name * name) -> p -> form -> prop
+by sat _ _ top
+ ; sat C P (land A B) := sat C P A /\ sat C P B
+ ; sat C P (lor A B) := sat C P A \/ sat C P B
+ ; sat C P (boxMatch X Y A) := (X = Y) -> sat C P A
+ ; sat C P (diaMatch X Y A) := (X = Y) /\ sat C P A
+ ; sat C P (boxDiff X Y A) := sat ((X,Y) :: C) P A
+ ; sat C P (diaDiff X Y A) := diff X Y C /\ sat C P A
+ ; sat C P (boxAct X A) := forall P1, one P X P1 -> sat C P1 A
+ ; sat C P (diaAct X A) := exists P1, one P X P1 /\ sat C P1 A
+ ; sat C P (boxOut X A) :=
+      forall Q, onep P (up X) Q -> nabla y, sat C (Q y) (A y)
+ ; sat C P (diaOut X A) :=
+      exists Q, onep P (up X) Q /\ nabla y, sat C (Q y) (A y)
+ ; sat C P (boxIn X A) :=
+      forall Q, onep P (dn X) Q -> forall y, sat C (Q y) (A y)
+ ; sat C P (diaIn X A) :=
+      exists Q, onep P (dn X) Q /\ exists y, sat C (Q y) (A y)
+ ; sat C P (boxInL X A) :=
+      forall Q, onep P (dn X) Q -> exists y, sat C (Q y) (A y)
+ ; sat C P (diaInL X A) :=
+      exists Q, onep P (dn X) Q /\ forall y, sat C (Q y) (A y)
+ ; sat C P (boxInE X A) :=
+      exists y, forall Q, onep P (dn X) Q -> sat C (Q y) (A y)
+ ; sat C P (diaInE X A) :=
+      forall y, exists Q, onep P (dn X) Q /\ sat C (Q y) (A y)
+ .
 
 
 % A complete encoding: using explicit list of names.
 
-Define inductive lsat : list name -> p -> form -> prop
-by lsat _ _ top
-;  lsat L P (land A B) := lsat L P A /\ lsat L P B
-;  lsat L P (lor  A B) := lsat L P A \/ lsat L P B
-;  lsat L P (boxMatch X Y A) := (X = Y) -> lsat L P A
-;  lsat L P (diaMatch X Y A) := (X = Y) /\ lsat L P A
-;  lsat L P (boxAct X A) := forall P1, one P X P1 -> lsat L P1 A
-;  lsat L P (diaAct X A) := exists P1, one P X P1 /\ lsat L P1 A
-;  lsat L P (boxOut X A) :=
-     forall Q, onep P (up X) Q -> nabla y, lsat (y :: L) (Q y) (A y)
-;  lsat L P (diaOut X A) :=
-     exists Q, onep P (up X) Q /\ nabla y, lsat (y :: L) (Q y) (A y)
-;  lsat L P (boxIn X A) :=
+Define inductive lsat : list name -> list (name * name) -> p -> form -> prop
+by lsat _ C _ top
+ ; lsat L C P (land A B) := lsat L C P A /\ lsat L C P B
+ ; lsat L C P (lor  A B) := lsat L C P A \/ lsat L C P B
+ ; lsat L C P (boxMatch X Y A) := (X = Y) -> lsat L C P A
+ ; lsat L C P (diaMatch X Y A) := (X = Y) /\ lsat L C P A
+ ; lsat L C P (boxDiff X Y A) := lsat L ((X,Y) :: C) P A
+ ; lsat L C P (diaDiff X Y A) := diff X Y C /\ lsat L C P A
+ ; lsat L C P (boxAct X A) := forall P1, one P X P1 -> lsat L C P1 A
+ ; lsat L C P (diaAct X A) := exists P1, one P X P1 /\ lsat L C P1 A
+ ; lsat L C P (boxOut X A) :=
+     forall Q, onep P (up X) Q -> nabla y, lsat (y :: L) C (Q y) (A y)
+ ; lsat L C P (diaOut X A) :=
+     exists Q, onep P (up X) Q /\ nabla y, lsat (y :: L) C (Q y) (A y)
+ ; lsat L C P (boxIn X A) :=
      forall Q, onep P (dn X) Q ->
-       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) (Q y) (A y))
-;  lsat L P (diaIn X A) :=
+       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) C (Q y) (A y))
+ ; lsat L C P (diaIn X A) :=
      exists Q, onep P (dn X) Q /\
-       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) (Q y) (A y))
-;  lsat L P (boxInL X A) :=
+       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) C (Q y) (A y))
+ ; lsat L C P (boxInL X A) :=
      forall Q, onep P (dn X) Q ->
-       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) (Q y) (A y))
-;  lsat L P (diaInL X A) :=
+       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) C (Q y) (A y))
+ ; lsat L C P (diaInL X A) :=
      exists Q, onep P (dn X) Q /\
-       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) (Q y) (A y))
-;  lsat L P (boxInE X A) :=
-     nabla w, exists y,
-     (member y (w :: L) /\
-      forall Q, onep P (dn X) Q -> lsat (w :: L) (Q y) (A y))
-;  lsat L P (diaInE X A) :=
+       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) C (Q y) (A y))
+ ; lsat L C P (boxInE X A) :=
+     nabla w, exists y, (member y (w :: L) /\
+                forall Q, onep P (dn X) Q -> lsat (w :: L) C (Q y) (A y))
+ ; lsat L C P (diaInE X A) :=
      nabla w, forall y, member y (w :: L) ->
-       exists Q, onep P (dn X) Q /\ lsat (w :: L) (Q y) (A y)
-.
+                exists Q, onep P (dn X) Q /\ lsat (w :: L) C (Q y) (A y)
+ .
 
 % Some examples ===============================================================
 
@@ -136,9 +144,9 @@ by process 1 (in x (y\ z))
  ; process 3 (in x u\ (plus (taup (taup z)) (taup z)))
  ; process 4 (in x u\ nu y\ ((plus (taup (taup z))
                             (plus (taup z)
-                                  (taup (match u y (taup z)))))))
+                                  (taup (match u y (taup z) z))))))
  ; process 5 (nu m\ out a m (in a (x\ nu n\ out a n z)))
- ; process 6 (in x u\ in x v\ (match u v (taup z)))
+ ; process 6 (in x u\ in x v\ (match u v (taup z) z))
  ; process 7 (in x u\ in x y\ taup z)
  .
 
@@ -147,18 +155,18 @@ by process 1 (in x (y\ z))
 % Counterexample to the completeness of sat:
 Define test : nat -> prop by
   % This will generate an exception
-  test 1 := process 1 P /\ assert 1 A /\ sat P A;
+  test 1 := process 1 P /\ assert 1 A /\ sat nil P A;
   % However, lsat is complete
-  test 2 := process 1 P /\ assert 1 A /\ lsat (x :: nil) P A;
+  test 2 := process 1 P /\ assert 1 A /\ lsat (x :: nil) nil P A;
   % The excluded middle example is not provable using sat,
   % but is provable using lsat.
-  test 3 := process 2 P /\ assert 2 A /\ sat P A;
-  test 4 := process 2 P /\ assert 2 A /\ lsat (x :: nil) P A;
-  test 5 := process 3 P /\ process 4 Q /\ assert 3 A /\ sat P A /\ sat Q A ;
+  test 3 := process 2 P /\ assert 2 A /\ sat nil P A;
+  test 4 := process 2 P /\ assert 2 A /\ lsat (x :: nil) nil P A;
+  test 5 := process 3 P /\ process 4 Q /\ assert 3 A /\ sat nil P A /\ sat nil Q A ;
   % The next two tests are to test tabling behaviour.
   % Running test 7 after running test 6 should still gives a positive answer. 
-  test 6 := process 5 P /\ assert 4 A /\ sat P A ;
-  test 7 := process 5 P /\ assert 5 A /\ sat P A. 
+  test 6 := process 5 P /\ assert 4 A /\ sat nil P A ;
+  test 7 := process 5 P /\ assert 5 A /\ sat nil P A. 
 
 #assert_raise test 1.
 #assert test 2.
