@@ -1,0 +1,150 @@
+% vim: syntax=bedwyr: sw=2: ts=2: expandtab: ai:
+#include "pi_modal.def".
+
+Kind act         type.
+Type atau        act.
+Type adn         name -> act.
+Type aup         name -> name -> act.
+Type amatch      name -> name -> act -> act.
+Type adiff       name -> name -> act -> act.
+
+% Define actname : act -> list name -> prop
+% by actname atau nil
+%  ; actname (adn X) (X :: nil)
+%  ; actname (aup X Y) (X :: Y :: nil)
+%  ; actname (amatch _ _ A) L := actname A L
+%  ; actname (adiff _ _ A) L := actname A L
+%  .
+
+Define actname1 : act -> name -> prop
+     , actname2 : act -> name -> prop
+by actname1 (adn X) X
+ ; actname1 (aup X _) X
+ ; actname1 (amatch _ _ A) X := actname1 A X
+ ; actname1 (adiff _ _ A) X := actname1 A X
+ ; actname2 (aup _ X) X
+ ; actname2 (amatch _ _ A) X := actname1 A X
+ ; actname2 (adiff _ _ A) X := actname1 A X
+ .
+
+% interact up-act dn-act tau-act
+Define interact : act -> act -> act -> prop
+by interact (aup X _) (adn Y) A := _if (X = Y) (A = atau) (A = amatch X Y atau)
+ %
+ ; interact (amatch X X A1) A2 B := interact A1 A2 B
+ ; interact A1 (amatch X X A2) B := interact A1 A2 B
+ ; interact (adiff X X _) _ _ := false
+ ; interact _ (adiff X X _) _ := false
+ %
+ ; interact (amatch X Y _) (adiff X Y _) _ := false
+ ; interact (adiff X Y _) (amatch X Y _) _ := false
+ %
+ ; interact (amatch X Y A1) (amatch X Y A2) (amatch X Y B) := interact A1 A2 B
+ ; interact (adiff X Y A1) (adiff X Y A2) (adiff X Y B) := interact A1 A2 B
+ %
+ ; interact (amatch X Y A1) A2 (amatch X Y B) := interact A1 A2 B
+ ; interact A1 (amatch X Y A2) (amatch X Y B) := interact A1 A2 B
+ ; interact (adiff X Y A1) A2 (adiff X Y B) := interact A1 A2 B
+ ; interact A1 (adiff X Y A2) (adiff X Y B) := interact A1 A2 B
+ .
+
+Define interacts : (list act) -> (list act) -> list act -> prop
+by interacts nil _ nil
+ ; interacts (U :: Us) Ds L :=
+      enum_list (interact U) Ds L1 /\ interacts Us Ds L2 /\ union L1 L2 L
+ .
+
+
+Define
+   nextlbs : p -> list act -> list act -> prop
+ , nextups : p -> list act -> list act -> prop
+ , nextdns : p -> list act -> list act -> prop
+by nextlbs z L L
+ ; nextlbs (taup _) L R := insert atau L R
+ ; nextlbs (in X _) L R := insert (adn X) L R
+ ; nextlbs (out X Y _) L R := insert (aup X Y) L R
+ ; nextlbs (match X Y P Q) L R :=
+      nextlbs P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R1
+   /\ nextlbs Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
+ ; nextlbs (bang P) L R := nextlbs P L L1
+   /\ _if (det_mem atau L1) (R = L1) (
+         nextdns P nil Pds /\ nextups P nil Pus
+      /\ interacts Pds Pus As /\ union L1 As R )
+ ; nextlbs (plus P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 R
+ ; nextlbs (par P Q) L R :=
+      nextlbs P nil L1 /\ nextlbs Q nil L2 /\ nextlbs Q L1 L3
+   /\ _if (det_or (det_mem atau L1) (det_mem atau L2)) (union L L3 R) (
+          nextdns P nil Pds /\ nextups P nil Pus
+       /\ nextdns Q nil Qds /\ nextups Q nil Qus
+       /\ interacts Pds Qus As1 /\ interacts Pus Qds As2
+       /\ union As1 As2 As /\ union L L3 R1 /\ union As R1 R )
+ ; nextlbs (nu P) L R := nabla x, nextlbs (P x) L L1
+                               /\ filter_neg (y\ actname1 y x) L1 R
+ %
+ ; nextdns z L L
+ ; nextdns (taup _) L L
+ ; nextdns (in X _) L R := insert (adn X) L R
+ ; nextdns (out _ _ _) L L
+ ; nextdns (match X Y P Q) L R :=
+      nextdns P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R1
+   /\ nextdns Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
+ ; nextdns (bang P) L R := nextdns P L R
+ ; nextdns (plus P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
+ ; nextdns (par P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
+ ; nextdns (nu P) L R := nabla x, nextdns (P x) L L1
+                               /\ filter_neg (y\ actname1 y x) L1  R
+ %
+ ; nextups z L L
+ ; nextups (taup _) L L
+ ; nextups (in _ _) L L
+ ; nextups (out X Y _) L R := insert (aup X Y) L R
+ ; nextups (match X Y P Q) L R :=
+      nextups P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R1
+   /\ nextups Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
+ ; nextups (bang P) L R := nextups P L R
+ ; nextups (plus P Q) L R := nextups P L L1 /\ nextups Q L1 R
+ ; nextups (par P Q) L R := nextups P L L1 /\ nextups Q L1 R
+ % TODO should we consider onep case too?
+ ; nextups (nu P) L R := nabla x, nextups (P x) L L1
+                               /\ filter_neg (y\ actname1 y x) L1 R
+ .
+
+Define nextlabels : p -> list act -> prop by nextlabels P L := nextlbs P nil L.
+
+
+Define all_o' : list o' -> o' -> prop
+by all_o' L F := foldl_fun conj tt L F.
+Define any_o' : list o' -> o' -> prop
+by any_o' L F := foldl_fun disj ff L F.
+
+
+Define const_fold_o' : o' -> o' -> prop
+by const_fold_o' tt tt
+ ; const_fold_o' ff ff
+ ; const_fold_o' (conj A B) C :=
+      const_fold_o' A A1 /\ _if (A1 = ff) (C = ff) (
+      const_fold_o' B B1 /\ _if (B1 = ff) (C = ff) (
+      _if (A1 = tt) (C = B1) ( _if (B1 = tt) (C = A1) (
+      _if (A1 = B1) (C = A1) (C = conj A1 B1) ) ) ) )
+ ; const_fold_o' (disj A B) C := 
+      const_fold_o' A A1 /\ _if (A1 = tt) (C = tt) (
+      const_fold_o' B B1 /\ _if (B1 = tt) (C = tt) (
+      _if (A1 = ff) (C = B1) ( _if (B1 = ff) (C = A1) (
+      _if (A1 = B1) (C = A1) (C = disj A1 B1) ) ) ) )
+ % TODO more folding on for match and diff depending on X and Y
+ ; const_fold_o' (boxMatch X Y A) (boxMatch X Y B) := const_fold_o' A B
+ ; const_fold_o' (diaMatch X Y A) (diaMatch X Y B) := const_fold_o' A B
+ ; const_fold_o' (boxDiff X Y A) (boxDiff X Y B) := const_fold_o' A B
+ ; const_fold_o' (diaDiff X Y A) (diaDiff X Y B) := const_fold_o' A B
+ %
+ ; const_fold_o' (boxAct X A) (boxAct X B) := const_fold_o' A B
+ ; const_fold_o' (diaAct X A) (diaAct X B) := const_fold_o' A B
+ ; const_fold_o' (boxOut X A) (boxOut X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (diaOut X A) (diaOut X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (boxIn X A) (boxIn X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (diaIn X A) (diaIn X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (boxInL X A) (boxInL X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (diaInL X A) (diaInL X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (boxInE X A) (boxInE X B) := nabla x, const_fold_o' (A x) (B x)
+ ; const_fold_o' (diaInE X A) (diaInE X B) := nabla x, const_fold_o' (A x) (B x)
+ .
