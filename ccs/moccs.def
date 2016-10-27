@@ -1,5 +1,5 @@
 % vim: ts=2: sw=2: expandtab: ai: syntax=bedwyr
-#include "basic.def". % to use list definition
+#include "../basic.def". % to use list definition
 
 Kind nm type.
 

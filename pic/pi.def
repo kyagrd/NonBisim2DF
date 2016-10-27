@@ -226,8 +226,8 @@ by bisim P P
    /\ (forall X N, onep Q (up X) N ->
          exists M, onep P (up X) M /\ bisim_stepp P Q (up X) M N
                                    /\ nabla w, bisim (M w) (N w))
- ; bisim_step P Q A P1 Q1
- ; bisim_stepp P Q A M N
+ ; bisim_step _ _ _ _ _
+ ; bisim_stepp _ _ _ _ _
  .
 
 %% Of the finite pi-calculus examples above (numbered 1-11), the following

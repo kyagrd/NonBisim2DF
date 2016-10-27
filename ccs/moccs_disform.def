@@ -13,19 +13,19 @@ by nextlbs null L L
  ; nextlbs (bang P) L R := nextlbs P L L1
    /\ _if (det_mem tau L1) (R = L1) (
           nextdns P nil Pds /\ nextups P nil Pus
-       /\ _if (intersect? Pds Qus)
+       /\ _if (intersect? Pds Pus)
               (insert tau L1 R)
               (R = L1)
       )
  ; nextlbs (plus P Q) L R := nextlbs P L L1 /\ nextlbs Q L1 R
  ; nextlbs (par P Q) L R :=
       nextlbs P nil L1 /\ nextlbs Q nil L2 /\ nextlbs Q L1 L3
-   /\ _if (det_or (det_mem tau L1) (det_mem tau L2)) (R = L3) (
+   /\ _if (det_or (det_mem tau L1) (det_mem tau L2)) (union L L3 R) (
           nextdns P nil Pds /\ nextups P nil Pus
        /\ nextdns Q nil Qds /\ nextups Q nil Qus
        /\ _if (det_or (intersect? Pds Qus) (intersect? Pus Qds))
-              (insert tau L3 R)
-              (R = L3)
+              (insert tau L3 R1 /\ union L R1 R)
+              (union L L3 R)
       )
  ; nextlbs (new P) L R := nabla x, nextlbs (P x) L L1
                                 /\ setminus L1 (dn x :: up x :: nil) R

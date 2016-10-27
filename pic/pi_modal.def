@@ -13,52 +13,52 @@
 % Dependency: this file needs the pi.def (definition of late transition
 % system for pi-calculus)
 
-% Assume the formulas in the modal logic are in negation normal form.
+% Assume the o'ulas in the modal logic are in negation normal o'.
 %
 %
 % The types of the logical constants:
 %
-% Formulas of MPW logic are given type form.
+% Formulas of MPW logic are given type o'.
 % Propositional connectives:
-%  land : form -> form -> form  (conjunction)
-%  lor : form -> form -> form   (disjunction)
-%  top : form  (true)
-%  bot : form (false)
+%  conj : o' -> o' -> o'  (conjunction)
+%  disj : o' -> o' -> o'  (disjunction)
+%  tt : o'  (true)
+%  ff : o' (false)
 %
 % The prefix 'dia' indicates the 'diamond' modality and 'box' indicates
 % the box modality.
 % 'Free' modalities:
-%   boxMatch : name -> name -> form -> form. (match modality, e.g., [x = y] A)
-%   diaMatch : name -> name -> form -> form. (diamond, e.g., <x=y> A)
-%   boxAct, diaAct : action -> form -> form. (free actions)
-%   boxOut, diaOut : name -> (name -> form) -> form. (bound output)
-%   boxIn, diaIn   : name -> (name -> form) -> form. (bound input)
-%   boxInL, diaInL : name -> (name -> form) -> form. ('late' bound input)
-%   boxInE, diaInE : name -> (name -> form) -> form. ('early' bound input)
+%   boxMatch : name -> name -> o' -> o'. (match modality, e.g., [x = y] A)
+%   diaMatch : name -> name -> o' -> o'. (diamond, e.g., <x=y> A)
+%   boxAct, diaAct : action -> o' -> o'. (free actions)
+%   boxOut, diaOut : name -> (name -> o') -> o'. (bound output)
+%   boxIn, diaIn   : name -> (name -> o') -> o'. (bound input)
+%   boxInL, diaInL : name -> (name -> o') -> o'. ('late' bound input)
+%   boxInE, diaInE : name -> (name -> o') -> o'. ('early' bound input)
 
 #include "pi.def".
-#include "../ccs/basic.def".
+#include "../basic.def".
 
-Kind form                type.
-Type top, bot            form.
-Type land, lor           form -> form -> form.
+Kind o'                type.
+Type tt, ff            o'.
+Type conj, disj           o' -> o' -> o'.
 Type boxMatch, boxDiff,       
-     diaMatch, diaDiff   name -> name -> form -> form.
-Type boxAct, diaAct      a -> form -> form.
+     diaMatch, diaDiff   name -> name -> o' -> o'.
+Type boxAct, diaAct      a -> o' -> o'.
 Type boxOut, diaOut,
      boxIn, diaIn,
      boxInL, diaInL,
-     boxInE, diaInE      name -> (name -> form) -> form.
+     boxInE, diaInE      name -> (name -> o') -> o'.
 
 % A "lazy" but incomplete encoding.
 
 Define inductive diff : name -> name -> list (name * name) -> prop
 by diff X Y C := _if (X = Y) false (det_mem (X,Y) C).
 
-Define inductive sat : list (name * name) -> p -> form -> prop
-by sat _ _ top
- ; sat C P (land A B) := sat C P A /\ sat C P B
- ; sat C P (lor A B) := sat C P A \/ sat C P B
+Define inductive sat : list (name * name) -> p -> o' -> prop
+by sat _ _ tt
+ ; sat C P (conj A B) := sat C P A /\ sat C P B
+ ; sat C P (disj A B) := sat C P A \/ sat C P B
  ; sat C P (boxMatch X Y A) := (X = Y) -> sat C P A
  ; sat C P (diaMatch X Y A) := (X = Y) /\ sat C P A
  ; sat C P (boxDiff X Y A) := sat ((X,Y) :: C) P A
@@ -86,10 +86,10 @@ by sat _ _ top
 
 % A complete encoding: using explicit list of names.
 
-Define inductive lsat : list name -> list (name * name) -> p -> form -> prop
-by lsat _ C _ top
- ; lsat L C P (land A B) := lsat L C P A /\ lsat L C P B
- ; lsat L C P (lor  A B) := lsat L C P A \/ lsat L C P B
+Define inductive lsat : list name -> list (name * name) -> p -> o' -> prop
+by lsat _ _ _ tt
+ ; lsat L C P (conj A B) := lsat L C P A /\ lsat L C P B
+ ; lsat L C P (disj  A B) := lsat L C P A \/ lsat L C P B
  ; lsat L C P (boxMatch X Y A) := (X = Y) -> lsat L C P A
  ; lsat L C P (diaMatch X Y A) := (X = Y) /\ lsat L C P A
  ; lsat L C P (boxDiff X Y A) := lsat L ((X,Y) :: C) P A
@@ -102,41 +102,41 @@ by lsat _ C _ top
      exists Q, onep P (up X) Q /\ nabla y, lsat (y :: L) C (Q y) (A y)
  ; lsat L C P (boxIn X A) :=
      forall Q, onep P (dn X) Q ->
-       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) C (Q y) (A y))
+       nabla w, forall y, member y (w :: L) -> lsat (w :: L) C (Q y) (A y)
  ; lsat L C P (diaIn X A) :=
      exists Q, onep P (dn X) Q /\
-       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) C (Q y) (A y))
+       nabla w, exists y, member y (w :: L) /\ lsat (w :: L) C (Q y) (A y)
  ; lsat L C P (boxInL X A) :=
      forall Q, onep P (dn X) Q ->
-       nabla w, exists y, (member y (w :: L) /\ lsat (w :: L) C (Q y) (A y))
+       nabla w, exists y, member y (w :: L) /\ lsat (w :: L) C (Q y) (A y)
  ; lsat L C P (diaInL X A) :=
      exists Q, onep P (dn X) Q /\
-       nabla w, forall y, (member y (w :: L) -> lsat (w :: L) C (Q y) (A y))
+       nabla w, forall y, member y (w :: L) -> lsat (w :: L) C (Q y) (A y)
  ; lsat L C P (boxInE X A) :=
-     nabla w, exists y, (member y (w :: L) /\
-                forall Q, onep P (dn X) Q -> lsat (w :: L) C (Q y) (A y))
+     nabla w, exists y, member y (w :: L) /\
+              forall Q, onep P (dn X) Q -> lsat (w :: L) C (Q y) (A y)
  ; lsat L C P (diaInE X A) :=
      nabla w, forall y, member y (w :: L) ->
-                exists Q, onep P (dn X) Q /\ lsat (w :: L) C (Q y) (A y)
+              exists Q, onep P (dn X) Q /\ lsat (w :: L) C (Q y) (A y)
  .
 
 % Some examples ===============================================================
 
 % Encoding the judgment x(y).0 |= <x(u)>[x = u] false.
-Define assert : nat -> form -> prop by
+Define assert : nat -> o' -> prop by
   % This judgment should be provable in MPW logic
-  assert  1 (diaIn x (u\ (boxMatch x u bot)));
+  assert  1 (diaIn x (u\ (boxMatch x u ff)));
   % The 'excluded middle' on names
   assert  2
-    (diaInL x (y\ diaInL x (u\ lor (diaMatch y u top) (boxMatch y u bot))));
+    (diaInL x (y\ diaInL x (u\ disj (diaMatch y u tt) (boxMatch y u ff))));
   % Process 3 and 4 are strongly bisimilar, hence should satisfy
   % the same set of assertions.
   % <x(y)>^L (<tau><tau> true ; <tau> true).
-  assert  3 (diaInL x (y\ lor (diaAct tau (diaAct tau top))
-                            (diaAct tau top))) ; 
+  assert  3 (diaInL x (y\ disj (diaAct tau (diaAct tau tt))
+                            (diaAct tau tt))) ; 
   % Assertions to test tabling behaviours
-  assert 4 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x m bot)))) ; 
-  assert 5 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x n bot)))).
+  assert 4 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x m ff)))) ; 
+  assert 5 (boxOut a (m\ boxIn a (x\ boxOut a (n\ boxMatch x n ff)))).
 
 Define process : nat -> p -> prop
 by process 1 (in x (y\ z))

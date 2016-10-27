@@ -27,7 +27,7 @@ det_mem X ((::) Y L) :=
   _if (X = Y) true (det_mem X L).
 
 Define subset : list A -> list A -> prop by 
-subset nil L ; 
+subset nil _ ; 
 subset ((::) X L1) L2 := det_mem X L2 /\ subset L1 L2. 
 
 Define equal : list A -> list A -> prop by
@@ -53,14 +53,14 @@ Define insert : A -> list A -> list A -> prop by
 insert X L R :=
   _if (det_mem X L) 
       (L = R)
-      (R = (::) X L).
+      (R = X :: L).
 
 
 Define ground_list : list A -> list A -> prop by 
 ground_list L R :=
   _if (L = nil) 
       (R = nil)
-      (L = (::) X K /\ ground_list K M /\ R = (::) X M).
+      (L = X :: K /\ ground_list K M /\ R = X :: M).
 
 % deterministic OR: if P is true then Q is not executed.
 Define det_or : prop -> prop -> prop by 
@@ -72,31 +72,31 @@ Define enum : (A -> prop) -> list A -> prop by
 enum P L := (forall x, P x -> det_mem x R) /\ ground_list R L.
 
 Define enuml : (A -> B -> prop) -> list A -> list B -> prop by
-enuml P nil L ; 
-enuml P ((::) Y R) L :=  (forall x, P Y x -> det_mem x L) /\ enuml P R L. 
+enuml P nil _ ; 
+enuml P (Y :: R) L :=  (forall x, P Y x -> det_mem x L) /\ enuml P R L. 
 
 Define enum_list : (A -> B -> prop) -> list A -> list B -> prop by
 enum_list P R L :=  enuml P R X /\ ground_list X L.
 
 Define map : (A -> B -> prop) -> list A -> list B -> prop by
 map P nil nil ; 
-map P ((::) X L) ((::) Y R) := P X Y /\ map P L R.
+map P (X :: L) (Y :: R) := P X Y /\ map P L R.
 
 Define all : (A -> prop) -> list A -> prop by 
 all P nil ; 
-all P ((::) X L) :=  P X /\ all P L.
+all P (X :: L) :=  P X /\ all P L.
 
 Define any : (A -> prop) -> list A -> prop by 
-any P ((::) X L) :=  P X \/ any P L.
+any P (X :: L) :=  P X \/ any P L.
 
 Define det_any : (A -> prop) -> list A -> prop by 
 det_any P nil ; 
-det_any P ((::) X L) :=  det_or (P X) (any P L).
+det_any P (X :: L) :=  det_or (P X) (any P L).
 
 
 Define concat : list (list A) -> list A -> prop
 by concat nil nil
- ; concat ((::) L Ls) Ys := concat Ls Xs /\ append L Xs Ys
+ ; concat (L :: Ls) Ys := concat Ls Xs /\ append L Xs Ys
  .
 
 Define foldr : (A -> B -> B -> prop) -> B -> list A -> B -> prop 
@@ -113,9 +113,9 @@ Define union : list A -> list A -> list A -> prop
 by union Xs Ys Zs := foldr insert Ys Xs Zs.
 
 Define setminus : list A -> list A -> list A -> prop
-by setminus nil Ys nil
- ; setminus ((::) X Xs) Ys Zs := setminus Xs Ys Ds
-   /\ _if (det_mem X Ys) (Zs = Ds) (Zs = (::) X Ds)
+by setminus nil _ nil
+ ; setminus (X :: Xs) Ys Zs := setminus Xs Ys Ds
+   /\ _if (det_mem X Ys) (Zs = Ds) (Zs = X :: Ds)
  .
 
 
@@ -124,12 +124,12 @@ intersect? Xs Ys := member X Xs /\ det_mem X Ys.
 
 
 Define foldr_fun : (A -> B -> B) -> B -> list A -> B -> prop
-by foldr_fun P V0 nil V0
+by foldr_fun _ V0 nil V0
  ; foldr_fun P V0 (X :: Xs) (P X V) := foldr_fun P V0 Xs V
  .
 
 Define foldl_fun : (B -> A -> B) -> B -> list A -> B -> prop
-by foldl_fun P V0 nil V0
+by foldl_fun _ V0 nil V0
  ; foldl_fun P V0 (X :: Xs) V := foldl_fun P (P V0 X) Xs V
  .
 
@@ -138,7 +138,23 @@ Define filter : (A -> prop) -> list A -> list A -> prop by
 filter P nil nil ;
 filter P (X :: Xs) Zs := filter P Xs Ys /\ _if (P X) (Zs = X :: Ys) (Zs = Ys).
 
+Define filter_neg : (A -> prop) -> list A -> list A -> prop by
+filter_neg P nil nil ;
+filter_neg P (X :: Xs) Zs := filter P Xs Ys /\ _if (P X) (Zs = Ys) (Zs = X :: Ys).
+
+
 Define none? : option A -> prop by none? opnone.
 
 Define some : A -> option A -> prop by some X (opsome X).
 
+Define fun1 : (A -> B) -> A -> B -> prop
+     , fun2 : (A1 -> A2 -> B) -> A1 -> A2 -> B -> prop
+     , fun3 : (A1 -> A2 -> A3 -> B) -> A1 -> A2 -> A3 -> B -> prop
+     , fun4 : (A1 -> A2 -> A3 -> A4 -> B) -> A1 -> A2 -> A3 -> A4 -> B -> prop
+     , fun5 : (A1 -> A2 -> A3 -> A4 -> A5 -> B) -> A1 -> A2 -> A3 -> A4 -> A5 -> B -> prop
+by fun1 F A (F A)
+ ; fun2 F A1 A2 (F A1 A2)
+ ; fun3 F A1 A2 A3 (F A1 A2 A3)
+ ; fun4 F A1 A2 A3 A4 (F A1 A2 A3 A4)
+ ; fun5 F A1 A2 A3 A4 A5 (F A1 A2 A3 A4 A5)
+ .
