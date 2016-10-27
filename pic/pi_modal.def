@@ -153,20 +153,21 @@ by process 1 (in x (y\ z))
 
 
 % Counterexample to the completeness of sat:
-Define test : nat -> prop by
-  % This will generate an exception
-  test 1 := process 1 P /\ assert 1 A /\ sat nil P A;
-  % However, lsat is complete
-  test 2 := process 1 P /\ assert 1 A /\ lsat (x :: nil) nil P A;
-  % The excluded middle example is not provable using sat,
-  % but is provable using lsat.
-  test 3 := process 2 P /\ assert 2 A /\ sat nil P A;
-  test 4 := process 2 P /\ assert 2 A /\ lsat (x :: nil) nil P A;
-  test 5 := process 3 P /\ process 4 Q /\ assert 3 A /\ sat nil P A /\ sat nil Q A ;
-  % The next two tests are to test tabling behaviour.
-  % Running test 7 after running test 6 should still gives a positive answer. 
-  test 6 := process 5 P /\ assert 4 A /\ sat nil P A ;
-  test 7 := process 5 P /\ assert 5 A /\ sat nil P A. 
+Define test : nat -> prop
+by % This will generate an exception
+   test 1 := process 1 P /\ assert 1 A /\ sat nil P A
+   % However, lsat is complete
+ ; test 2 := process 1 P /\ assert 1 A /\ lsat (x :: nil) nil P A
+ ; % The excluded middle example is not provable using sat,
+   % but is provable using lsat.
+ ; test 3 := process 2 P /\ assert 2 A /\ sat nil P A
+ ; test 4 := process 2 P /\ assert 2 A /\ lsat (x :: nil) nil P A
+ ; test 5 := process 3 P /\ process 4 Q /\ assert 3 A /\ sat nil P A /\ sat nil Q A
+   % The next two tests are to test tabling behaviour.
+   % Running test 7 after running test 6 should still gives a positive answer. 
+ ; test 6 := process 5 P /\ assert 4 A /\ sat nil P A
+ ; test 7 := process 5 P /\ assert 5 A /\ sat nil P A.
+ .
 
 #assert_raise test 1.
 #assert test 2.
