@@ -140,7 +140,7 @@ filter P (X :: Xs) Zs := filter P Xs Ys /\ _if (P X) (Zs = X :: Ys) (Zs = Ys).
 
 Define filter_neg : (A -> prop) -> list A -> list A -> prop by
 filter_neg P nil nil ;
-filter_neg P (X :: Xs) Zs := filter P Xs Ys /\ _if (P X) (Zs = Ys) (Zs = X :: Ys).
+filter_neg P (X :: Xs) Zs := filter_neg P Xs Ys /\ _if (P X) (Zs = Ys) (Zs = X :: Ys).
 
 
 Define none? : option A -> prop by none? opnone.

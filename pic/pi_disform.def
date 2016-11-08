@@ -80,7 +80,7 @@ by nextlbs z L L
  ; nextdns (plus P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
  ; nextdns (par P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
  ; nextdns (nu P) L R := nabla x, nextdns (P x) L L1
-                               /\ filter_neg (y\ actname y x) L1  R
+                               /\ filter_neg (y\ actname y x) L1 R
  %
  ; nextups z L L
  ; nextups (taup _) L L
