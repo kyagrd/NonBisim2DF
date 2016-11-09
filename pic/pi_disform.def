@@ -5,19 +5,22 @@ Kind act         type.
 Type atau        act.
 Type adn         name -> act.
 Type aup         name -> act.
+Type aupp        name -> name -> act.
 Type amatch      name -> name -> act -> act.
 Type adiff       name -> name -> act -> act.
 
 Define actname : act -> name -> prop
 by actname (adn X) X
  ; actname (aup X) X
+ ; actname (aupp X _) X
  ; actname (amatch _ _ A) X := actname A X
  ; actname (adiff _ _ A) X := actname A X
  .
 
 % interact up-act dn-act tau-act
 Define interact : act -> act -> act -> prop
-by interact (aup X) (adn Y) A := _if (X = Y) (A = atau) (A = amatch X Y atau)
+by interact (aup X)    (adn Y) A := _if (X = Y) (A = atau) (A = amatch X Y atau)
+ ; interact (aupp X _) (adn Y) A := _if (X = Y) (A = atau) (A = amatch X Y atau)
  %
  ; interact (amatch X X A1) A2 B := interact A1 A2 B
  ; interact A1 (amatch X X A2) B := interact A1 A2 B
@@ -47,10 +50,11 @@ Define
    nextlbs : p -> list act -> list act -> prop
  , nextups : p -> list act -> list act -> prop
  , nextdns : p -> list act -> list act -> prop
+ , aupp2aup : name -> list act -> list act -> prop
 by nextlbs z L L
  ; nextlbs (taup _) L R := insert atau L R
  ; nextlbs (in X _) L R := insert (adn X) L R
- ; nextlbs (out X Y _) L R := insert (aup X) L R
+ ; nextlbs (out X Y _) L R := insert (aupp X Y) L R
  ; nextlbs (match X Y P Q) L R :=
       nextlbs P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R1
    /\ nextlbs Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
@@ -66,8 +70,9 @@ by nextlbs z L L
        /\ nextdns Q nil Qds /\ nextups Q nil Qus
        /\ interacts Qus Pds As1 /\ interacts Pus Qds As2
        /\ union As1 As2 As /\ union L L3 R1 /\ union As R1 R )
- ; nextlbs (nu P) L R := nabla x, nextlbs (P x) L L1
-                               /\ filter_neg (y\ actname y x) L1 R
+ ; nextlbs (nu P) L R := nabla x, nextlbs (P x) L (L1 x)
+                               /\ filter_neg (y\ actname y x) (L1 x) (R1 x)
+                               /\ aupp2aup x (R1 x) R
  %
  ; nextdns z L L
  ; nextdns (taup _) L L
@@ -79,21 +84,25 @@ by nextlbs z L L
  ; nextdns (bang P) L R := nextdns P L R
  ; nextdns (plus P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
  ; nextdns (par P Q) L R := nextdns P L L1 /\ nextdns Q L1 R
- ; nextdns (nu P) L R := nabla x, nextdns (P x) L L1
-                               /\ filter_neg (y\ actname y x) L1 R
+ ; nextdns (nu P) L R := nabla x, nextdns (P x) L (L1 x)
+                               /\ filter_neg (y\ actname y x) (L1 x) R
  %
  ; nextups z L L
  ; nextups (taup _) L L
  ; nextups (in _ _) L L
- ; nextups (out X Y _) L R := insert (aup X) L R
+ ; nextups (out X Y _) L R := insert (aupp X Y) L R
  ; nextups (match X Y P Q) L R :=
       nextups P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R1
    /\ nextups Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
  ; nextups (bang P) L R := nextups P L R
  ; nextups (plus P Q) L R := nextups P L L1 /\ nextups Q L1 R
  ; nextups (par P Q) L R := nextups P L L1 /\ nextups Q L1 R
- ; nextups (nu P) L R := nabla x, nextups (P x) L L1
-                               /\ filter_neg (y\ actname y x) L1 R
+ ; nextups (nu P) L R := nabla x, nextups (P x) L (L1 x)
+                               /\ filter_neg (y\ actname y x) (L1 x) (R1 x)
+                               /\ aupp2aup x (R1 x) R
+ ; aupp2aup _ nil nil
+ ; aupp2aup X (Y :: Ys) (Z :: Zs) := _if (Y = aupp W X) (Z = aup W) (Y = Z)
+                                  /\ aupp2aup X Ys Zs
  .
 
 Define nextlabels : p -> list act -> prop by nextlabels P L := nextlbs P nil L.
@@ -136,18 +145,59 @@ by const_fold_o' tt tt
  ; const_fold_o' (diaInE X A) (diaInE X B) := nabla x, const_fold_o' (A x) (B x)
  .
 
-%% %% for finite process this will work but for infinite process???
-%% Define
-%%    disform : p -> p -> option o' -> prop
-%% by disform P Q F :=
-%%    _if (proved bisim P Q)
-%%        (F = opnone)
-%%        (_if (disproved bisim P Q)
-%%             (  nextlabels P Xs /\ nextlabels Q Ys
-%%             /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
-%%             /\ _if (det_mem X1 Xs_Ys) (F = opsome (dia X1 tt)) (
-%%                _if (det_mem Y1 Ys_Xs) (F = opsome (box Y1 ff)) (
-%%                enum (tbl_bisim_step_label P Q) Zs
+#include "tbl_query00_bisim.def".
+#include "tbl_query00_bisim_step.def".
+#include "tbl_query00_bisim_stepp.def".
+
+
+Define
+   tbl_bisim_step : p -> p -> a -> p -> p -> prop
+ , tbl_bisim_step_1st : p -> p -> a -> p -> prop
+ , tbl_bisim_step_2nd : p -> p -> a -> p -> prop
+ , tbl_bisim_step_label : p -> p -> a -> prop
+ , tbl_bisim_stepp : p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop
+ , tbl_bisim_stepp_1st : p -> p -> (name -> a) -> (name -> p) -> prop
+ , tbl_bisim_stepp_2nd : p -> p -> (name -> a) -> (name -> p) -> prop
+ , tbl_bisim_stepp_label : p -> p -> (name -> a) -> prop
+by tbl_bisim_step P Q X P1 Q1 := proved' bisim_step_tbl 0 P Q X P1 Q1
+ ; tbl_bisim_step_1st P Q X P1 := proved' bisim_step_tbl 1 P Q X P1 z
+ ; tbl_bisim_step_2nd P Q X Q1 := proved' bisim_step_tbl 2 P Q X z Q1
+ ; tbl_bisim_step_label P Q X := proved' bisim_step_tbl 3 P Q X z z
+ ; tbl_bisim_stepp P Q X P1 Q1 := proved'' bisim_stepp_tbl 0 P Q X P1 Q1
+ ; tbl_bisim_stepp_1st P Q X P1 := proved'' bisim_stepp_tbl 1 P Q X P1 (x\z)
+ ; tbl_bisim_stepp_2nd P Q X Q1 := proved'' bisim_stepp_tbl 2 P Q X (x\z) Q1
+ ; tbl_bisim_stepp_label P Q X := proved'' bisim_stepp_tbl 3 P Q X (x\z) (x\z)
+ .
+
+
+
+%% for finite process this will work but for infinite process???
+Define
+   disform : p -> p -> option o' -> prop
+ , dia : act -> o' -> o' -> prop
+ , box : act -> o' -> o' -> prop
+by dia atau           A (diaAct tau A)
+ ; dia (aupp X Y)     A (diaAct (up X Y) A)
+ ; dia (aup X)        A (diaOut X (x\A))
+ ; dia (adn X)        A (diaInL X (x\A))
+% ; dia (amatch X Y Z) A (diaMatch X Y)
+% ; dia (adiff X Y Z)  A (diaDiff )
+ ; box atau           A (boxAct tau A)
+ ; box (aupp X Y)     A (boxAct (up X Y) A)
+ ; box (aup X)        A (boxOut X (x\A))
+ ; box (adn X)        A (boxInL X (x\A))
+% ; dia (amatch X Y Z) A (diaMatch X Y)
+% ; dia (adiff X Y Z)  A (diaDiff )
+ ; disform P Q F :=
+   _if (proved bisim P Q)
+       (F = opnone)
+       (_if (disproved bisim P Q)
+            (  nextlabels P Xs /\ nextlabels Q Ys
+            /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
+            /\ _if (det_mem X1 Xs_Ys) (dia X1 tt F1 /\ F = opsome F1) (
+               _if (det_mem Y1 Ys_Xs) (box Y1 tt F1 /\ F = opsome F1) (
+                  enum (tbl_bisim_step_label P Q) Zs
+%%%%%%               /\ enum (tbl_bisim_stepp_label P Q) Zs2 /\ union Zs1 Zs2 Zs
 %%             /\ (det_or (det_or
 %%                 (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
 %%                 /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
@@ -160,16 +210,16 @@ by const_fold_o' tt tt
 %%                 /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
 %%                 %
 %%                ) (F = opnone) )
-%%             ) ) )
-%%             (  printstr "unvisited process state pairs "
-%%             /\ printstr "(neither in proved nor in disproved bisim table)\n"
-%%             /\ println P /\ println Q /\ false )
-%%        )
-%%   .
+            ) ) )
+            (  printstr "unvisited process state pairs "
+            /\ printstr "(neither in proved nor in disproved bisim table)\n"
+            /\ println P /\ println Q /\ false )
+       )
+ .
 
 
-%% Define chk_disform : p -> p -> o' -> prop
-%% by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
-%%                        /\ satisfy P1 G /\ _not (satisfy P2 G).
+Define chk_disform : p -> p -> o' -> prop
+by chk_disform P1 P2 G := disform P1 P2 (opsome F) /\ const_fold_o' F G
+                       /\ lsat nil nil P1 G /\ _not (lsat nil nil P2 G).
 
 

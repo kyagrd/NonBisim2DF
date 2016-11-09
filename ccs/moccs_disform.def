@@ -83,8 +83,8 @@ nextlabels (par (inp b null) (out b null)) Xs /\ map (x\ enum (one (par (inp b n
 
 Define all_o' : list o' -> o' -> prop
 by all_o' L F := foldl_fun conj tt L F.
-Define any_o' : list o' -> o' -> prop by any_o' L F := foldl_fun disj ff L F.
-
+Define any_o' : list o' -> o' -> prop
+by any_o' L F := foldl_fun disj ff L F.
 
 Define const_fold_o' : o' -> o' -> prop
 by const_fold_o' tt tt
