@@ -91,7 +91,7 @@ by nextlbs z L L
  ; nextups (taup _) L L
  ; nextups (in _ _) L L
  ; nextups (out X Y _) L R := insert (aupp X Y) L R
- ; nextups (match X Y P Q) L R :=
+ ; nextups (match X Y P) L R :=
       nextups P nil L1 /\ map (fun1 (amatch X Y)) L1 L1' /\ union L L1' R % R1
 %   /\ nextups Q nil L2 /\ map (fun1 (adiff  X Y)) L2 L2' /\ union R1 L2' R
  ; nextups (bang P) L R := nextups P L R
