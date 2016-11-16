@@ -183,7 +183,7 @@ by disform P Q F :=
                 /\ enum (tbl_bisim_step P Q Z P1) Q1s /\ map (disform P1) Q1s OFs
                 /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
                 %
-                (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                (exists Z P1s Q1 Q1s OFs Fs F1, member Z Zs
                 /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
                 /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s /\ map (p\ disform p Q1) P1s OFs
                 /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
