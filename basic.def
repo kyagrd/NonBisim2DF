@@ -82,6 +82,10 @@ Define map : (A -> B -> prop) -> list A -> list B -> prop by
 map P nil nil ; 
 map P (X :: L) (Y :: R) := P X Y /\ map P L R.
 
+Define map_fun : (A -> B) -> list A -> list B -> prop by
+map_fun F nil nil ;
+map_fun F (X :: L) (F X :: R) := map_fun F L R.
+
 Define all : (A -> prop) -> list A -> prop by 
 all P nil ; 
 all P (X :: L) :=  P X /\ all P L.

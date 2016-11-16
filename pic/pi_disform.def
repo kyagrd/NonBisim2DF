@@ -176,6 +176,9 @@ Define
    disform : p -> p -> option o' -> prop
  , dia : act -> o' -> o' -> prop
  , box : act -> o' -> o' -> prop
+ , isdn : (name -> a) -> prop
+ , isup : (name -> a) -> prop
+ , apparg : name -> (name -> p) -> p -> prop
 by dia atau           A (diaAct tau A)
  ; dia (aupp X Y)     A (diaAct (up X Y) A)
  ; dia (aup X)        A (diaOut X (x\A))
@@ -188,6 +191,9 @@ by dia atau           A (diaAct tau A)
  ; box (adn X)        A (boxInL X (x\A))
 % ; dia (amatch X Y Z) A (diaMatch X Y)
 % ; dia (adiff X Y Z)  A (diaDiff )
+ ; isdn (dn _)
+ ; isup (up _)
+ ; apparg A F (F A)
  ; disform P Q F :=
    _if (proved bisim P Q)
        (F = opnone)
@@ -195,21 +201,60 @@ by dia atau           A (diaAct tau A)
             (  nextlabels P Xs /\ nextlabels Q Ys
             /\ setminus Xs Ys Xs_Ys /\ setminus Ys Xs Ys_Xs
             /\ _if (det_mem X1 Xs_Ys) (dia X1 tt F1 /\ F = opsome F1) (
-               _if (det_mem Y1 Ys_Xs) (box Y1 tt F1 /\ F = opsome F1) (
-                  enum (tbl_bisim_step_label P Q) Zs
-%%%%%%               /\ enum (tbl_bisim_stepp_label P Q) Zs2 /\ union Zs1 Zs2 Zs
-%%             /\ (det_or (det_or
-%%                 (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
-%%                 /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
-%%                 /\ enum (tbl_bisim_step P Q Z P1) Q1s /\ map (disform P1) Q1s OFs
-%%                 /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (dia Z F1) )
-%%                 %
-%%                 (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
-%%                 /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
-%%                 /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s /\ map (p\ disform p Q1) P1s OFs
-%%                 /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (box Z F1) )
-%%                 %
-%%                ) (F = opnone) )
+               _if (det_mem Y1 Ys_Xs) (box Y1 ff F1 /\ F = opsome F1) (
+               det_or (det_or
+                 ( enum (tbl_bisim_step_label P Q) Zs
+                 /\ det_or
+                    (exists Z P1s P1 Q1s OFs Fs F1, member Z Zs
+                    /\ enum (tbl_bisim_step_1st P Q Z) P1s /\ member P1 P1s
+                    /\ enum (tbl_bisim_step P Q Z P1) Q1s /\ map (disform P1) Q1s OFs
+                    /\ map some Fs OFs /\ all_o' Fs F1 /\ F = opsome (diaAct Z F1) )
+                    %
+                    (exists Z P1s Q1 Q1s OFs Fs F1, member Z Zs
+                    /\ enum (tbl_bisim_step_2nd P Q Z) Q1s /\ member Q1 Q1s 
+                    /\ enum (p\ tbl_bisim_step P Q Z p Q1) P1s /\ map (p\ disform p Q1) P1s OFs
+                    /\ map some Fs OFs /\ any_o' Fs F1 /\ F = opsome (boxAct Z F1) )
+                 )
+                 %
+                 ( enum (tbl_bisim_stepp_label P Q) Zs1
+                 /\ filter isdn Zs1 ZsD /\ filter isup Zs1 ZsU /\
+                 det_or
+                  (det_or
+                    (exists Z X W P1s P1 Q1s OFs Fs F1, member Z ZsD /\ Z = dn X
+                    /\ enum (tbl_bisim_stepp_1st P Q Z) P1s /\ member P1 P1s
+                    /\ enum (tbl_bisim_stepp P Q Z P1) Q1s
+                    /\ map_fun (q\ q W) Q1s (Q1s' W)
+                    /\ map (disform (P1 W)) (Q1s' W) (OFs W)
+                    /\ map some (Fs W) (OFs W) /\ all_o' (Fs W) (F1 W)
+                    /\ F = opsome (diaInL X F1) )
+                    %
+                    (exists Z X W P1s Q1 Q1s OFs Fs F1, member Z ZsD /\ Z = dn X
+                    /\ enum (tbl_bisim_stepp_2nd P Q Z) Q1s /\ member Q1 Q1s 
+                    /\ enum (p\ tbl_bisim_stepp P Q Z p Q1) P1s
+                    /\ map_fun (q\ q W) P1s (P1s' W)
+                    /\ map (disform (Q1 W)) (P1s' W) (OFs W)
+                    /\ map some (Fs W) (OFs W) /\ any_o' (Fs W) (F1 W)
+                    /\ F = opsome (boxInL X F1) )
+                  )
+                  (det_or
+                    (exists Z X W P1s P1 Q1s OFs Fs F1, member Z ZsD /\ Z = up X
+                    /\ enum (tbl_bisim_stepp_1st P Q Z) P1s /\ member P1 P1s
+                    /\ enum (tbl_bisim_stepp P Q Z P1) Q1s
+                    /\ map_fun (q\ q W) Q1s (Q1s' W)
+                    /\ map (disform (P1 W)) (Q1s' W) (OFs W)
+                    /\ map some (Fs W) (OFs W) /\ all_o' (Fs W) (F1 W)
+                    /\ F = opsome (diaOut X F1) )
+                    %
+                    (exists Z X W P1s Q1 Q1s OFs Fs F1, member Z ZsU /\ Z = up X
+                    /\ enum (tbl_bisim_stepp_2nd P Q Z) Q1s /\ member Q1 Q1s 
+                    /\ enum (p\ tbl_bisim_stepp P Q Z p Q1) P1s
+                    /\ map_fun (q\ q W) P1s (P1s' W)
+                    /\ map (disform (Q1 W)) (P1s' W) (OFs W)
+                    /\ map some (Fs W) (OFs W) /\ any_o' (Fs W) (F1 W)
+                    /\ F = opsome (boxOut X F1) )
+                  )
+                 ) )
+               (F = opnone)
             ) ) )
             (  printstr "unvisited process state pairs "
             /\ printstr "(neither in proved nor in disproved bisim table)\n"
