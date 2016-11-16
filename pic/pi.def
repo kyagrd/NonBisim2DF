@@ -26,7 +26,7 @@ Kind p           type.   % Processes
 Type in          name -> (name -> p) -> p.
 Type out         name -> name -> p -> p.
 Type taup        p -> p.
-Type match       name -> name -> p -> p -> p.
+Type match       name -> name -> p -> p.
 Type plus, par   p -> p -> p.
 Type nu          (name -> p) -> p.
 Type bang        p -> p.
@@ -41,13 +41,13 @@ Type z           p.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Define example : nat -> p -> prop
-by example 0  (nu x\ match x a (taup z) z)
+by example 0  (nu x\ match x a (taup z))
  ; example 1  (par (in x y\z) (out x a z))
  ; example 2  (plus (in x y\out x a z) (out x a (in x y\z)))
  ; example 3  (in x u\ (plus (taup (taup z)) (taup z)))
  ; example 4  (in x u\ (plus (taup (taup z))
                       (plus (taup z)
-                            (taup (match u y (taup z) z)))))
+                            (taup (match u y (taup z))))))
  ; example 5  (nu a\ (par (in x y\z) (out x a z)))
  ; example 6  (nu a\ (plus (in x y\out x a z) (out x a (in x y\z))))
  ; example 7  (taup z)
@@ -56,7 +56,7 @@ by example 0  (nu x\ match x a (taup z) z)
  ; example 10 (par (in x y\ z) (nu y\ out x y z))
  ; example 11 (in x u\ nu y\ ((plus (taup (taup z))
                              (plus (taup z)
-                                   (taup (match u y (taup z) z))))))
+                                   (taup (match u y (taup z)))))))
 %% The example pi-expressions above are "finite pi-expressions" since
 %% they do not involve the replication operator no recursive definitions.
 %% The following three examples use bang explicitly.
@@ -137,8 +137,8 @@ by onep (in X M) (dn X) M
  ; one  (taup P) tau P
 
   % match prefix
- ; one  (match X Y P Q) A R := _if (X = Y) (one P A R) (one Q A R)
- ; onep (match X Y P Q) A M := _if (X = Y) (onep P A M) (onep Q A M)
+ ; one  (match X X P) A R := (one P A R)
+ ; onep (match X X P) A M := (onep P A M)
 
   % sum
  ; one  (plus P _) A R := one  P A R

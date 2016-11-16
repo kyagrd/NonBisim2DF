@@ -1,0 +1,36 @@
+% Table for bisim_stepp_tbl contains :
+Define
+  proved : (nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop) -> 
+           nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop,
+  disproved : (nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop) -> 
+              nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop
+by
+  proved bisim_stepp_tbl 0
+          (in x (x1\ in x (x2\ plus (out x x (out x x z)) (out x x z))))
+          (in x
+            (x1\
+             in x
+              (x2\
+               plus
+                (in x (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+                (out x x (match x1 x2 (out x x z))))))
+          (dn x) (x1\ in x (x2\ plus (out x x (out x x z)) (out x x z)))
+          (x1\
+           in x
+            (x2\
+             plus
+              (in x (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+              (out x x (match x1 x2 (out x x z))))) ;
+  proved x1\
+         bisim_stepp_tbl 0
+          (in x (x2\ plus (out x x (out x x z)) (out x x z)))
+          (in x
+            (x2\
+             plus
+              (in x (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+              (out x x (match x1 x2 (out x x z)))))
+          (dn x) (x2\ plus (out x x (out x x z)) (out x x z))
+          (x2\
+           plus
+            (in x (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+            (out x x (match x1 x2 (out x x z)))).

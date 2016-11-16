@@ -1,0 +1,27 @@
+% Table for bisim contains :
+Define proved : (p -> p -> prop) -> p -> p -> prop,
+  disproved : (p -> p -> prop) -> p -> p -> prop by
+  disproved x1\x2\ bisim z (match x1 x2 (out x x z)) ;
+  disproved bisim
+             (in x (x1\ in x (x2\ plus (out x x (out x x z)) (out x x z))))
+             (in x
+               (x1\
+                in x
+                 (x2\
+                  plus
+                   (in x
+                     (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+                   (out x x (match x1 x2 (out x x z)))))) ;
+  disproved x1\
+            bisim (in x (x2\ plus (out x x (out x x z)) (out x x z)))
+             (in x
+               (x2\
+                plus
+                 (in x
+                   (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+                 (out x x (match x1 x2 (out x x z))))) ;
+  disproved x1\x2\
+            bisim (plus (out x x (out x x z)) (out x x z))
+             (plus
+               (in x (x3\ in x (x4\ plus (out x x (out x x z)) (out x x z))))
+               (out x x (match x1 x2 (out x x z)))).
