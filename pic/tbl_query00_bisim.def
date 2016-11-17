@@ -1,0 +1,5 @@
+% Table for bisim contains :
+Define proved : (p -> p -> prop) -> p -> p -> prop,
+  disproved : (p -> p -> prop) -> p -> p -> prop by
+  proved bisim (par (in x (x1\ z)) (out x a z))
+          (par (in x (x1\ z)) (out x a z)).
