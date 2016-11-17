@@ -77,9 +77,8 @@ by example 0  (nu x\ match x a (taup z))
 
 Type quiet  p.
 % The following constants are used to present an approach to arithmetic
-Type null   name.
-Type zz     name.
-Type s      name -> name.
+%% Type zz     name.
+%% Type s      name -> name.
 %% Type zero   name -> p.
 %% Type suc    name -> name -> p.
 %% Type num    name -> name -> p.

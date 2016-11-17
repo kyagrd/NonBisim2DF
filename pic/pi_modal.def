@@ -120,6 +120,59 @@ by lsat _ _ _ tt
               exists Q, onep P (dn X) Q /\ lsat (w :: L) C (Q y) (A y)
  .
 
+
+/*
+Define lsat : list name -> list (name * name) -> p -> o' -> prop
+     , eqchk : name -> name -> list (name * name) -> prop
+     , neqchk : name -> name -> list (name * name) -> prop
+     , eqins : name -> name -> list (name * name) -> list (name * name) -> prop
+by eqchk X Y L := det_or (X = Y) (det_or (member (X,Y) L) (member (Y,X) L))
+ ; neqchk X Y L := _if (X = Y) false (_not (member (X,Y) L) /\ _not (member (Y,X) L))
+ ; eqins X Y L R := _if (X = Y) (L = R) (
+      (  exists L1 Zs XZs, insert (X,Y) L L1 /\ enum (z\ member (Y,z) L) Zs
+      /\ map_fun (z\(X,z)) Zs XZs /\ foldr insert XZs L1 L2 )
+   /\ (  exists L1 Zs YZs, insert (Y,X) L2 R1 /\ enum (z\ member (X,z) L) Zs
+      /\ map_fun (z\(Y,z)) Zs YZs /\ foldr insert YZs R1 R )
+   )
+ ; lsat _ _ _ tt
+ ; lsat L C P (conj A B) := lsat L C P A /\ lsat L C P B
+ ; lsat L C P (disj  A B) := lsat L C P A \/ lsat L C P B
+ ; lsat L C P (boxMatch X Y A) := eqins X Y C C1
+     /\ println "aa" /\ println (lsat L C1 P A)
+     /\ lsat L C1 P A
+     /\ println "bb" /\ println (lsat L C1 P A)
+ ; lsat L C P (diaMatch X Y A) := eqchk X Y C /\ lsat L C P A
+ ; lsat L C P (boxDiff X Y A) := _if (neqchk X Y C) true  (lsat L C P A)
+ ; lsat L C P (diaDiff X Y A) := _if (neqchk X Y C) false (lsat L C P A)
+ ; lsat L C P (boxAct X A) := forall P1, one P X P1 -> lsat L C P1 A
+ ; lsat L C P (diaAct X A) := exists P1, one P X P1 /\ lsat L C P1 A % /\ println (one P X P1 /\ lsat L C P1 A) 
+ ; lsat L C P (boxOut X A) :=
+     forall Q, onep P (up X) Q -> nabla y, lsat (y :: L) C (Q y) (A y)
+ ; lsat L C P (diaOut X A) :=
+     exists Q, onep P (up X) Q /\ nabla y, lsat (y :: L) C (Q y) (A y)
+ ; lsat L C P (boxIn X A) :=
+     forall Q, onep P (dn X) Q ->
+       nabla w, forall y, member (y w) (w :: L) -> lsat (w :: L) C (Q y) (A y)
+ ; lsat L C P (diaIn X A) :=
+     exists Q, onep P (dn X) Q /\
+       nabla w, exists y, member y (w :: L) /\ lsat (w :: L) C (Q y) (A y)
+ ; lsat L C P (boxInL X A) :=
+     forall Q, onep P (dn X) Q ->
+       nabla w, exists y, member y (w :: L) /\ lsat (w :: L) C (Q y) (A y)
+ ; lsat L C P (diaInL X A) :=
+     exists Q, onep P (dn X) Q /\
+       nabla w, forall y, member y (w :: L) -> lsat (w :: L) C (Q y) (A y)
+ ; lsat L C P (boxInE X A) :=
+     nabla w, exists y, member y (w :: L) /\
+              forall Q, onep P (dn X) Q -> lsat (w :: L) C (Q y) (A y)
+ ; lsat L C P (diaInE X A) :=
+     nabla w, forall y, member y (w :: L) ->
+              exists Q, onep P (dn X) Q /\ lsat (w :: L) C (Q y) (A y)
+ .
+*/
+
+
+
 % Some examples ===============================================================
 
 % Encoding the judgment x(y).0 |= <x(u)>[x = u] false.
