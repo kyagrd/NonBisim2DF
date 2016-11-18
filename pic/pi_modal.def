@@ -90,7 +90,7 @@ by sat _ tt
 Define inductive lsat : list name -> p -> o' -> prop
 by lsat _ _ tt
  ; lsat L P (conj A B) := lsat L P A /\ lsat L P B
- ; lsat L P (disj  A B) := lsat L P A \/ lsat L P B
+ ; lsat L P (disj A B) := lsat L P A \/ lsat L P B
  ; lsat L P (boxMatch X Y A) := (X = Y) -> lsat L P A
  ; lsat L P (diaMatch X Y A) := (X = Y) /\ lsat L P A
  ; lsat L P (boxDiff X Y A) := X = Y \/ lsat L P A
