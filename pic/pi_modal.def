@@ -91,10 +91,10 @@ Define inductive lsat : list name -> p -> o' -> prop
 by lsat _ _ tt
  ; lsat L P (conj A B) := lsat L P A /\ lsat L P B
  ; lsat L P (disj  A B) := lsat L P A \/ lsat L P B
- ; lsat L P (boxMatch X Y A) := (X = Y) -> lsat L P A
- ; lsat L P (diaMatch X Y A) := (X = Y) /\ lsat L P A
- ; lsat L P (boxDiff X Y A) := X = Y \/ lsat L P A
- ; lsat L P (diaDiff X Y A) := _if (X = Y) false (lsat L P A)
+ ; lsat L P (boxMatch X Y A) := X = Y -> lsat L P A
+ ; lsat L P (diaMatch X Y A) := X = Y /\ lsat L P A
+ ; lsat L P (boxDiff X Y A) := X = Y \/ lsat L P A            % X /= Y -> ...
+ ; lsat L P (diaDiff X Y A) := _if (X = Y) false (lsat L P A) % X /= Y /\ ...
  ; lsat L P (boxAct X A) := forall P1, one P X P1 -> lsat L P1 A
  ; lsat L P (diaAct X A) := exists P1, one P X P1 /\ lsat L P1 A
  ; lsat L P (boxOut X A) :=
