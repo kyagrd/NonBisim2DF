@@ -29,8 +29,10 @@
 % the box modality.
 % 'Free' modalities:
 %   boxMatch : name -> name -> o' -> o'. (match modality, e.g., [x = y] A)
-%   diaMatch : name -> name -> o' -> o'. (diamond, e.g., <x=y> A)
-%   boxAct, diaAct : action -> o' -> o'. (free actions)
+%   diaMatch : name -> name -> o' -> o'. (diamond, e.g., <x = y> A)
+%   boxDiff : name -> name -> o' -> o'. (mismatch modality, e.g., [x /= y] A)
+%   diaDiff : name -> name -> o' -> o'. (diamond, e.g., <x /= y> A)
+%   boxAct, diaAct : a -> o' -> o'. (free as)
 %   boxOut, diaOut : name -> (name -> o') -> o'. (bound output)
 %   boxIn, diaIn   : name -> (name -> o') -> o'. (bound input)
 %   boxInL, diaInL : name -> (name -> o') -> o'. ('late' bound input)
@@ -61,8 +63,8 @@ by sat _ tt
  ; sat P (disj A B) := sat P A \/ sat P B
  ; sat P (boxMatch X Y A) := (X = Y) -> sat P A
  ; sat P (diaMatch X Y A) := (X = Y) /\ sat P A
- ; sat P (boxDiff X Y A) := (X = Y) \/ sat P A
- ; sat P (diaDiff X Y A) := _if (X = Y) false (sat P A)
+ ; sat P (boxDiff X Y A) := (X = Y -> false) -> sat P A
+ ; sat P (diaDiff X Y A) := (X = Y -> false) /\ sat P A
  ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
  ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
  ; sat P (boxOut X A) :=
@@ -93,8 +95,8 @@ by lsat _ _ tt
  ; lsat L P (disj A B) := lsat L P A \/ lsat L P B
  ; lsat L P (boxMatch X Y A) := X = Y -> lsat L P A
  ; lsat L P (diaMatch X Y A) := X = Y /\ lsat L P A
- ; lsat L P (boxDiff X Y A) := X = Y \/ lsat L P A            % X /= Y -> ...
- ; lsat L P (diaDiff X Y A) := _if (X = Y) false (lsat L P A) % X /= Y /\ ...
+ ; lsat L P (boxDiff X Y A) := (X = Y -> false) -> lsat L P A % X /= Y -> ...
+ ; lsat L P (diaDiff X Y A) := (X = Y -> false) /\ lsat L P A % X /= Y /\ ...
  ; lsat L P (boxAct X A) := forall P1, one P X P1 -> lsat L P1 A
  ; lsat L P (diaAct X A) := exists P1, one P X P1 /\ lsat L P1 A
  ; lsat L P (boxOut X A) :=
@@ -293,5 +295,58 @@ process 2 P /\ A = diaInL x(x1\ diaInL x(x2\ disj (boxMatch x1 x2 tt) (diaDiff x
 process 2 P /\ A = diaInL x(x1\ diaInL x(x2\ disj (diaMatch x1 x2 tt) (boxDiff x1 x2 tt))) /\ lsat (x :: nil) P A.
 
 process 2 P /\ A = diaInL x(x1\ diaInL x(x2\ disj (boxMatch x1 x2 tt) (boxDiff x1 x2 ff))) /\ lsat (x :: nil) P A.
+
+P = x\ y\ taup (match x y (taup z)) /\ Q = plus (taup (taup z)) (taup z) /\ forall x y, bisim (plus (P x y) Q) Q.
+
+P = x\ y\ (match x y (taup z)) /\ Q = plus (taup z) z /\
+F1 = x\ y\ disj (boxMatch x y (diaAct tau tt)) (diaMatch x y (boxAct tau ff)) /\ % (boxDiff x y (boxAct tau ff)) /\
+forall x y, sat Q (F1 x y).
+
+L = (a :: b :: nil) /\
+forall x y, member x L -> member y L -> lsat nil (P x y) (F1 x y).
+
+
+
+
+
+forall x y, sat (P x y) (F1 x y).
+
+L = (a :: b :: nil) /\
+forall x y, member x L -> member y L -> lsat nil (P x y) (F1 x y).
+
+forall x y, member x L -> member y L -> (lsat nil (taup z) (F1 x y) \/ lsat nil z (F1 x y)).
+
+forall x y, member x L -> member y L -> lsat nil Q (F1 x y).
+
+
+
+P = x\ y\ taup (match x y (taup z)) /\
+Q = plus (taup (taup z)) (taup z) /\
+forall x y, bisim (P x y) Q.
+
+L = (a :: b :: nil) /\
+forall x y, member x L -> member y L -> bisim (plus (P x y) Q) Q.
+
+
+forall x y, bisim (plus (P x y) Q) Q.
+
+
+
+
+
+P = x\ y\ taup (match x y (taup z)) /\
+Q = plus (taup (taup z)) (taup z) /\
+F1 = x\ y\ conj (boxMatch x y (diaAct tau tt)) (boxDiff x y (boxAct tau ff)) /\
+F = x\ y\ diaAct tau (F1 x y) /\
+
+
+
+L = (a :: b :: nil) /\
+forall x y, member x L -> member y L -> lsat nil Q (F x y).
+
+forall x y, member x L -> member y L -> lsat nil (plus (P x y) Q) (F11 x y).
+
+forall x y, member x L -> member y L -> lsat nil (plus (P x y) Q) (F11 x y).
+
 
 */

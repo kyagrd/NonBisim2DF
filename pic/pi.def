@@ -201,6 +201,7 @@ by sim P P
                                    /\ nabla w, sim (M w) (N w))
  .
 
+
 Define
    coinductive bisim : p -> p -> prop
  , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
