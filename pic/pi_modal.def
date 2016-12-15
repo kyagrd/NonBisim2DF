@@ -296,57 +296,13 @@ process 2 P /\ A = diaInL x(x1\ diaInL x(x2\ disj (diaMatch x1 x2 tt) (boxDiff x
 
 process 2 P /\ A = diaInL x(x1\ diaInL x(x2\ disj (boxMatch x1 x2 tt) (boxDiff x1 x2 ff))) /\ lsat (x :: nil) P A.
 
-P = x\ y\ taup (match x y (taup z)) /\ Q = plus (taup (taup z)) (taup z) /\ forall x y, bisim (plus (P x y) Q) Q.
 
-P = x\ y\ (match x y (taup z)) /\ Q = plus (taup z) z /\
-F1 = x\ y\ disj (boxMatch x y (diaAct tau tt)) (diaMatch x y (boxAct tau ff)) /\ % (boxDiff x y (boxAct tau ff)) /\
-forall x y, sat Q (F1 x y).
+nabla a b, bisim (plus (taup (match a b (taup z))) (plus (taup z) (taup (taup z)))) (plus (taup z) (taup (taup z))).
 
-L = (a :: b :: nil) /\
-forall x y, member x L -> member y L -> lsat nil (P x y) (F1 x y).
+forall a b, bisim (plus (taup (match a b (taup z))) (plus (taup z) (taup (taup z)))) (plus (taup z) (taup (taup z))).
 
+forall a, forall b, sat (plus (taup (match a b (taup z))) (plus (taup z) (taup (taup z)))) (diaAct tau (conj (boxMatch a b (diaAct tau tt)) (boxAct tau (diaMatch a b tt)))).
 
-
-
-
-forall x y, sat (P x y) (F1 x y).
-
-L = (a :: b :: nil) /\
-forall x y, member x L -> member y L -> lsat nil (P x y) (F1 x y).
-
-forall x y, member x L -> member y L -> (lsat nil (taup z) (F1 x y) \/ lsat nil z (F1 x y)).
-
-forall x y, member x L -> member y L -> lsat nil Q (F1 x y).
-
-
-
-P = x\ y\ taup (match x y (taup z)) /\
-Q = plus (taup (taup z)) (taup z) /\
-forall x y, bisim (P x y) Q.
-
-L = (a :: b :: nil) /\
-forall x y, member x L -> member y L -> bisim (plus (P x y) Q) Q.
-
-
-forall x y, bisim (plus (P x y) Q) Q.
-
-
-
-
-
-P = x\ y\ taup (match x y (taup z)) /\
-Q = plus (taup (taup z)) (taup z) /\
-F1 = x\ y\ conj (boxMatch x y (diaAct tau tt)) (boxDiff x y (boxAct tau ff)) /\
-F = x\ y\ diaAct tau (F1 x y) /\
-
-
-
-L = (a :: b :: nil) /\
-forall x y, member x L -> member y L -> lsat nil Q (F x y).
-
-forall x y, member x L -> member y L -> lsat nil (plus (P x y) Q) (F11 x y).
-
-forall x y, member x L -> member y L -> lsat nil (plus (P x y) Q) (F11 x y).
-
+forall a, forall b, sat (plus (taup z) (taup (taup z))) (diaAct tau (conj (boxMatch a b (diaAct tau tt)) (boxAct tau (diaMatch a b tt)))).
 
 */
