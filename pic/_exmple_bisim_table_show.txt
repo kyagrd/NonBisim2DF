@@ -1,0 +1,285 @@
+[Warning] Now including "pi.def".
+Bedwyr 1.4-beta13 (revision 1080) welcomes you.
+
+For a little help, type "#help."
+
+?= forall a, forall b, bisim (plus (taup (match a b (taup z))) (plus (taup z) (taup (taup z)))) (plus (taup z) (taup (taup z))).
+No solution.
+
+?= #show_table bisim.
+Table for bisim contains (P=Proved, D=Disproved):
+ [P] bisim z z
+ [D] bisim z (taup z)
+ [D] bisim (taup z) z
+ [P] bisim (taup z) (taup z)
+ [D] x1\x2\
+     bisim (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+           (plus (taup z) (taup (taup z)))
+ [D] x1\x2\ bisim (match x1 x2 (taup z)) z
+ [D] x1\x2\ bisim (match x1 x2 (taup z)) (taup z)
+
+?= #show_table bisim_step_tbl.
+Table for bisim_step_tbl contains (P=Proved, D=Disproved):
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     (taup z)
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (taup z)
+     z
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (taup z)
+     (taup z)
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (match x1 x2 (taup z))
+     z
+ [P] x1\x2\ bisim_step_tbl 0
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (match x1 x2 (taup z))
+     (taup z)
+ [P] x1\ bisim_step_tbl 0
+     (match x1 x1 (taup z))
+     (taup z)
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 1
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 1
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (taup z)
+     z
+ [P] x1\x2\ bisim_step_tbl 1
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     (match x1 x2 (taup z))
+     z
+ [P] x1\ bisim_step_tbl 1
+     (match x1 x1 (taup z))
+     (taup z)
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 2
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 2
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     (taup z)
+ [P] x1\ bisim_step_tbl 2
+     (match x1 x1 (taup z))
+     (taup z)
+     tau
+     z
+     z
+ [P] x1\x2\ bisim_step_tbl 3
+     (plus (taup (match x1 x2 (taup z))) (plus (taup z) (taup (taup z))))
+     (plus (taup z) (taup (taup z)))
+     tau
+     z
+     z
+ [P] x1\ bisim_step_tbl 3
+     (match x1 x1 (taup z))
+     (taup z)
+     tau
+     z
+     z
+
+?= #show_table bisim_stepp_tbl.
+Table for bisim_stepp_tbl contains (P=Proved, D=Disproved):
+
+
+
+
+[Warning] Now including "pi.def".
+Bedwyr 1.4-beta13 (revision 1080) welcomes you.
+
+For a little help, type "#help."
+
+?= forall a b, bisim (par (out a a z) (in b x\ z)) (plus (plus (out a a (in b x\ z)) (in b x\ out a a z)) (taup z)).
+No solution.
+
+?= #show_table bisim.
+Table for bisim contains (P=Proved, D=Disproved):
+ [P] bisim (par z z) z
+ [P] x1\ bisim (par z (in x1 (x2\ z))) (in x1 (x2\ z))
+ [D] x1\x2\ bisim
+     (par (out x1 x1 z) (in x2 (x3\ z)))
+     (plus (plus (out x1 x1 (in x2 (x3\ z))) (in x2 (x3\ out x1 x1 z))) (taup z))
+ [P] x1\ bisim (par (out x1 x1 z) z) (out x1 x1 z)
+
+?= #show_table bisim_step_tbl.
+Table for bisim_step_tbl contains (P=Proved, D=Disproved):
+ [P] x1\ bisim_step_tbl 0
+     (par (out x1 x1 z) (in x1 (x2\ z)))
+     (plus (plus (out x1 x1 (in x1 (x2\ z))) (in x1 (x2\ out x1 x1 z))) (taup z))
+     tau
+     (par z z)
+     z
+ [P] x1\x2\ bisim_step_tbl 0
+     (par (out x1 x1 z) (in x2 (x3\ z)))
+     (plus (plus (out x1 x1 (in x2 (x3\ z))) (in x2 (x3\ out x1 x1 z))) (taup z))
+     (up x1 x1)
+     (par z (in x2 (x3\ z)))
+     (in x2 (x3\ z))
+ [P] x1\ bisim_step_tbl 0
+     (par (out x1 x1 z) z)
+     (out x1 x1 z)
+     (up x1 x1)
+     (par z z)
+     z
+ [P] x1\ bisim_step_tbl 1
+     (par (out x1 x1 z) (in x1 (x2\ z)))
+     (plus (plus (out x1 x1 (in x1 (x2\ z))) (in x1 (x2\ out x1 x1 z))) (taup z))
+     tau
+     (par z z)
+     z
+ [P] x1\x2\ bisim_step_tbl 1
+     (par (out x1 x1 z) (in x2 (x3\ z)))
+     (plus (plus (out x1 x1 (in x2 (x3\ z))) (in x2 (x3\ out x1 x1 z))) (taup z))
+     (up x1 x1)
+     (par z (in x2 (x3\ z)))
+     z
+ [P] x1\ bisim_step_tbl 1
+     (par (out x1 x1 z) z) (out x1 x1 z)
+     (up x1 x1)
+     (par z z)
+     z
+ [P] x1\
+     bisim_step_tbl 2
+     (par (out x1 x1 z) (in x1 (x2\ z)))
+     (plus (plus (out x1 x1 (in x1 (x2\ z))) (in x1 (x2\ out x1 x1 z))) (taup z))
+     tau z z
+ [P] x1\x2\ bisim_step_tbl 2
+     (par (out x1 x1 z) (in x2 (x3\ z)))
+     (plus (plus (out x1 x1 (in x2 (x3\ z))) (in x2 (x3\ out x1 x1 z))) (taup z))
+     (up x1 x1)
+     z
+     (in x2 (x3\ z))
+ [P] x1\ bisim_step_tbl 2
+     (par (out x1 x1 z) z)
+     (out x1 x1 z)
+     (up x1 x1)
+     z
+     z
+ [P] x1\ bisim_step_tbl 3
+     (par (out x1 x1 z) (in x1 (x2\ z)))
+     (plus (plus (out x1 x1 (in x1 (x2\ z))) (in x1 (x2\ out x1 x1 z))) (taup z))
+     tau
+     z 
+     z
+ [P] x1\x2\ bisim_step_tbl 3
+     (par (out x1 x1 z) (in x2 (x3\ z)))
+     (plus (plus (out x1 x1 (in x2 (x3\ z))) (in x2 (x3\ out x1 x1 z))) (taup z))
+     (up x1 x1)
+     z
+     z
+ [P] x1\ bisim_step_tbl 3
+     (par (out x1 x1 z) z)
+     (out x1 x1 z)
+     (up x1 x1)
+     z
+     z
+
+?= #show_table bisim_stepp_tbl.
+Table for bisim_stepp_tbl contains (P=Proved, D=Disproved):
+ [P] x1\ bisim_stepp_tbl 0
+     (par z (in x1 (x2\ z)))
+     (in x1 (x2\ z))
+     (dn x1)
+     (x2\ par z z)
+     (x2\ z)
+ [P] x1\x2\ bisim_stepp_tbl 0
+     (par (out x2 x2 z) (in x1 (x3\ z)))
+     (plus (plus (out x2 x2 (in x1 (x3\ z))) (in x1 (x3\ out x2 x2 z))) (taup z))
+     (dn x1)
+     (x3\ par (out x2 x2 z) z)
+     (x3\ out x2 x2 z)
+ [P] x1\ bisim_stepp_tbl 1
+     (par z (in x1 (x2\ z)))
+     (in x1 (x2\ z))
+     (dn x1)
+     (x2\ par z z)
+     (x2\ z)
+ [P] x1\x2\ bisim_stepp_tbl 1
+     (par (out x2 x2 z) (in x1 (x3\ z)))
+     (plus (plus (out x2 x2 (in x1 (x3\ z))) (in x1 (x3\ out x2 x2 z))) (taup z))
+     (dn x1)
+     (x3\ par (out x2 x2 z) z)
+     (x3\ z)
+ [P] x1\ bisim_stepp_tbl 2
+     (par z (in x1 (x2\ z)))
+     (in x1 (x2\ z))
+     (dn x1) (x2\ z)
+     (x2\ z)
+ [P] x1\x2\ bisim_stepp_tbl 2
+     (par (out x2 x2 z) (in x1 (x3\ z)))
+     (plus (plus (out x2 x2 (in x1 (x3\ z))) (in x1 (x3\ out x2 x2 z))) (taup z))
+     (dn x1)
+     (x3\ z)
+     (x3\ out x2 x2 z)
+ [P] x1\ bisim_stepp_tbl 3
+     (par z (in x1 (x2\ z)))
+     (in x1 (x2\ z))
+     (dn x1)
+     (x2\ z)
+     (x2\ z)
+ [P] x1\x2\ bisim_stepp_tbl 3
+     (par (out x2 x2 z) (in x1 (x3\ z)))
+     (plus (plus (out x2 x2 (in x1 (x3\ z))) (in x1 (x3\ out x2 x2 z))) (taup z))
+     (dn x1)
+     (x3\ z)
+     (x3\ z)
+
+
+
+
+Theorem aaa : forall P : nat -> Prop,
+  exists X, (P X -> False) -> (forall X, P X) -> False.
+Proof.
+intros.
+eauto.
+Unshelve.
+exact 0.
+Qed.
+
+Theorem bbb : forall P : nat -> Prop,
+  (forall X, P X) -> exists X, (P X -> False) -> False.
+Proof.
+intros.
+eauto.
+Unshelve.
+exact 0.
+Qed.

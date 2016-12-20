@@ -236,11 +236,17 @@ by bisim P P
                                    /\ nabla w, bisim (M w) (N w))
  ; bisim_step_tbl _ _ _ _ _ _
  ; bisim_step P Q X P1 Q1 := bisim_step_tbl 0 P Q X P1 Q1
+                          /\ bisim_step_1st P Q X P1
+                          /\ bisim_step_2nd P Q X Q1
+                          /\ bisim_step_label P Q X
  ; bisim_step_1st P Q X P1 := bisim_step_tbl 1 P Q X P1 z
  ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X z Q1
  ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X z z
  ; bisim_stepp_tbl _ _ _ _ _ _
  ; bisim_stepp P Q X P1 Q1 := bisim_stepp_tbl 0 P Q X P1 Q1
+                           /\ bisim_stepp_1st P Q X P1
+                           /\ bisim_stepp_2nd P Q X Q1
+                           /\ bisim_stepp_label P Q X 
  ; bisim_stepp_1st P Q X P1 := bisim_stepp_tbl 1 P Q X P1 (x\z)
  ; bisim_stepp_2nd P Q X Q1 := bisim_stepp_tbl 2 P Q X (x\z) Q1
  ; bisim_stepp_label P Q X := bisim_stepp_tbl 3 P Q X (x\z) (x\z)
