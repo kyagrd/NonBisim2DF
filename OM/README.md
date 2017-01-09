@@ -1,5 +1,0 @@
-# OM
-
-TODO
-
-supplimentary materials
