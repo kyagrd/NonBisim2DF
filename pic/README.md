@@ -1,4 +1,4 @@
-# Supplementary materials for "A Logical Characterisation of Open Bisimulation using "
+# Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
 
 ## Abella specifications and proofs
  * `finite-pic.sig` and `finite-pic.mod` : lambda-Prolog specification of the pi-calculus operational semantics
