@@ -77,7 +77,7 @@ No more solutions (found 1).
    Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
                    (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
    P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
-   forall a b c, sat (Q a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+   forall a b c, sat (P a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
 No solution.
 ```
 Examples in the OM semantics section.
