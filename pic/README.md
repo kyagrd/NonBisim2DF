@@ -185,6 +185,7 @@ No more solutions (found 1).
    forall a, sat (Q a) (diaOut a x\ diaInL a y\ diaAct tau tt).
 No solution.
 
+%%%%%%%%% This should be the latter distinguishing formaul for Section II-A-b) !!!!!
 ?= P = a\ nu x\ out a x (in a y\ taup z) /\
    Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
    forall a, sat (P a) (boxOut a x\ diaInL a y\ boxAct tau (diaMatch x y tt)).
@@ -199,4 +200,14 @@ Found a solution:
 More [y] ? 
 No more solutions (found 1).
 
+
+%%%%%%%%% Section II-A-b) latter formula is not ditstinguishing !!!! should fail P
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (P a) (boxOut a x\ boxInL a y\ boxAct tau (diaMatch x y tt)).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
+ P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
+More [y] ? 
+No more solutions (found 1).
 ```
