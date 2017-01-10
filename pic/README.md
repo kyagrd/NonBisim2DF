@@ -96,7 +96,7 @@ No more solutions (found 1).
 
 ?= T = taup z /\ TT = taup T /\
    P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
-   forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) ~ (t.t + t)
+   forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) /~ (t.t + t)
 No solution.
 ?= 
 ```
