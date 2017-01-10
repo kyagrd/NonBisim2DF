@@ -19,26 +19,8 @@ Example demonstration:
 ```
 [Warning] Now including "pi_modal.def".
 [Warning] Now including "pi.def".
-[Warning] Now including
-  "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def".
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 75, byte 7: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 82, byte 5: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 86, byte 9: 
-  F is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 90, byte 5: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 97, byte 9: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 107, byte 10: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 112, byte 10: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 142, byte 8: 
-  P is a singleton variable.
-[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 146, byte 12: 
-  P is a singleton variable.
+[Warning] Now including "../basic.def".
+...
 Bedwyr 1.4-beta13 (revision 1080) welcomes you.
 
 For a little help, type "#help."
@@ -53,3 +35,22 @@ No solution.
 No solution.
 ```
 Examples in the OM semantics section.
+```
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (match x y T) Q) /\ Q = plus TT T /\
+   forall x y, bisim (P x y) Q. % ([x=y].t + t.t + t) ~ (t.t + t)
+
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\ plus (match x1 x2 (taup z)) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) ~ (t.t + t)
+No solution.
+?= 
+```
