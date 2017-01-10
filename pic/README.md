@@ -17,6 +17,7 @@ Files being used:
 
 Example demonstration:
 ```
+$ ./bedwyr pi_modal.def
 [Warning] Now including "pi_modal.def".
 [Warning] Now including "pi.def".
 [Warning] Now including "../basic.def".
@@ -32,6 +33,51 @@ No solution.
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (diaAct tau tt).
 No solution.
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (boxAct tau ff).
+No solution.
+
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, bisim (P a b c) (Q a b c).
+No solution.
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, sat (Q a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+Found a solution:
+ P = x1\x2\x3\
+     plus (taup (par (out x1 x2 z) (in x3 (x4\ z))))
+      (plus
+        (taup
+          (plus (out x1 x2 (in x3 (x4\ z))) (in x3 (x4\ out x1 x2 z))))
+        (taup
+          (plus
+            (plus (out x1 x2 (in x1 (x4\ z))) (in x1 (x4\ out x1 x2 z)))
+            (taup z))))
+ Q = x1\x2\x3\
+     plus
+      (taup
+        (plus (out x1 x2 (in x3 (x4\ z))) (in x3 (x4\ out x1 x2 z))))
+      (taup
+        (plus
+          (plus (out x1 x2 (in x1 (x4\ z))) (in x1 (x4\ out x1 x2 z)))
+          (taup z)))
+ AxAB = x1\x2\ in x1 (x3\ out x1 x2 z)
+ ABAx = x1\x2\ out x1 x2 (in x1 (x3\ z))
+ CxAB = x1\x2\x3\ in x3 (x4\ out x1 x2 z)
+ ABCx = x1\x2\x3\ out x1 x2 (in x3 (x4\ z))
+More [y] ? 
+No more solutions (found 1).
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, sat (Q a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
 No solution.
 ```
 Examples in the OM semantics section.
