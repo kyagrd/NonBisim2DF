@@ -30,8 +30,10 @@ Examples in the introduction section.
 ```
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (disj (diaAct tau tt) (boxAct tau ff)).
 No solution.
+
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (diaAct tau tt).
 No solution.
+
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (boxAct tau ff).
 No solution.
 
@@ -42,6 +44,7 @@ No solution.
    P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
    forall a b c, bisim (P a b c) (Q a b c).
 No solution.
+
 ?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
    ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
    Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
@@ -72,6 +75,7 @@ Found a solution:
  ABCx = x1\x2\x3\ out x1 x2 (in x3 (x4\ z))
 More [y] ? 
 No more solutions (found 1).
+
 ?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
    ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
    Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
@@ -82,10 +86,38 @@ No solution.
 ```
 Examples in the OM semantics section.
 ```
+?= forall x y, sat (match x y (taup z)) (boxAct tau (diaMatch x y tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+
+?= forall x y, sat (taup z) (boxAct tau (diaMatch x y tt)).
+No solution.
+
+?= forall x y, sat z (boxAct tau (diaMatch x y tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+
+?= forall x y, sat z (boxMatch x y (diaAct tau tt)).
+No solution.
+
+?= forall x y, sat (taup z) (boxMatch x y (diaAct tau tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+
+?= forall x y, bisim (match x y (taup z)) z.
+No solution.
+
+?= forall x y, bisim (match x y (taup z)) (taup z).
+No solution.
+
+?= forall x y, 
+
 ?= T = taup z /\ TT = taup T /\
    P = (x\ y\ plus (match x y T) Q) /\ Q = plus TT T /\
    forall x y, bisim (P x y) Q. % ([x=y].t + t.t + t) ~ (t.t + t)
-
 Found a solution:
  Q = plus (taup (taup z)) (taup z)
  P = x1\x2\ plus (match x1 x2 (taup z)) (plus (taup (taup z)) (taup z))
@@ -98,5 +130,4 @@ No more solutions (found 1).
    P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
    forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) /~ (t.t + t)
 No solution.
-?= 
 ```
