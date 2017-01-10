@@ -201,7 +201,8 @@ More [y] ?
 No more solutions (found 1).
 
 
-%%%%%%%%% Section II-A-b) latter formula is not ditstinguishing !!!! should fail P
+%%%%%%%%% Section II-A-b) latter formula in the drat is not ditstinguishing !!!!
+%%%%%%%%% because it does not fail for P. Should be replaced with the former
 ?= P = a\ nu x\ out a x (in a y\ taup z) /\
    Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
    forall a, sat (P a) (boxOut a x\ boxInL a y\ boxAct tau (diaMatch x y tt)).
