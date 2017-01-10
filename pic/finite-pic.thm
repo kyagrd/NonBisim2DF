@@ -11,7 +11,7 @@
 %% development for proving that logic equivalence implies bisimulation.
 
 Specification "finite-pic".
-
+%Set subgoals off.
 % Simulation defined
 
 CoDefine sim : p -> p -> prop by
