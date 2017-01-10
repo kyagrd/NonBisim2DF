@@ -221,4 +221,22 @@ No more solutions (found 1).
 ?= P = a\ nu x\ out a x z /\ Q = a\ nu x\ out a x (match x a (taup z)) /\
    forall a, bisim (P a) (Q a).
 No solution.
+
+
+?= forall x y, sat (plus (match x y (taup (taup z))) (taup z)) (boxAct tau (boxAct tau (diaMatch x y tt))).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+
+?= forall x y, sat (plus (taup (taup z)) (taup z)) (boxAct tau (boxAct tau (diaMatch x y tt))).
+No solution.
+
+?= forall x y, sat (plus (match x y (taup (taup z))) (taup z)) (boxAct tau (disj (boxAct tau ff) (diaMatch x y tt))).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+
+?= forall x y, sat (plus (taup (taup z)) (taup z)) (boxAct tau (disj (boxAct tau ff) (diaMatch x y tt))).
+No solution.
+
 ```
