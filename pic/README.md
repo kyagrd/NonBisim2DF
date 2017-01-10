@@ -130,4 +130,41 @@ No more solutions (found 1).
    P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
    forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) /~ (t.t + t)
 No solution.
+
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   forall x y, sat (P x y) (diaAct tau (conj (boxAct tau (diaMatch x y tt)) (boxMatch x y (diaAct tau tt)))).
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\
+     plus (taup (match x1 x2 (taup z))) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   sat Q (diaAct tau (conj (boxAct tau (diaMatch x y tt)) (boxMatch x y (diaAct tau tt)))).
+No solution.
+
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\ 
+   forall x y, sat Q (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\
+     plus (taup (match x1 x2 (taup z))) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\ 
+   forall x y, sat (P x y) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+No solution.
+
+
 ```
