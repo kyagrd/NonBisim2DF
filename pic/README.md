@@ -17,5 +17,39 @@ Files being used:
 
 Example demonstration:
 ```
-TODO
+[Warning] Now including "pi_modal.def".
+[Warning] Now including "pi.def".
+[Warning] Now including
+  "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def".
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 75, byte 7: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 82, byte 5: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 86, byte 9: 
+  F is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 90, byte 5: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 97, byte 9: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 107, byte 10: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 112, byte 10: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 142, byte 8: 
+  P is a singleton variable.
+[Warning] In file "/home/kyagrd/bitbkt/atiu-ntu/modal-logic/src/basic.def", at line 146, byte 12: 
+  P is a singleton variable.
+Bedwyr 1.4-beta13 (revision 1080) welcomes you.
+
+For a little help, type "#help."
 ```
+Examples in the introduction section.
+```
+?= forall a b c, sat (par (out a b z) (in c x\ z)) (disj (diaAct tau tt) (boxAct tau ff)).
+No solution.
+?= forall a b c, sat (par (out a b z) (in c x\ z)) (diaAct tau tt).
+No solution.
+?= forall a b c, sat (par (out a b z) (in c x\ z)) (boxAct tau ff).
+No solution.
+```
+Examples in the OM semantics section.
