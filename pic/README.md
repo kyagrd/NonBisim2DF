@@ -216,4 +216,9 @@ Found a solution:
  P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
 More [y] ? 
 No more solutions (found 1).
+
+
+?= P = a\ nu x\ out a x z /\ Q = a\ nu x\ out a x (match x a (taup z)) /\
+   forall a, bisim (P a) (Q a).
+No solution.
 ```
