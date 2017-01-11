@@ -1,6 +1,6 @@
 # Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
 
-Note: There were bugs found after the LICS17 submission. We thought that Tiu and Miller's 2010 paper stated the theorem about the open bisimulation and universal quantification of LM are sound and complete was right but only the proof was wrong. But it seems that the theorem itself had an error because it assumes using the same modalities of LM, which means that it uses the late input modality. By working out the examples, it turns out basic input modality should be used for open bisimulation. In this supplimentary materials, this issue have been fixed.
+Note: There was a bug found in the encoding after the LICS17 submission. We thought that Tiu and Miller's 2010 paper stated the completeness theorem about the open bisimulation and universal quantification of Parrow, Walker, and Milner's LM encoding was right but only the proof was wrong. But it seems that the theorem itself had an error because it uses the same modalities of LM, which means that it uses the late input modality. By working out the examples, it turns out basic input modality should be used for our logic characterizing open bisimulation. In this supplimentary materials, this issue have been fixed.
 
 ## Abella specifications and proofs
  * `finite-pic.sig` and `finite-pic.mod` : lambda-Prolog specification of the pi-calculus operational semantics
