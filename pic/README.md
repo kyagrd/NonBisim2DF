@@ -1,5 +1,7 @@
 # Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
 
+Note: There were bugs found after the LICS17 submission. We thought that Tiu and Miller's 2010 paper stated the theorem about the open bisimulation and universal quantification of LM are sound and complete was right but only the proof was wrong. But it seems that the theorem itself had an error because it assumes using the same modalities of LM, which means that it uses the late input modality. By working out the examples, it turns out basic input modality should be used for open bisimulation.
+
 ## Abella specifications and proofs
  * `finite-pic.sig` and `finite-pic.mod` : lambda-Prolog specification of the pi-calculus operational semantics
  * `finite-pic.thm` : definitions and proofs for open bisimulation and its characterizing modal logic OM
@@ -83,9 +85,9 @@ No more solutions (found 1).
    P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
    forall a b c, sat (P a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
 No solution.
-```
+
 Examples in the OM semantics section.
-```
+
 ?= forall x y, sat (match x y (taup z)) (boxAct tau (diaMatch x y tt)).
 Found a solution.
 More [y] ? 
@@ -171,7 +173,7 @@ No solution.
 
 ?= P = a\ nu x\ out a x (in a y\ taup z) /\
    Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
-   forall a, sat (P a) (diaOut a x\ diaInL a y\ diaAct tau tt).
+   forall a, sat (P a) (diaOut a x\ diaIn a y\ diaAct tau tt).
 Found a solution:
  Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
  P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
@@ -180,40 +182,32 @@ No more solutions (found 1).
 
 ?= P = a\ nu x\ out a x (in a y\ taup z) /\
    Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
-   forall a, sat (Q a) (diaOut a x\ diaInL a y\ diaAct tau tt).
+   forall a, sat (Q a) (diaOut a x\ diaIn a y\ diaAct tau tt).
 No solution.
 
-%%%%%%%%% This should be the latter distinguishing formaul for Section II-A-b) !!!!!
-?= P = a\ nu x\ out a x (in a y\ taup z) /\
-   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
-   forall a, sat (P a) (boxOut a x\ diaInL a y\ boxAct tau (diaMatch x y tt)).
-No solution.
 
 ?= P = a\ nu x\ out a x (in a y\ taup z) /\
    Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
-   forall a, sat (Q a) (boxOut a x\ diaInL a y\ boxAct tau (diaMatch x y tt)).
+   forall a, sat (P a) (boxOut a x\ boxIn a y\ boxAct tau (diaMatch x y tt)).
+No solution.
+
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (Q a) (boxOut a x\ boxIn a y\ boxAct tau (diaMatch x y tt)).
 Found a solution:
  Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
  P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
-More [y] ? 
-No more solutions (found 1).
-
-
-%%%%%%%%% Section II-A-b) latter formula in the drat is not ditstinguishing !!!!
-%%%%%%%%% because it does not fail for P.
-?= P = a\ nu x\ out a x (in a y\ taup z) /\
-   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
-   forall a, sat (P a) (boxOut a x\ boxInL a y\ boxAct tau (diaMatch x y tt)).
-Found a solution:
- Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
- P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
-More [y] ? 
+More [y] ?  
 No more solutions (found 1).
 
 
 ?= P = a\ nu x\ out a x z /\ Q = a\ nu x\ out a x (match x a (taup z)) /\
    forall a, bisim (P a) (Q a).
-No solution.
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (match x2 x1 (taup z)))
+ P = x1\ nu (x2\ out x1 x2 z)
+More [y] ? 
+No more solutions (found 1).
 
 
 ?= forall x y, sat (plus (match x y (taup (taup z))) (taup z)) (boxAct tau (boxAct tau (diaMatch x y tt))).
@@ -231,5 +225,4 @@ No more solutions (found 1).
 
 ?= forall x y, sat (plus (taup (taup z)) (taup z)) (boxAct tau (disj (boxAct tau ff) (diaMatch x y tt))).
 No solution.
-
 ```
