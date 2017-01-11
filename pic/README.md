@@ -27,9 +27,11 @@ $ ./bedwyr pi_modal.def
 Bedwyr 1.4-beta13 (revision 1080) welcomes you.
 
 For a little help, type "#help."
-```
-Examples in the introduction section.
-```
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Examples in the introduction section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ?= forall a b c, sat (par (out a b z) (in c x\ z)) (disj (diaAct tau tt) (boxAct tau ff)).
 No solution.
 
@@ -86,7 +88,10 @@ No more solutions (found 1).
    forall a b c, sat (P a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
 No solution.
 
-Examples in the OM semantics section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Examples in the OM semantics section.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ?= forall x y, sat (match x y (taup z)) (boxAct tau (diaMatch x y tt)).
 Found a solution.
