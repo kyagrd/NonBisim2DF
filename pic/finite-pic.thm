@@ -138,7 +138,7 @@ Type conj, disj          o' -> o' -> o'.
 Type boxMatch, diaMatch  n -> n -> o' -> o'.
 Type boxAct, diaAct      a -> o' -> o'.
 Type boxOut, diaOut,
-     boxInL, diaInL      n -> (n -> o') -> o'.
+     boxIn, diaIn      n -> (n -> o') -> o'.
 
 Define sat : p -> o' -> prop
 by sat P ff := false
@@ -151,8 +151,8 @@ by sat P ff := false
  ; sat P (diaAct X A) := exists P1, {one P X P1} /\ sat P1 A
  ; sat P (boxOut X A) := forall Q, {oneb P (up X) Q} -> nabla w, sat (Q w) (A w)
  ; sat P (diaOut X A) := exists Q, {oneb P (up X) Q} /\ nabla w, sat (Q w) (A w)
- ; sat P (boxInL X A) := forall Q, {oneb P (dn X) Q} -> exists w, sat (Q w) (A w)
- ; sat P (diaInL X A) := exists Q, {oneb P (dn X) Q} /\ forall w, sat (Q w) (A w)
+ ; sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> forall w, sat (Q w) (A w)
+ ; sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ exists w, sat (Q w) (A w)
  .
 
 Define neg : o' -> o' -> prop
@@ -166,8 +166,8 @@ by neg ff tt
  ; neg (diaAct X A) (boxAct X A1) := neg A A1
  ; neg (boxOut X A) (diaOut X A1) := nabla x, neg (A x) (A1 x)
  ; neg (diaOut X A) (boxOut X A1) := nabla x, neg (A x) (A1 x)
- ; neg (boxInL X A) (diaInL X A1) := nabla x, neg (A x) (A1 x)
- ; neg (diaInL X A) (boxInL X A1) := nabla x, neg (A x) (A1 x)
+ ; neg (boxIn X A) (diaIn X A1) := nabla x, neg (A x) (A1 x)
+ ; neg (diaIn X A) (boxIn X A1) := nabla x, neg (A x) (A1 x)
  .
 
 Theorem neg_nabla : forall (F : n -> o') (G : n -> o'),
@@ -218,11 +218,11 @@ Theorem neg_sat : forall P F NF, neg F NF -> sat P F -> sat P NF -> false.
 
   case H1. case H3. apply H7 to H4. apply IH to H6 H5 _.
 
-  case H1. case H3. apply H4 to H6. apply H7 with w = w.
-  apply neg_nabla to H5. apply H10 with W = w. apply IH to H11 H8 _.
+  case H1. case H3. apply H4 to H6.
+  apply neg_nabla to H5. apply H9 with W = w. apply H8 with w = w. backchain IH.
 
-  case H1. case H3. apply H7 to H4. apply H5 with w = w.
-  apply neg_nabla to H6. apply H10 with W = w. apply IH to H11 H9 _.
+  case H1. case H3. apply H7 to H4.
+  apply neg_nabla to H6. apply H9 with W = w. apply H8 with w = w. backchain IH.
 % Q.E.D.
 
 Theorem neg_sym : forall F NF, neg F NF -> neg NF F.
@@ -455,12 +455,12 @@ Theorem bisim_sat0_L : forall P Q F, bisim P Q -> sat P F -> sat Q F.
   apply H3 to H11.
   exists w. assert bisim (M w) (Q1 w).
   backchain bisim_sym. backchain H12.
-  backchain IH.
+  backchain IH. backchain H13.
   % Subgoal 11
   unfold. intros. case H1. apply H6 to H3.
   exists N. split. search. intros.
-  assert bisim (Q1 w) (N w). backchain H12.
-  backchain IH. backchain H4.
+  assert bisim (Q1 w) (N w). backchain H12. exists w.
+  backchain IH.
 % Q.E.D.
 
 Theorem bisim_sat0_R : forall P Q F, bisim P Q -> sat Q F -> sat P F.
@@ -561,7 +561,8 @@ Theorem sat_match1 : forall P F X, sat P F -> sat (match X X P) F.
     unfold. exists P2. split. search. search.
     unfold. intros. case H3. apply H2 to H4. search.
     unfold. exists Q. split. search. intros. search.
-    unfold. intros. backchain H2. case H3. search.
+    unfold. intros. case H3. apply H2 to H4. apply H5 with w = w.
+      apply IH to H6 with P = Q w, F = A w, X = X. search.
     unfold. exists Q. split. search. search.
 % Q.E.D.
    
@@ -577,8 +578,11 @@ Theorem sat_match2 : forall P F X, sat (match X X P) F -> sat P F.
     unfold. exists P2. split. case H2. search. search.
     unfold. intros. assert {oneb (match X X P) (up X1) Q}. apply H2 to H4. search.
     unfold. exists Q. split. case H2. search. intros. search.
-    unfold. intros. assert {oneb (match X X P) (dn X1) Q}. apply H2 to H4. search.
-    unfold. exists Q. split. case H2. search. search.
+ 
+    unfold. intros. assert {oneb (match X X P) (dn X1) Q}. apply H2 to H4.
+      backchain IH with P = Q w, F = A w, X = X. apply H5 with w = w. backchain sat_match1.
+
+   unfold. exists Q. split. case H2. search. search.
 % Q.E.D.
 
 Theorem sat_diaAct_plus1 : forall P Q A F,
@@ -729,95 +733,51 @@ Theorem sateq_one_R : forall P Q A Q1,
   */
 % Q.E.D
 
-Theorem sat_diaInL_plus1 : forall P Q X F,
-  sat P (diaInL X F) -> sat (plus P Q) (diaInL X F).
+Theorem sat_diaIn_plus1 : forall P Q X F,
+  sat P (diaIn X F) -> sat (plus P Q) (diaIn X F).
 % Proof.
   intros. unfold. case H1. exists Q1. split. search. search.
 % Q.E.D.
 
-Theorem sat_diaInL_plus2 : forall P Q X F,
-  sat Q (diaInL X F) -> sat (plus P Q) (diaInL X F).
+Theorem sat_diaIn_plus2 : forall P Q X F,
+  sat Q (diaIn X F) -> sat (plus P Q) (diaIn X F).
 % Proof.
   intros. unfold. case H1. exists Q1. split. search. search.
 % Q.E.D.
-
-/*
-Theorem aaaaa : forall P X Q,
-  {oneb (nu P) (dn X) (y\ nu w\Q w y)} -> exists F, sat (nu P) (diaInL X F).
-  intros.
-  search.
-
-Theorem aaaaa : forall P X Q, nabla (w : n),
-  {oneb (nu P) (dn X) (y\ nu w\Q w y)} -> exists F, sat (nu P) (diaInL X F).
-  intros.
-  case H1.
-  search. %%% infinite loop :(
-
-Theorem bbbbb : forall P X Q, nabla w,
-  {oneb (P w) (dn X) (y\Q w y)} -> exists F, sat (nu P) (diaInL X F).
-  intros.
-  search. %%% infinite loop :(
-*/
-
-Theorem help_me_out_of_infinite_loop : forall P X Q,
-  {oneb (nu P) (dn X) (y\ nu w\Q w y)} -> exists F, sat (nu P) (diaInL X F).
-% Proof.
-  intros. search.
-% Q.E.D.
-
+ 
 Theorem sateq_oneb_dn_exists_L : forall P Q X P1,
   (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
   {oneb P (dn X) P1} -> exists Q1, {oneb Q (dn X) Q1}.
 % Proof.
-  induction on 2. intros. case H2.
-  % Subgoal 1
-  assert forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F).
-    intros. apply H1 with F = diaInL X F. backchain H4.
-  assert (forall W, sat (P1 W) tt). apply H3 to H4. case H5. search.
+  intros. case H2.
+  % Subgoal 1  
+  apply H1 with F = diaIn X z\tt.
+  assert sat (in X P1) (diaIn X z\tt).
+  apply H3 to H5. case H6. exists Q1. search.
   % Subgoal 2
-  backchain IH with P = P2.
-  intros. apply H1 with F = F. split.
-    intros. backchain H4. backchain sat_match1.
-    intros. apply H5 to H6. backchain sat_match2.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (match X1 X1 P2) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q1. search.
   % Subgoal 3
-  assert forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F).
-    intros. apply H1 with F = diaInL X F.
-    backchain H5. backchain sat_diaInL_plus1.
-  assert exists F, sat P2 (diaInL X F).
-  case H5. apply H4 to H6. case H7. search.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (plus P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
   % Subgoal 4
-  assert forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F).
-    intros. apply H1 with F = diaInL X F.
-    backchain H5. backchain sat_diaInL_plus2.
-  assert exists F, sat Q1 (diaInL X F).
-  case H5. apply H4 to H6. case H7. search.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (plus P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
   % Subgoal 5
-  assert exists F, sat P2 (diaInL X F).
-  assert exists F, sat (par P2 Q1) (diaInL X F).
-  assert exists F, sat Q (diaInL X F).
-    case H5. apply H1 with F = diaInL X F. apply H7 to H6. search.
-  case H6. case H7. exists Q2. search.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (par P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
   % Subgoal 6
-  assert exists F, sat Q1 (diaInL X F).
-  assert exists F, sat (par P2 Q1) (diaInL X F).
-  assert exists F, sat Q (diaInL X F).
-    case H5. apply H1 with F = diaInL X F. apply H7 to H6. search.
-  case H6. case H7. exists Q2. search.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (par P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
   % Subgoal 7
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO
-  % ??? think it's Abella bug this assert hangs with high CPU use ???
-  % assert exists F, sat (nu P2) (diaInL X F).
-  % assert exists F, sat Q (diaInL X F).
-  %   case H4. apply H1 with F = diaInL X F. apply H6 to H5. search.
-  % case H5. case H6. exists Q2. search.
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TODO
-  assert {oneb (nu P2) (dn X) (y\ nu w\Q1 w y)}.
-  apply help_me_out_of_infinite_loop. % hacky workaround of infinite search
-  assert forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F).
-    intros. apply H1 with F = diaInL X F. backchain H7.
-  assert (exists F, sat Q (diaInL X F)) -> (exists Q1, {oneb Q (dn X) Q1}).
-    intros. case H7. case H8. search.
-  backchain H7. apply H5 to H4. apply H6 to H8. search.
+  apply H1 with F = diaIn X z\tt.
+  assert sat (nu P2) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
 % Q.E.D.
 
 Theorem sateq_oneb_dn_exists_R : forall P Q X Q1,
@@ -1115,53 +1075,53 @@ Theorem sateq_oneb_dn_exists_L2 : forall (X : n) (Y : n) P Q Z P1,
 % Proof.
   intros. case H2.
   % Subgoal 1
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
     case H3. clear H1.
     assert P2 = Z. skip. case H6. % for rewriting P2 X Y with Z X Y
     search.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H5 to H4. apply H7 with X1 = X, Y1 = Y. case H8.
   exists  x\ y\ Q1. search.
   % Subgoal 2
-  assert sat P2 (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt).
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
     case H3. clear H1.
     assert P4 = P3. skip. case H7. % for rewriting P4 X Y with P3 X Y
     search.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
   exists x\ y\ Q1. search.
   % Subgoal 3
-  assert sat P2 (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt).
-    case H3. backchain sat_diaInL_plus1.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. backchain sat_diaIn_plus1.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
   exists x\ y\ Q2. search.
   % Subgoal 4
-  assert sat Q1 (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt).
-    case H3. backchain sat_diaInL_plus2.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  assert sat Q1 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. backchain sat_diaIn_plus2.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
   exists x\ y\ Q2. search.
   % Subgoal 5
-  assert sat P2 (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt). case H4. search.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
   exists x\ y\ Q2. search.
 
   % Subgoal 6
-  assert sat Q1 (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt). case H4. search.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  assert sat Q1 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
   exists x\ y\ Q2. search.
   % Subgoal 7
-  assert sat (nu P2) (diaInL (Z X Y) z\ tt).
-  assert sat (P X Y) (diaInL (Z X Y) z\ tt). case H4. search.
-  apply H1 with F = x\ y\ (diaInL (Z x y) z\ tt).
+  assert sat (nu P2) (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
   apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
   exists x\ y\ Q2. search.
 % Q.E.D.

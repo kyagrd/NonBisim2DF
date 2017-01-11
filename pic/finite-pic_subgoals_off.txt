@@ -3600,7 +3600,7 @@ Abella < Type boxMatch, diaMatch n -> n -> o' -> o'.
 
 Abella < Type boxAct, diaAct a -> o' -> o'.
 
-Abella < Type boxOut, diaOut, boxInL, diaInL n -> (n -> o') -> o'.
+Abella < Type boxOut, diaOut, boxIn, diaIn n -> (n -> o') -> o'.
 
 Abella < Define sat : p -> o' -> prop by 
 sat P ff := false;
@@ -3613,8 +3613,8 @@ sat P (boxAct X A) := forall P1, {one P X P1} -> sat P1 A;
 sat P (diaAct X A) := exists P1, {one P X P1} /\ sat P1 A;
 sat P (boxOut X A) := forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w));
 sat P (diaOut X A) := exists Q, {oneb P (up X) Q} /\ (nabla w, sat (Q w) (A w));
-sat P (boxInL X A) := forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w));
-sat P (diaInL X A) := exists Q, {oneb P (dn X) Q} /\ (forall w, sat (Q w) (A w)).
+sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w));
+sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ (exists w, sat (Q w) (A w)).
 
 Abella < Define neg : o' -> o' -> prop by 
 neg ff tt;
@@ -3627,8 +3627,8 @@ neg (boxAct X A) (diaAct X A1) := neg A A1;
 neg (diaAct X A) (boxAct X A1) := neg A A1;
 neg (boxOut X A) (diaOut X A1) := nabla x, neg (A x) (A1 x);
 neg (diaOut X A) (boxOut X A1) := nabla x, neg (A x) (A1 x);
-neg (boxInL X A) (diaInL X A1) := nabla x, neg (A x) (A1 x);
-neg (diaInL X A) (boxInL X A1) := nabla x, neg (A x) (A1 x).
+neg (boxIn X A) (diaIn X A1) := nabla x, neg (A x) (A1 x);
+neg (diaIn X A) (boxIn X A1) := nabla x, neg (A x) (A1 x).
 
 Abella < Theorem neg_nabla : 
 forall F G, nabla x, neg (F x) (G x) -> (forall W, neg (F W) (G W)).
@@ -4032,7 +4032,7 @@ Variables: W A1 X A
 IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
 H2 : neg (A n1 n2) (A1 n1 n2) *
 ============================
- neg (boxInL (X W) (A W)) (diaInL (X W) (A1 W))
+ neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
 
 1 other subgoal.
 
@@ -4079,7 +4079,7 @@ Variables: W A1 X A
 IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
 H2 : neg (A n1 n2) (A1 n1 n2) *
 ============================
- neg (diaInL (X W) (A W)) (boxInL (X W) (A1 W))
+ neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
 
 neg_nabla < unfold.
 Subgoal 12:
@@ -4670,9 +4670,9 @@ Subgoal 10:
 
 Variables: P NF A X
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (boxInL X A) NF
+H1 : neg (boxIn X A) NF
 H3 : sat P NF
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 ============================
  false
 
@@ -4683,8 +4683,8 @@ Subgoal 10:
 
 Variables: P A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (diaInL X A2)
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : sat P (diaIn X A2)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H5 : neg (A n1) (A2 n1)
 ============================
  false
@@ -4694,12 +4694,12 @@ H5 : neg (A n1) (A2 n1)
 neg_sat < case H3.
 Subgoal 10:
 
-Variables: P A X A2 Q
+Variables: P A X A2 Q w
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H5 : neg (A n1) (A2 n1)
 H6 : {oneb P (dn X) Q}
-H7 : forall w, sat (Q w) (A2 w)
+H7 : sat (Q w) (A2 w)
 ============================
  false
 
@@ -4710,27 +4710,11 @@ Subgoal 10:
 
 Variables: P A X A2 Q w
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H5 : neg (A n1) (A2 n1)
 H6 : {oneb P (dn X) Q}
-H7 : forall w, sat (Q w) (A2 w)
-H8 : sat (Q w) (A w) *
-============================
- false
-
-1 other subgoal.
-
-neg_sat < apply with w = w.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : forall w, sat (Q w) (A2 w)
-H8 : sat (Q w) (A w) *
-H9 : sat (Q w) (A2 w)
+H7 : sat (Q w) (A2 w)
+H8 : forall w, sat (Q w) (A w) *
 ============================
  false
 
@@ -4741,13 +4725,12 @@ Subgoal 10:
 
 Variables: P A X A2 Q w
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H5 : neg (A n1) (A2 n1)
 H6 : {oneb P (dn X) Q}
-H7 : forall w, sat (Q w) (A2 w)
-H8 : sat (Q w) (A w) *
-H9 : sat (Q w) (A2 w)
-H10 : forall W, neg (A W) (A2 W)
+H7 : sat (Q w) (A2 w)
+H8 : forall w, sat (Q w) (A w) *
+H9 : forall W, neg (A W) (A2 W)
 ============================
  false
 
@@ -4758,39 +4741,56 @@ Subgoal 10:
 
 Variables: P A X A2 Q w
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H5 : neg (A n1) (A2 n1)
 H6 : {oneb P (dn X) Q}
-H7 : forall w, sat (Q w) (A2 w)
-H8 : sat (Q w) (A w) *
-H9 : sat (Q w) (A2 w)
-H10 : forall W, neg (A W) (A2 W)
-H11 : neg (A w) (A2 w)
+H7 : sat (Q w) (A2 w)
+H8 : forall w, sat (Q w) (A w) *
+H9 : forall W, neg (A W) (A2 W)
+H10 : neg (A w) (A2 w)
 ============================
  false
 
 1 other subgoal.
 
-neg_sat < apply to H11 H8 _.
+neg_sat < apply with w = w.
+Subgoal 10:
+
+Variables: P A X A2 Q w
+IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
+H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
+H5 : neg (A n1) (A2 n1)
+H6 : {oneb P (dn X) Q}
+H7 : sat (Q w) (A2 w)
+H8 : forall w, sat (Q w) (A w) *
+H9 : forall W, neg (A W) (A2 W)
+H10 : neg (A w) (A2 w)
+H11 : sat (Q w) (A w) *
+============================
+ false
+
+1 other subgoal.
+
+neg_sat < backchain IH.
 Subgoal 11:
 
-Variables: P NF Q A X
+Variables: P NF Q w A X
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (diaInL X A) NF
+H1 : neg (diaIn X A) NF
 H3 : sat P NF
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 ============================
  false
 
 neg_sat < case H1.
 Subgoal 11:
 
-Variables: P Q A X A2
+Variables: P Q w A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (boxInL X A2)
+H3 : sat P (boxIn X A2)
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 H6 : neg (A n1) (A2 n1)
 ============================
  false
@@ -4798,74 +4798,74 @@ H6 : neg (A n1) (A2 n1)
 neg_sat < case H3.
 Subgoal 11:
 
-Variables: P Q A X A2
+Variables: P Q w A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A2 w))
+H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
 ============================
  false
 
 neg_sat < apply to H4.
 Subgoal 11:
 
-Variables: P Q A X A2 w
+Variables: P Q w A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A2 w))
-H8 : sat (Q w) (A2 w)
-============================
- false
-
-neg_sat < apply with w = w.
-Subgoal 11:
-
-Variables: P Q A X A2 w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A2 w))
-H8 : sat (Q w) (A2 w)
-H9 : sat (Q w) (A w) *
+H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
+H8 : forall w, sat (Q w) (A2 w)
 ============================
  false
 
 neg_sat < apply to H6.
 Subgoal 11:
 
-Variables: P Q A X A2 w
+Variables: P Q w A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A2 w))
-H8 : sat (Q w) (A2 w)
-H9 : sat (Q w) (A w) *
-H10 : forall W, neg (A W) (A2 W)
+H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
+H8 : forall w, sat (Q w) (A2 w)
+H9 : forall W, neg (A W) (A2 W)
 ============================
  false
 
 neg_sat < apply with W = w.
 Subgoal 11:
 
-Variables: P Q A X A2 w
+Variables: P Q w A X A2
 IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
 H4 : {oneb P (dn X) Q}
-H5 : forall w, sat (Q w) (A w) *
+H5 : sat (Q w) (A w) *
 H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A2 w))
-H8 : sat (Q w) (A2 w)
-H9 : sat (Q w) (A w) *
-H10 : forall W, neg (A W) (A2 W)
-H11 : neg (A w) (A2 w)
+H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
+H8 : forall w, sat (Q w) (A2 w)
+H9 : forall W, neg (A W) (A2 W)
+H10 : neg (A w) (A2 w)
 ============================
  false
 
-neg_sat < apply to H11 H9 _.
+neg_sat < apply with w = w.
+Subgoal 11:
+
+Variables: P Q w A X A2
+IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
+H4 : {oneb P (dn X) Q}
+H5 : sat (Q w) (A w) *
+H6 : neg (A n1) (A2 n1)
+H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
+H8 : forall w, sat (Q w) (A2 w)
+H9 : forall W, neg (A W) (A2 W)
+H10 : neg (A w) (A2 w)
+H11 : sat (Q w) (A2 w)
+============================
+ false
+
+neg_sat < backchain IH.
 Proof completed.
 Abella < Theorem neg_sym : 
 forall F NF, neg F NF -> neg NF F.
@@ -5139,7 +5139,7 @@ Variables: A1 X A
 IH : forall F NF, neg F NF * -> neg NF F
 H2 : neg (A n1) (A1 n1) *
 ============================
- neg (diaInL X A1) (boxInL X A)
+ neg (diaIn X A1) (boxIn X A)
 
 1 other subgoal.
 
@@ -5172,7 +5172,7 @@ Variables: A1 X A
 IH : forall F NF, neg F NF * -> neg NF F
 H2 : neg (A n1) (A1 n1) *
 ============================
- neg (boxInL X A1) (diaInL X A)
+ neg (boxIn X A1) (diaIn X A)
 
 neg_sym < unfold.
 Subgoal 12:
@@ -6597,9 +6597,9 @@ Subgoal 10:
 Variables: P Q A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 ============================
- sat Q (boxInL X A)
+ sat Q (boxIn X A)
 
 1 other subgoal.
 
@@ -6609,31 +6609,31 @@ Subgoal 10:
 Variables: P Q A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 ============================
- forall Q1, {oneb Q (dn X) Q1} -> (exists w, sat (Q1 w) (A w))
+ forall Q1, {oneb Q (dn X) Q1} -> (forall w, sat (Q1 w) (A w))
 
 1 other subgoal.
 
 bisim_sat0_L < intros.
 Subgoal 10:
 
-Variables: P Q A X Q1
+Variables: P Q A X Q1 w
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 ============================
- exists w, sat (Q1 w) (A w)
+ sat (Q1 w) (A w)
 
 1 other subgoal.
 
 bisim_sat0_L < case H1.
 Subgoal 10:
 
-Variables: P Q A X Q1
+Variables: P Q A X Q1 w
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6646,16 +6646,16 @@ H9 : forall X N, {oneb Q (dn X) N} ->
 H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 ============================
- exists w, sat (Q1 w) (A w)
+ sat (Q1 w) (A w)
 
 1 other subgoal.
 
 bisim_sat0_L < apply to H4.
 Subgoal 10:
 
-Variables: P Q A X Q1 M
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6670,16 +6670,16 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
 ============================
- exists w, sat (Q1 w) (A w)
+ sat (Q1 w) (A w)
 
 1 other subgoal.
 
 bisim_sat0_L < apply to H11.
 Subgoal 10:
 
-Variables: P Q A X Q1 M w
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6693,18 +6693,18 @@ H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
-H13 : sat (M w) (A w) *
+H13 : forall w, sat (M w) (A w) *
 ============================
- exists w, sat (Q1 w) (A w)
+ sat (Q1 w) (A w)
 
 1 other subgoal.
 
 bisim_sat0_L < exists w.
 Subgoal 10:
 
-Variables: P Q A X Q1 M w
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6718,7 +6718,7 @@ H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
-H13 : sat (M w) (A w) *
+H13 : forall w, sat (M w) (A w) *
 ============================
  sat (Q1 w) (A w)
 
@@ -6727,9 +6727,9 @@ H13 : sat (M w) (A w) *
 bisim_sat0_L < assert bisim (M w) (Q1 w).
 Subgoal 10.1:
 
-Variables: P Q A X Q1 M w
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6743,7 +6743,7 @@ H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
-H13 : sat (M w) (A w) *
+H13 : forall w, sat (M w) (A w) *
 ============================
  bisim (M w) (Q1 w)
 
@@ -6752,9 +6752,9 @@ H13 : sat (M w) (A w) *
 bisim_sat0_L < backchain bisim_sym.
 Subgoal 10.1:
 
-Variables: P Q A X Q1 M w
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6768,7 +6768,7 @@ H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
-H13 : sat (M w) (A w) *
+H13 : forall w, sat (M w) (A w) *
 ============================
  bisim (Q1 w) (M w)
 
@@ -6777,9 +6777,9 @@ H13 : sat (M w) (A w) *
 bisim_sat0_L < backchain H12.
 Subgoal 10:
 
-Variables: P Q A X Q1 M w
+Variables: P Q A X Q1 w M
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : forall Q, {oneb P (dn X) Q} -> (exists w, sat (Q w) (A w) *)
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb Q (dn X) Q1}
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
@@ -6793,7 +6793,7 @@ H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 H11 : {oneb P (dn X) M}
 H12 : forall W, bisim (Q1 W) (M W)
-H13 : sat (M w) (A w) *
+H13 : forall w, sat (M w) (A w) *
 H14 : bisim (M w) (Q1 w)
 ============================
  sat (Q1 w) (A w)
@@ -6801,45 +6801,71 @@ H14 : bisim (M w) (Q1 w)
 1 other subgoal.
 
 bisim_sat0_L < backchain IH.
+Subgoal 10:
+
+Variables: P Q A X Q1 w M
+IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
+H3 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
+H4 : {oneb Q (dn X) Q1}
+H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
+H6 : forall X M, {oneb P (dn X) M} ->
+       (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
+H7 : forall X M, {oneb P (up X) M} ->
+       (exists N, {oneb Q (up X) N} /\ (nabla w, bisim (M w) (N w)))
+H8 : forall A Q1, {one Q A Q1} -> (exists P2, {one P A P2} /\ bisim Q1 P2)
+H9 : forall X N, {oneb Q (dn X) N} ->
+       (exists M, {oneb P (dn X) M} /\ (forall W, bisim (N W) (M W)))
+H10 : forall X N, {oneb Q (up X) N} ->
+        (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
+H11 : {oneb P (dn X) M}
+H12 : forall W, bisim (Q1 W) (M W)
+H13 : forall w, sat (M w) (A w) *
+H14 : bisim (M w) (Q1 w)
+============================
+ sat (M w) (A w) *
+
+1 other subgoal.
+
+bisim_sat0_L < backchain H13.
 Subgoal 11:
 
-Variables: P Q Q1 A X
+Variables: P Q Q1 w A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 ============================
- sat Q (diaInL X A)
+ sat Q (diaIn X A)
 
 bisim_sat0_L < unfold.
 Subgoal 11:
 
-Variables: P Q Q1 A X
+Variables: P Q Q1 w A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
 
 bisim_sat0_L < intros.
 Subgoal 11:
 
-Variables: P Q Q1 A X
+Variables: P Q Q1 w A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
 
 bisim_sat0_L < case H1.
 Subgoal 11:
 
-Variables: P Q Q1 A X
+Variables: P Q Q1 w A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6851,15 +6877,15 @@ H9 : forall X N, {oneb Q (dn X) N} ->
 H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
 
 bisim_sat0_L < apply to H3.
 Subgoal 11:
 
-Variables: P Q Q1 A X N
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6873,15 +6899,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
 
 bisim_sat0_L < exists N.
 Subgoal 11:
 
-Variables: P Q Q1 A X N
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6895,15 +6921,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- {oneb Q (dn X) N} /\ (forall w, sat (N w) (A w))
+ {oneb Q (dn X) N} /\ (exists w, sat (N w) (A w))
 
 bisim_sat0_L < split.
 Subgoal 11.1:
 
-Variables: P Q Q1 A X N
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6924,10 +6950,10 @@ H12 : forall W, bisim (Q1 W) (N W)
 bisim_sat0_L < search.
 Subgoal 11.2:
 
-Variables: P Q Q1 A X N
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6941,15 +6967,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- forall w, sat (N w) (A w)
+ exists w, sat (N w) (A w)
 
 bisim_sat0_L < intros.
 Subgoal 11.2:
 
-Variables: P Q Q1 A X N w
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6963,15 +6989,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- sat (N w) (A w)
+ exists w, sat (N w) (A w)
 
 bisim_sat0_L < assert bisim (Q1 w) (N w).
 Subgoal 11.2.1:
 
-Variables: P Q Q1 A X N w
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -6992,10 +7018,33 @@ H12 : forall W, bisim (Q1 W) (N W)
 bisim_sat0_L < backchain H12.
 Subgoal 11.2:
 
-Variables: P Q Q1 A X N w
+Variables: P Q Q1 w A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
+H4 : sat (Q1 w) (A w) *
+H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
+H6 : forall X M, {oneb P (dn X) M} ->
+       (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
+H7 : forall X M, {oneb P (up X) M} ->
+       (exists N, {oneb Q (up X) N} /\ (nabla w, bisim (M w) (N w)))
+H8 : forall A Q1, {one Q A Q1} -> (exists P2, {one P A P2} /\ bisim Q1 P2)
+H9 : forall X N, {oneb Q (dn X) N} ->
+       (exists M, {oneb P (dn X) M} /\ (forall W, bisim (N W) (M W)))
+H10 : forall X N, {oneb Q (up X) N} ->
+        (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
+H11 : {oneb Q (dn X) N}
+H12 : forall W, bisim (Q1 W) (N W)
+H13 : bisim (Q1 w) (N w)
+============================
+ exists w, sat (N w) (A w)
+
+bisim_sat0_L < exists w.
+Subgoal 11.2:
+
+Variables: P Q Q1 w A X N
+IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
+H3 : {oneb P (dn X) Q1}
+H4 : sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -7013,29 +7062,6 @@ H13 : bisim (Q1 w) (N w)
  sat (N w) (A w)
 
 bisim_sat0_L < backchain IH.
-Subgoal 11.2:
-
-Variables: P Q Q1 A X N w
-IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : {oneb P (dn X) Q1}
-H4 : forall w, sat (Q1 w) (A w) *
-H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
-H6 : forall X M, {oneb P (dn X) M} ->
-       (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
-H7 : forall X M, {oneb P (up X) M} ->
-       (exists N, {oneb Q (up X) N} /\ (nabla w, bisim (M w) (N w)))
-H8 : forall A Q1, {one Q A Q1} -> (exists P2, {one P A P2} /\ bisim Q1 P2)
-H9 : forall X N, {oneb Q (dn X) N} ->
-       (exists M, {oneb P (dn X) M} /\ (forall W, bisim (N W) (M W)))
-H10 : forall X N, {oneb Q (up X) N} ->
-        (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
-H11 : {oneb Q (dn X) N}
-H12 : forall W, bisim (Q1 W) (N W)
-H13 : bisim (Q1 w) (N w)
-============================
- sat (Q1 w) (A w) *
-
-bisim_sat0_L < backchain H4.
 Proof completed.
 Abella < Theorem bisim_sat0_R : 
 forall P Q F, bisim P Q -> sat Q F -> sat P F.
@@ -8061,9 +8087,9 @@ Subgoal 10:
 
 Variables: P X A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
-H2 : forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w) *)
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
 ============================
- sat (match X X P) (boxInL X1 A)
+ sat (match X X P) (boxIn X1 A)
 
 1 other subgoal.
 
@@ -8072,85 +8098,115 @@ Subgoal 10:
 
 Variables: P X A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
-H2 : forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w) *)
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
 ============================
- forall Q, {oneb (match X X P) (dn X1) Q} -> (exists w, sat (Q w) (A w))
+ forall Q, {oneb (match X X P) (dn X1) Q} -> (forall w, sat (Q w) (A w))
 
 1 other subgoal.
 
 sat_match1 < intros.
 Subgoal 10:
 
-Variables: P X A X1 Q
+Variables: P X A X1 Q w
 IH : forall P F X, sat P F * -> sat (match X X P) F
-H2 : forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w) *)
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
 H3 : {oneb (match X X P) (dn X1) Q}
 ============================
- exists w, sat (Q w) (A w)
-
-1 other subgoal.
-
-sat_match1 < backchain H2.
-Subgoal 10:
-
-Variables: P X A X1 Q
-IH : forall P F X, sat P F * -> sat (match X X P) F
-H2 : forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w) *)
-H3 : {oneb (match X X P) (dn X1) Q}
-============================
- {oneb P (dn X1) (z1\Q z1)}
+ sat (Q w) (A w)
 
 1 other subgoal.
 
 sat_match1 < case H3.
 Subgoal 10:
 
-Variables: P X A X1 Q
+Variables: P X A X1 Q w
 IH : forall P F X, sat P F * -> sat (match X X P) F
-H2 : forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w) *)
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
 H4 : {oneb P (dn X1) Q}
 ============================
- {oneb P (dn X1) (z1\Q z1)}
+ sat (Q w) (A w)
+
+1 other subgoal.
+
+sat_match1 < apply to H4.
+Subgoal 10:
+
+Variables: P X A X1 Q w
+IH : forall P F X, sat P F * -> sat (match X X P) F
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
+H4 : {oneb P (dn X1) Q}
+H5 : forall w, sat (Q w) (A w) *
+============================
+ sat (Q w) (A w)
+
+1 other subgoal.
+
+sat_match1 < apply with w = w.
+Subgoal 10:
+
+Variables: P X A X1 Q w
+IH : forall P F X, sat P F * -> sat (match X X P) F
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
+H4 : {oneb P (dn X1) Q}
+H5 : forall w, sat (Q w) (A w) *
+H6 : sat (Q w) (A w) *
+============================
+ sat (Q w) (A w)
+
+1 other subgoal.
+
+sat_match1 < apply to H6 with P = Q w, F = A w, X = X.
+Subgoal 10:
+
+Variables: P X A X1 Q w
+IH : forall P F X, sat P F * -> sat (match X X P) F
+H2 : forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w) *)
+H4 : {oneb P (dn X1) Q}
+H5 : forall w, sat (Q w) (A w) *
+H6 : sat (Q w) (A w) *
+H7 : sat (match X X (Q w)) (A w)
+============================
+ sat (Q w) (A w)
 
 1 other subgoal.
 
 sat_match1 < search.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- sat (match X X P) (diaInL X1 A)
+ sat (match X X P) (diaIn X1 A)
 
 sat_match1 < unfold.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- exists Q, {oneb (match X X P) (dn X1) Q} /\ (forall w, sat (Q w) (A w))
+ exists Q, {oneb (match X X P) (dn X1) Q} /\ (exists w, sat (Q w) (A w))
 
 sat_match1 < exists Q.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- {oneb (match X X P) (dn X1) Q} /\ (forall w, sat (Q w) (A w))
+ {oneb (match X X P) (dn X1) Q} /\ (exists w, sat (Q w) (A w))
 
 sat_match1 < split.
 Subgoal 11.1:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
  {oneb (match X X P) (dn X1) Q}
 
@@ -8159,12 +8215,12 @@ H3 : forall w, sat (Q w) (A w) *
 sat_match1 < search.
 Subgoal 11.2:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- forall w, sat (Q w) (A w)
+ exists w, sat (Q w) (A w)
 
 sat_match1 < search.
 Proof completed.
@@ -8665,9 +8721,9 @@ Subgoal 10:
 Variables: P X A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
-       (exists w, sat (Q w) (A w) *)
+       (forall w, sat (Q w) (A w) *)
 ============================
- sat P (boxInL X1 A)
+ sat P (boxIn X1 A)
 
 1 other subgoal.
 
@@ -8677,36 +8733,36 @@ Subgoal 10:
 Variables: P X A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
-       (exists w, sat (Q w) (A w) *)
+       (forall w, sat (Q w) (A w) *)
 ============================
- forall Q, {oneb P (dn X1) Q} -> (exists w, sat (Q w) (A w))
+ forall Q, {oneb P (dn X1) Q} -> (forall w, sat (Q w) (A w))
 
 1 other subgoal.
 
 sat_match2 < intros.
 Subgoal 10:
 
-Variables: P X A X1 Q
+Variables: P X A X1 Q w
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
-       (exists w, sat (Q w) (A w) *)
+       (forall w, sat (Q w) (A w) *)
 H3 : {oneb P (dn X1) Q}
 ============================
- exists w, sat (Q w) (A w)
+ sat (Q w) (A w)
 
 1 other subgoal.
 
 sat_match2 < assert {oneb (match X X P) (dn X1) Q}.
 Subgoal 10:
 
-Variables: P X A X1 Q
+Variables: P X A X1 Q w
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
-       (exists w, sat (Q w) (A w) *)
+       (forall w, sat (Q w) (A w) *)
 H3 : {oneb P (dn X1) Q}
 H4 : {oneb (match X X P) (dn X1) Q}
 ============================
- exists w, sat (Q w) (A w)
+ sat (Q w) (A w)
 
 1 other subgoal.
 
@@ -8716,52 +8772,83 @@ Subgoal 10:
 Variables: P X A X1 Q w
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
-       (exists w, sat (Q w) (A w) *)
+       (forall w, sat (Q w) (A w) *)
 H3 : {oneb P (dn X1) Q}
 H4 : {oneb (match X X P) (dn X1) Q}
-H5 : sat (Q w) (A w) *
+H5 : forall w, sat (Q w) (A w) *
 ============================
- exists w, sat (Q w) (A w)
+ sat (Q w) (A w)
 
 1 other subgoal.
 
-sat_match2 < search.
+sat_match2 < backchain IH with P = Q w, F = A w, X = X.
+Subgoal 10:
+
+Variables: P X A X1 Q w
+IH : forall P F X, sat (match X X P) F * -> sat P F
+H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
+       (forall w, sat (Q w) (A w) *)
+H3 : {oneb P (dn X1) Q}
+H4 : {oneb (match X X P) (dn X1) Q}
+H5 : forall w, sat (Q w) (A w) *
+============================
+ sat (match X X (Q w)) (A w) *
+
+1 other subgoal.
+
+sat_match2 < apply with w = w.
+Subgoal 10:
+
+Variables: P X A X1 Q w
+IH : forall P F X, sat (match X X P) F * -> sat P F
+H2 : forall Q, {oneb (match X X P) (dn X1) Q} ->
+       (forall w, sat (Q w) (A w) *)
+H3 : {oneb P (dn X1) Q}
+H4 : {oneb (match X X P) (dn X1) Q}
+H5 : forall w, sat (Q w) (A w) *
+H6 : sat (Q w) (A w) *
+============================
+ sat (match X X (Q w)) (A w) *
+
+1 other subgoal.
+
+sat_match2 < backchain sat_match1.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- sat P (diaInL X1 A)
+ sat P (diaIn X1 A)
 
 sat_match2 < unfold.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- exists Q, {oneb P (dn X1) Q} /\ (forall w, sat (Q w) (A w))
+ exists Q, {oneb P (dn X1) Q} /\ (exists w, sat (Q w) (A w))
 
 sat_match2 < exists Q.
 Subgoal 11:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- {oneb P (dn X1) Q} /\ (forall w, sat (Q w) (A w))
+ {oneb P (dn X1) Q} /\ (exists w, sat (Q w) (A w))
 
 sat_match2 < split.
 Subgoal 11.1:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
  {oneb P (dn X1) Q}
 
@@ -8770,9 +8857,9 @@ H3 : forall w, sat (Q w) (A w) *
 sat_match2 < case H2.
 Subgoal 11.1:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 H4 : {oneb P (dn X1) Q}
 ============================
  {oneb P (dn X1) Q}
@@ -8782,12 +8869,12 @@ H4 : {oneb P (dn X1) Q}
 sat_match2 < search.
 Subgoal 11.2:
 
-Variables: P X Q A X1
+Variables: P X Q w A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : forall w, sat (Q w) (A w) *
+H3 : sat (Q w) (A w) *
 ============================
- forall w, sat (Q w) (A w)
+ exists w, sat (Q w) (A w)
 
 sat_match2 < search.
 Proof completed.
@@ -11113,141 +11200,123 @@ forall P Q A Q1, (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
 
 sateq_one_R < skip.
 Proof completed.
-Abella < Theorem sat_diaInL_plus1 : 
-forall P Q X F, sat P (diaInL X F) -> sat (plus P Q) (diaInL X F).
+Abella < Theorem sat_diaIn_plus1 : 
+forall P Q X F, sat P (diaIn X F) -> sat (plus P Q) (diaIn X F).
 
 
 ============================
- forall P Q X F, sat P (diaInL X F) -> sat (plus P Q) (diaInL X F)
+ forall P Q X F, sat P (diaIn X F) -> sat (plus P Q) (diaIn X F)
 
-sat_diaInL_plus1 < intros.
+sat_diaIn_plus1 < intros.
 
 Variables: P Q X F
-H1 : sat P (diaInL X F)
+H1 : sat P (diaIn X F)
 ============================
- sat (plus P Q) (diaInL X F)
+ sat (plus P Q) (diaIn X F)
 
-sat_diaInL_plus1 < unfold.
+sat_diaIn_plus1 < unfold.
 
 Variables: P Q X F
-H1 : sat P (diaInL X F)
+H1 : sat P (diaIn X F)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus1 < case H1.
+sat_diaIn_plus1 < case H1.
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb P (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus1 < exists Q1.
+sat_diaIn_plus1 < exists Q1.
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb P (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus1 < split.
+sat_diaIn_plus1 < split.
 Subgoal 1:
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb P (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
  {oneb (plus P Q) (dn X) Q1}
 
 1 other subgoal.
 
-sat_diaInL_plus1 < search.
+sat_diaIn_plus1 < search.
 Subgoal 2:
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb P (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- forall w, sat (Q1 w) (F w)
+ exists w, sat (Q1 w) (F w)
 
-sat_diaInL_plus1 < search.
+sat_diaIn_plus1 < search.
 Proof completed.
-Abella < Theorem sat_diaInL_plus2 : 
-forall P Q X F, sat Q (diaInL X F) -> sat (plus P Q) (diaInL X F).
+Abella < Theorem sat_diaIn_plus2 : 
+forall P Q X F, sat Q (diaIn X F) -> sat (plus P Q) (diaIn X F).
 
 
 ============================
- forall P Q X F, sat Q (diaInL X F) -> sat (plus P Q) (diaInL X F)
+ forall P Q X F, sat Q (diaIn X F) -> sat (plus P Q) (diaIn X F)
 
-sat_diaInL_plus2 < intros.
+sat_diaIn_plus2 < intros.
 
 Variables: P Q X F
-H1 : sat Q (diaInL X F)
+H1 : sat Q (diaIn X F)
 ============================
- sat (plus P Q) (diaInL X F)
+ sat (plus P Q) (diaIn X F)
 
-sat_diaInL_plus2 < unfold.
+sat_diaIn_plus2 < unfold.
 
 Variables: P Q X F
-H1 : sat Q (diaInL X F)
+H1 : sat Q (diaIn X F)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus2 < case H1.
+sat_diaIn_plus2 < case H1.
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb Q (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus2 < exists Q1.
+sat_diaIn_plus2 < exists Q1.
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb Q (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
+ {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
 
-sat_diaInL_plus2 < split.
+sat_diaIn_plus2 < split.
 Subgoal 1:
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb Q (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
  {oneb (plus P Q) (dn X) Q1}
 
 1 other subgoal.
 
-sat_diaInL_plus2 < search.
+sat_diaIn_plus2 < search.
 Subgoal 2:
 
-Variables: P Q X F Q1
+Variables: P Q X F Q1 w
 H2 : {oneb Q (dn X) Q1}
-H3 : forall w, sat (Q1 w) (F w)
+H3 : sat (Q1 w) (F w)
 ============================
- forall w, sat (Q1 w) (F w)
+ exists w, sat (Q1 w) (F w)
 
-sat_diaInL_plus2 < search.
-Proof completed.
-Abella < Theorem help_me_out_of_infinite_loop : 
-forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-  (exists F, sat (nu P) (diaInL X F)).
-
-
-============================
- forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-   (exists F, sat (nu P) (diaInL X F))
-
-help_me_out_of_infinite_loop < intros.
-
-Variables: P X Q
-H1 : {oneb (nu P) (dn X) (y\nu (w\Q w y))}
-============================
- exists F, sat (nu P) (diaInL X F)
-
-help_me_out_of_infinite_loop < search.
+sat_diaIn_plus2 < search.
 Proof completed.
 Abella < Theorem sateq_oneb_dn_exists_L : 
 forall P Q X P1, (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
@@ -11258,23 +11327,11 @@ forall P Q X P1, (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
  forall P Q X P1, (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
    {oneb P (dn X) P1} -> (exists Q1, {oneb Q (dn X) Q1})
 
-sateq_oneb_dn_exists_L < induction on 2.
-
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-============================
- forall P Q X P1, (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
-   {oneb P (dn X) P1}@ -> (exists Q1, {oneb Q (dn X) Q1})
-
 sateq_oneb_dn_exists_L < intros.
 
 Variables: P Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)
-H2 : {oneb P (dn X) P1}@
+H2 : {oneb P (dn X) P1}
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -11282,779 +11339,406 @@ sateq_oneb_dn_exists_L < case H2.
 Subgoal 1:
 
 Variables: Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 6 other subgoals.
 
-sateq_oneb_dn_exists_L < assert forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F).
-Subgoal 1.1:
-
-Variables: Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-============================
- forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F)
-
-7 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 1.1:
-
-Variables: Q X P1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall W, sat (P1 W) (F W)
-============================
- sat Q (diaInL X F)
-
-7 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 1.1:
-
-Variables: Q X P1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall W, sat (P1 W) (F W)
-H4 : sat (in X P1) (diaInL X F) -> sat Q (diaInL X F)
-H5 : sat Q (diaInL X F) -> sat (in X P1) (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-7 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain H4.
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
 Subgoal 1:
 
 Variables: Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F)
+H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 6 other subgoals.
 
-sateq_oneb_dn_exists_L < assert forall W, sat (P1 W) tt.
+sateq_oneb_dn_exists_L < assert sat (in X P1) (diaIn X z\tt).
 Subgoal 1:
 
 Variables: Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F)
-H4 : forall W, sat (P1 W) tt
+H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
+H5 : sat (in X P1) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 6 other subgoals.
 
-sateq_oneb_dn_exists_L < apply to H4.
+sateq_oneb_dn_exists_L < apply to H5.
 Subgoal 1:
 
 Variables: Q X P1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F)
-H4 : forall W, sat (P1 W) tt
-H5 : sat Q (diaInL X z1\tt)
+H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
+H5 : sat (in X P1) (diaIn X z\tt)
+H6 : sat Q (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 6 other subgoals.
-
-sateq_oneb_dn_exists_L < case H5.
-Subgoal 1:
-
-Variables: Q X P1 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
-H3 : forall F, (forall W, sat (P1 W) (F W)) -> sat Q (diaInL X F)
-H4 : forall W, sat (P1 W) tt
-H6 : {oneb Q (dn X) Q1}
-H7 : forall w, sat (Q1 w) tt
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-6 other subgoals.
-
-sateq_oneb_dn_exists_L < search.
-Subgoal 2:
-
-Variables: Q X P1 P2 X1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain IH with P = P2.
-Subgoal 2:
-
-Variables: Q X P1 P2 X1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-============================
- forall F, (sat P2 F -> sat Q F) /\ (sat Q F -> sat P2 F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 2:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-============================
- (sat P2 F -> sat Q F) /\ (sat Q F -> sat P2 F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = F.
-Subgoal 2:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-============================
- (sat P2 F -> sat Q F) /\ (sat Q F -> sat P2 F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < split.
-Subgoal 2.1:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-============================
- sat P2 F -> sat Q F
-
-6 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 2.1:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-H6 : sat P2 F
-============================
- sat Q F
-
-6 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain H4.
-Subgoal 2.1:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-H6 : sat P2 F
-============================
- sat (match X1 X1 P2) F
-
-6 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain sat_match1.
-Subgoal 2.2:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-============================
- sat Q F -> sat P2 F
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 2.2:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-H6 : sat Q F
-============================
- sat P2 F
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < apply to H6.
-Subgoal 2.2:
-
-Variables: Q X P1 P2 X1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
-       (sat Q F -> sat (match X1 X1 P2) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat (match X1 X1 P2) F -> sat Q F
-H5 : sat Q F -> sat (match X1 X1 P2) F
-H6 : sat Q F
-H7 : sat (match X1 X1 P2) F
-============================
- sat P2 F
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain sat_match2.
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < assert forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F).
-Subgoal 3.1:
-
-Variables: Q X P1 P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-============================
- forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 3.1:
-
-Variables: Q X P1 P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat P2 (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 3.1:
-
-Variables: Q X P1 P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat P2 (diaInL X F)
-H5 : sat (plus P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q (diaInL X F) -> sat (plus P2 Q1) (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain H5.
-Subgoal 3.1:
-
-Variables: Q X P1 P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : sat P2 (diaInL X F)
-H5 : sat (plus P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q (diaInL X F) -> sat (plus P2 Q1) (diaInL X F)
-============================
- sat (plus P2 Q1) (diaInL X F)
-
-5 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain sat_diaInL_plus1.
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < assert exists F, sat P2 (diaInL X F).
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-H5 : exists F, sat P2 (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < case H5.
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat P2 (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < apply to H6.
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat P2 (diaInL X F)
-H7 : sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < case H7.
-Subgoal 3:
-
-Variables: Q X P1 P2 Q1 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb P2 (dn X) P1}*
-H4 : forall F, sat P2 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat P2 (diaInL X F)
-H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < search.
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < assert forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F).
-Subgoal 4.1:
-
-Variables: Q X P1 Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-============================
- forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 4.1:
-
-Variables: Q X P1 Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : sat Q1 (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 4.1:
-
-Variables: Q X P1 Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : sat Q1 (diaInL X F)
-H5 : sat (plus P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q (diaInL X F) -> sat (plus P2 Q1) (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain H5.
-Subgoal 4.1:
-
-Variables: Q X P1 Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : sat Q1 (diaInL X F)
-H5 : sat (plus P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q (diaInL X F) -> sat (plus P2 Q1) (diaInL X F)
-============================
- sat (plus P2 Q1) (diaInL X F)
-
-4 other subgoals.
-
-sateq_oneb_dn_exists_L < backchain sat_diaInL_plus2.
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < assert exists F, sat Q1 (diaInL X F).
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-H5 : exists F, sat Q1 (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < case H5.
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q1 (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < apply to H6.
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q1 (diaInL X F)
-H7 : sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < case H7.
-Subgoal 4:
-
-Variables: Q X P1 Q1 P2 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (plus P2 Q1) F)
-H3 : {oneb Q1 (dn X) P1}*
-H4 : forall F, sat Q1 (diaInL X F) -> sat Q (diaInL X F)
-H6 : sat Q1 (diaInL X F)
-H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < search.
-Subgoal 5:
-
-Variables: Q X M P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < assert exists F, sat P2 (diaInL X F).
-Subgoal 5:
-
-Variables: Q X M P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < assert exists F, sat (par P2 Q1) (diaInL X F).
-Subgoal 5:
-
-Variables: Q X M P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < assert exists F, sat Q (diaInL X F).
-Subgoal 5.1:
-
-Variables: Q X M P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < case H5.
-Subgoal 5.1:
-
-Variables: Q X M P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 5.1:
-
-Variables: Q X M P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-H7 : sat (par P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F) -> sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < apply to H6.
-Subgoal 5.1:
-
-Variables: Q X M P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-H7 : sat (par P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F) -> sat (par P2 Q1) (diaInL X F)
-H9 : sat Q (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-3 other subgoals.
-
-sateq_oneb_dn_exists_L < search.
-Subgoal 5:
-
-Variables: Q X M P2 Q1
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-H6 : exists F, sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-2 other subgoals.
 
 sateq_oneb_dn_exists_L < case H6.
+Subgoal 1:
+
+Variables: Q X P1 Q1 w
+H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
+H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
+H5 : sat (in X P1) (diaIn X z\tt)
+H7 : {oneb Q (dn X) Q1}
+H8 : sat (Q1 w) tt
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+6 other subgoals.
+
+sateq_oneb_dn_exists_L < exists Q1.
+Subgoal 1:
+
+Variables: Q X P1 Q1 w
+H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
+H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
+H5 : sat (in X P1) (diaIn X z\tt)
+H7 : {oneb Q (dn X) Q1}
+H8 : sat (Q1 w) tt
+============================
+ {oneb Q (dn X) Q1}
+
+6 other subgoals.
+
+sateq_oneb_dn_exists_L < search.
+Subgoal 2:
+
+Variables: Q X P1 P2 X1
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
+Subgoal 2:
+
+Variables: Q X P1 P2 X1
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < assert sat (match X1 X1 P2) (diaIn X z\tt).
+Subgoal 2:
+
+Variables: Q X P1 P2 X1
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
+H6 : sat (match X1 X1 P2) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < apply to H6.
+Subgoal 2:
+
+Variables: Q X P1 P2 X1
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
+H6 : sat (match X1 X1 P2) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < case H7.
+Subgoal 2:
+
+Variables: Q X P1 P2 X1 Q1 w
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
+H6 : sat (match X1 X1 P2) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q1}
+H9 : sat (Q1 w) tt
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < exists Q1.
+Subgoal 2:
+
+Variables: Q X P1 P2 X1 Q1 w
+H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
+       (sat Q F -> sat (match X1 X1 P2) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
+H6 : sat (match X1 X1 P2) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q1}
+H9 : sat (Q1 w) tt
+============================
+ {oneb Q (dn X) Q1}
+
+5 other subgoals.
+
+sateq_oneb_dn_exists_L < search.
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < assert sat (plus P2 Q1) (diaIn X z\tt).
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < apply to H6.
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < case H7.
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1 Q2 w
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < exists Q2.
+Subgoal 3:
+
+Variables: Q X P1 P2 Q1 Q2 w
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb P2 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
+============================
+ {oneb Q (dn X) Q2}
+
+4 other subgoals.
+
+sateq_oneb_dn_exists_L < search.
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < assert sat (plus P2 Q1) (diaIn X z\tt).
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < apply to H6.
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < case H7.
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2 Q2 w
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < exists Q2.
+Subgoal 4:
+
+Variables: Q X P1 Q1 P2 Q2 w
+H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (plus P2 Q1) F)
+H3 : {oneb Q1 (dn X) P1}
+H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
+H6 : sat (plus P2 Q1) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
+============================
+ {oneb Q (dn X) Q2}
+
+3 other subgoals.
+
+sateq_oneb_dn_exists_L < search.
 Subgoal 5:
 
-Variables: Q X M P2 Q1 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X M P2 Q1
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-H7 : sat Q (diaInL X F)
+H3 : {oneb P2 (dn X) M}
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+2 other subgoals.
+
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
+Subgoal 5:
+
+Variables: Q X M P2 Q1
+H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (par P2 Q1) F)
+H3 : {oneb P2 (dn X) M}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+2 other subgoals.
+
+sateq_oneb_dn_exists_L < assert sat (par P2 Q1) (diaIn X z\tt).
+Subgoal 5:
+
+Variables: Q X M P2 Q1
+H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (par P2 Q1) F)
+H3 : {oneb P2 (dn X) M}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
+============================
+ exists Q1, {oneb Q (dn X) Q1}
+
+2 other subgoals.
+
+sateq_oneb_dn_exists_L < apply to H6.
+Subgoal 5:
+
+Variables: Q X M P2 Q1
+H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
+       (sat Q F -> sat (par P2 Q1) F)
+H3 : {oneb P2 (dn X) M}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -12063,17 +11747,15 @@ H7 : sat Q (diaInL X F)
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 5:
 
-Variables: Q X M P2 Q1 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X M P2 Q1 Q2 w
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
+H3 : {oneb P2 (dn X) M}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
+H9 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -12082,17 +11764,15 @@ H9 : forall w, sat (Q2 w) (F w)
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 5:
 
-Variables: Q X M P2 Q1 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X M P2 Q1 Q2 w
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb P2 (dn X) M}*
-H4 : exists F, sat P2 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
+H3 : {oneb P2 (dn X) M}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
+H9 : sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -12102,154 +11782,54 @@ sateq_oneb_dn_exists_L < search.
 Subgoal 6:
 
 Variables: Q X N Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
+H3 : {oneb Q1 (dn X) N}
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 1 other subgoal.
 
-sateq_oneb_dn_exists_L < assert exists F, sat Q1 (diaInL X F).
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
 Subgoal 6:
 
 Variables: Q X N Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
+H3 : {oneb Q1 (dn X) N}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 1 other subgoal.
 
-sateq_oneb_dn_exists_L < assert exists F, sat (par P2 Q1) (diaInL X F).
+sateq_oneb_dn_exists_L < assert sat (par P2 Q1) (diaIn X z\tt).
 Subgoal 6:
 
 Variables: Q X N Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
+H3 : {oneb Q1 (dn X) N}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 1 other subgoal.
-
-sateq_oneb_dn_exists_L < assert exists F, sat Q (diaInL X F).
-Subgoal 6.1:
-
-Variables: Q X N Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < case H5.
-Subgoal 6.1:
-
-Variables: Q X N Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 6.1:
-
-Variables: Q X N Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-H7 : sat (par P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F) -> sat (par P2 Q1) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-2 other subgoals.
 
 sateq_oneb_dn_exists_L < apply to H6.
-Subgoal 6.1:
-
-Variables: Q X N Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H6 : sat (par P2 Q1) (diaInL X F)
-H7 : sat (par P2 Q1) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F) -> sat (par P2 Q1) (diaInL X F)
-H9 : sat Q (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-2 other subgoals.
-
-sateq_oneb_dn_exists_L < search.
 Subgoal 6:
 
 Variables: Q X N Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-H6 : exists F, sat Q (diaInL X F)
-============================
- exists Q1, {oneb Q (dn X) Q1}
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < case H6.
-Subgoal 6:
-
-Variables: Q X N Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
-       (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
-H7 : sat Q (diaInL X F)
+H3 : {oneb Q1 (dn X) N}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -12258,17 +11838,15 @@ H7 : sat Q (diaInL X F)
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 6:
 
-Variables: Q X N Q1 P2 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X N Q1 P2 Q2 w
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
+H3 : {oneb Q1 (dn X) N}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
+H9 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -12277,17 +11855,15 @@ H9 : forall w, sat (Q2 w) (F w)
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 6:
 
-Variables: Q X N Q1 P2 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X N Q1 P2 Q2 w
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
-H3 : {oneb Q1 (dn X) N}*
-H4 : exists F, sat Q1 (diaInL X F)
-H5 : exists F, sat (par P2 Q1) (diaInL X F)
+H3 : {oneb Q1 (dn X) N}
+H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
+H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : forall w, sat (Q2 w) (F w)
+H9 : sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -12297,274 +11873,80 @@ sateq_oneb_dn_exists_L < search.
 Subgoal 7:
 
 Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
-sateq_oneb_dn_exists_L < assert {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}.
+sateq_oneb_dn_exists_L < apply with F = diaIn X z\tt.
 Subgoal 7:
 
 Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
+H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
-sateq_oneb_dn_exists_L < apply.
+sateq_oneb_dn_exists_L < assert sat (nu P2) (diaIn X z\tt).
 Subgoal 7:
 
 Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
+H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
+H6 : sat (nu P2) (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
-sateq_oneb_dn_exists_L < assert forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F).
-Subgoal 7.1:
-
-Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-============================
- forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 7.1:
-
-Variables: Q X Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : sat (nu P2) (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < apply with F = diaInL X F.
-Subgoal 7.1:
-
-Variables: Q X Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : sat (nu P2) (diaInL X F)
-H7 : sat (nu (x\P2 x)) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F) -> sat (nu (x\P2 x)) (diaInL X F)
-============================
- sat Q (diaInL X F)
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < backchain H7.
+sateq_oneb_dn_exists_L < apply to H6.
 Subgoal 7:
 
 Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
+H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
+H6 : sat (nu P2) (diaIn X z\tt)
+H7 : sat Q (diaIn X z\tt)
 ============================
  exists Q1, {oneb Q (dn X) Q1}
-
-sateq_oneb_dn_exists_L < assert (exists F, sat Q (diaInL X F)) -> (exists Q1, {oneb Q (dn X) Q1}).
-Subgoal 7.2:
-
-Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-============================
- (exists F, sat Q (diaInL X F)) -> (exists Q2, {oneb Q (dn X) Q2})
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < intros.
-Subgoal 7.2:
-
-Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H7 : exists F, sat Q (diaInL X F)
-============================
- exists Q2, {oneb Q (dn X) Q2}
-
-1 other subgoal.
 
 sateq_oneb_dn_exists_L < case H7.
-Subgoal 7.2:
-
-Variables: Q X Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H8 : sat Q (diaInL X F)
-============================
- exists Q2, {oneb Q (dn X) Q2}
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < case H8.
-Subgoal 7.2:
-
-Variables: Q X Q1 P2 F Q2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H9 : {oneb Q (dn X) Q2}
-H10 : forall w, sat (Q2 w) (F w)
-============================
- exists Q2, {oneb Q (dn X) Q2}
-
-1 other subgoal.
-
-sateq_oneb_dn_exists_L < search.
 Subgoal 7:
 
-Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X Q1 P2 Q2 w
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H7 : (exists F, sat Q (diaInL X F)) -> (exists Q2, {oneb Q (dn X) Q2})
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
+H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
+H6 : sat (nu P2) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
-sateq_oneb_dn_exists_L < backchain H7.
+sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 7:
 
-Variables: Q X Q1 P2
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
+Variables: Q X Q1 P2 Q2 w
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H7 : (exists F, sat Q (diaInL X F)) -> (exists Q2, {oneb Q (dn X) Q2})
+H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
+H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
+H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
+H6 : sat (nu P2) (diaIn X z\tt)
+H8 : {oneb Q (dn X) Q2}
+H9 : sat (Q2 w) tt
 ============================
- exists F, sat Q (diaInL X F)
-
-sateq_oneb_dn_exists_L < apply to H4.
-Subgoal 7:
-
-Variables: Q X Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H7 : (exists F, sat Q (diaInL X F)) -> (exists Q2, {oneb Q (dn X) Q2})
-H8 : sat (nu P2) (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
-
-sateq_oneb_dn_exists_L < apply to H8.
-Subgoal 7:
-
-Variables: Q X Q1 P2 F
-IH : forall P Q X P1, (forall F, (sat P F -> sat Q F) /\
-                           (sat Q F -> sat P F)) ->
-       {oneb P (dn X) P1}* -> (exists Q1, {oneb Q (dn X) Q1})
-H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
-       (sat Q F -> sat (nu (x\P2 x)) F)
-H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}*
-H4 : {oneb (nu P2) (dn X) (y\nu (w\Q1 w y))}
-H5 : forall P X Q, {oneb (nu P) (dn X) (y\nu (w\Q w y))} ->
-       (exists F, sat (nu P) (diaInL X F))
-H6 : forall F, sat (nu P2) (diaInL X F) -> sat Q (diaInL X F)
-H7 : (exists F, sat Q (diaInL X F)) -> (exists Q2, {oneb Q (dn X) Q2})
-H8 : sat (nu P2) (diaInL X F)
-H9 : sat Q (diaInL X F)
-============================
- exists F, sat Q (diaInL X F)
+ {oneb Q (dn X) Q2}
 
 sateq_oneb_dn_exists_L < search.
 Proof completed.
@@ -18404,7 +17786,7 @@ H3 : in (Z X Y) (P1 X Y) = P X Y
 
 6 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 1.1:
 
 Variables: X Y P Q Z P1
@@ -18414,7 +17796,7 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 7 other subgoals.
 
@@ -18429,7 +17811,7 @@ H1 : forall F, (forall X Y, sat (in (P2 X Y) (P3 X Y)) (F X Y) ->
 H4 : P3 X Y = P1 X Y
 H5 : P2 X Y = Z X Y
 ============================
- sat (in (P2 X Y) (P3 X Y)) (diaInL (Z X Y) z\tt)
+ sat (in (P2 X Y) (P3 X Y)) (diaIn (Z X Y) z\tt)
 
 7 other subgoals.
 
@@ -18440,7 +17822,7 @@ Variables: X Y Q Z P1 P3 P2
 H4 : P3 X Y = P1 X Y
 H5 : P2 X Y = Z X Y
 ============================
- sat (in (P2 X Y) (P3 X Y)) (diaInL (Z X Y) z\tt)
+ sat (in (P2 X Y) (P3 X Y)) (diaIn (Z X Y) z\tt)
 
 7 other subgoals.
 
@@ -18463,7 +17845,7 @@ H4 : P3 X Y = P1 X Y
 H5 : P2 X Y = Z X Y
 H6 : P2 = Z
 ============================
- sat (in (P2 X Y) (P3 X Y)) (diaInL (Z X Y) z\tt)
+ sat (in (P2 X Y) (P3 X Y)) (diaIn (Z X Y) z\tt)
 
 7 other subgoals.
 
@@ -18474,7 +17856,7 @@ Variables: X Y Q Z P1 P3
 H4 : P3 X Y = P1 X Y
 H5 : Z X Y = Z X Y
 ============================
- sat (in (Z X Y) (P3 X Y)) (diaInL (Z X Y) z\tt)
+ sat (in (Z X Y) (P3 X Y)) (diaIn (Z X Y) z\tt)
 
 7 other subgoals.
 
@@ -18487,13 +17869,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 6 other subgoals.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 1:
 
 Variables: X Y P Q Z P1
@@ -18502,11 +17884,11 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H5 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H6 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H5 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18521,12 +17903,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H5 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H6 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H7 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H5 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18541,13 +17923,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H5 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H6 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H7 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H8 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H5 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H8 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18556,20 +17938,20 @@ H8 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H8.
 Subgoal 1:
 
-Variables: X Y P Q Z P1 Q1
+Variables: X Y P Q Z P1 Q1 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H5 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H6 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H7 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H5 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H9 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H10 : forall w, sat (Q1 w) tt
+H10 : sat (Q1 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18578,20 +17960,20 @@ H10 : forall w, sat (Q1 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q1.
 Subgoal 1:
 
-Variables: X Y P Q Z P1 Q1
+Variables: X Y P Q Z P1 Q1 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : in (Z X Y) (P1 X Y) = P X Y
-H4 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H5 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H6 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H7 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H4 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H5 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H9 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H10 : forall w, sat (Q1 w) tt
+H10 : sat (Q1 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q1}
 
@@ -18612,7 +17994,7 @@ H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
 
 5 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat P2 (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat P2 (diaIn (Z X Y) z\tt).
 Subgoal 2:
 
 Variables: X Y P Q Z P1 P2 X1
@@ -18622,13 +18004,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 5 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 2.1:
 
 Variables: X Y P Q Z P1 P2 X1
@@ -18638,9 +18020,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 6 other subgoals.
 
@@ -18654,10 +18036,10 @@ H1 : forall F, (forall X Y, sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (F X Y) ->
             (forall X1 Y1, sat (match (P3 X1 Y1) (P4 X1 Y1) (P5 X1 Y1))
                              (F X1 Y1)))
 H4 : {oneb (P5 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P5 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P5 X Y) (diaIn (Z X Y) z\tt)
 H6 : P4 X Y = P3 X Y
 ============================
- sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaInL (Z X Y) z\tt)
+ sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaIn (Z X Y) z\tt)
 
 6 other subgoals.
 
@@ -18666,10 +18048,10 @@ Subgoal 2.1:
 
 Variables: X Y Q Z P1 P5 P3 P4
 H4 : {oneb (P5 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P5 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P5 X Y) (diaIn (Z X Y) z\tt)
 H6 : P4 X Y = P3 X Y
 ============================
- sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaInL (Z X Y) z\tt)
+ sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaIn (Z X Y) z\tt)
 
 6 other subgoals.
 
@@ -18678,7 +18060,7 @@ Subgoal 2.1.1:
 
 Variables: X Y Q Z P1 P5 P3 P4
 H4 : {oneb (P5 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P5 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P5 X Y) (diaIn (Z X Y) z\tt)
 H6 : P4 X Y = P3 X Y
 ============================
  P4 = P3
@@ -18690,11 +18072,11 @@ Subgoal 2.1:
 
 Variables: X Y Q Z P1 P5 P3 P4
 H4 : {oneb (P5 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P5 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P5 X Y) (diaIn (Z X Y) z\tt)
 H6 : P4 X Y = P3 X Y
 H7 : P4 = P3
 ============================
- sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaInL (Z X Y) z\tt)
+ sat (match (P3 X Y) (P4 X Y) (P5 X Y)) (diaIn (Z X Y) z\tt)
 
 6 other subgoals.
 
@@ -18703,10 +18085,10 @@ Subgoal 2.1:
 
 Variables: X Y Q Z P1 P5 P3
 H4 : {oneb (P5 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P5 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P5 X Y) (diaIn (Z X Y) z\tt)
 H6 : P3 X Y = P3 X Y
 ============================
- sat (match (P3 X Y) (P3 X Y) (P5 X Y)) (diaInL (Z X Y) z\tt)
+ sat (match (P3 X Y) (P3 X Y) (P5 X Y)) (diaIn (Z X Y) z\tt)
 
 6 other subgoals.
 
@@ -18720,14 +18102,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 5 other subgoals.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 2:
 
 Variables: X Y P Q Z P1 P2 X1
@@ -18737,12 +18119,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18758,13 +18140,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18780,14 +18162,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H10 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18796,22 +18178,22 @@ H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 2:
 
-Variables: X Y P Q Z P1 P2 X1 Q1
+Variables: X Y P Q Z P1 P2 X1 Q1 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H12 : forall w, sat (Q1 w) tt
+H12 : sat (Q1 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18820,22 +18202,22 @@ H12 : forall w, sat (Q1 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q1.
 Subgoal 2:
 
-Variables: X Y P Q Z P1 P2 X1 Q1
+Variables: X Y P Q Z P1 P2 X1 Q1 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : match X1 X1 P2 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H12 : forall w, sat (Q1 w) tt
+H12 : sat (Q1 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q1}
 
@@ -18856,7 +18238,7 @@ H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
 
 4 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat P2 (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat P2 (diaIn (Z X Y) z\tt).
 Subgoal 3:
 
 Variables: X Y P Q Z P1 P2 Q1
@@ -18866,13 +18248,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 4 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 3.1:
 
 Variables: X Y P Q Z P1 P2 Q1
@@ -18882,9 +18264,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 5 other subgoals.
 
@@ -18897,13 +18279,13 @@ H1 : forall F, (forall X Y, sat (plus (P3 X Y) (P4 X Y)) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (plus (P3 X1 Y1) (P4 X1 Y1)) (F X1 Y1)))
 H4 : {oneb (P3 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P3 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P3 X Y) (diaIn (Z X Y) z\tt)
 ============================
- sat (plus (P3 X Y) (P4 X Y)) (diaInL (Z X Y) z\tt)
+ sat (plus (P3 X Y) (P4 X Y)) (diaIn (Z X Y) z\tt)
 
 5 other subgoals.
 
-sateq_oneb_dn_exists_L2 < backchain sat_diaInL_plus1.
+sateq_oneb_dn_exists_L2 < backchain sat_diaIn_plus1.
 Subgoal 3:
 
 Variables: X Y P Q Z P1 P2 Q1
@@ -18913,14 +18295,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 4 other subgoals.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 3:
 
 Variables: X Y P Q Z P1 P2 Q1
@@ -18930,12 +18312,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18951,13 +18333,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18973,14 +18355,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H10 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -18989,22 +18371,22 @@ H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 3:
 
-Variables: X Y P Q Z P1 P2 Q1 Q2
+Variables: X Y P Q Z P1 P2 Q1 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : forall w, sat (Q2 w) tt
+H12 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19013,22 +18395,22 @@ H12 : forall w, sat (Q2 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 3:
 
-Variables: X Y P Q Z P1 P2 Q1 Q2
+Variables: X Y P Q Z P1 P2 Q1 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb P2 (dn (Z X Y)) (P1 X Y)}
-H5 : sat P2 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat P2 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : forall w, sat (Q2 w) tt
+H12 : sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -19049,7 +18431,7 @@ H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
 
 3 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat Q1 (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat Q1 (diaIn (Z X Y) z\tt).
 Subgoal 4:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19059,13 +18441,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 3 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 4.1:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19075,9 +18457,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 4 other subgoals.
 
@@ -19090,13 +18472,13 @@ H1 : forall F, (forall X Y, sat (plus (P3 X Y) (P4 X Y)) (F X Y) ->
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (plus (P3 X1 Y1) (P4 X1 Y1)) (F X1 Y1)))
 H4 : {oneb (P4 X Y) (dn (Z X Y)) (P1 X Y)}
-H5 : sat (P4 X Y) (diaInL (Z X Y) z\tt)
+H5 : sat (P4 X Y) (diaIn (Z X Y) z\tt)
 ============================
- sat (plus (P3 X Y) (P4 X Y)) (diaInL (Z X Y) z\tt)
+ sat (plus (P3 X Y) (P4 X Y)) (diaIn (Z X Y) z\tt)
 
 4 other subgoals.
 
-sateq_oneb_dn_exists_L2 < backchain sat_diaInL_plus2.
+sateq_oneb_dn_exists_L2 < backchain sat_diaIn_plus2.
 Subgoal 4:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19106,14 +18488,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 3 other subgoals.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 4:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19123,12 +18505,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19144,13 +18526,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19166,14 +18548,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H10 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19182,22 +18564,22 @@ H10 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 4:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2
+Variables: X Y P Q Z P1 Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : forall w, sat (Q2 w) tt
+H12 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19206,22 +18588,22 @@ H12 : forall w, sat (Q2 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 4:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2
+Variables: X Y P Q Z P1 Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
             (forall X1 Y1, sat (P X1 Y1) (F X1 Y1)))
 H3 : plus P2 Q1 = P X Y
 H4 : {oneb Q1 (dn (Z X Y)) (P1 X Y)}
-H5 : sat Q1 (diaInL (Z X Y) z\tt)
-H6 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H7 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H8 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H5 : sat Q1 (diaIn (Z X Y) z\tt)
+H6 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H7 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : forall w, sat (Q2 w) tt
+H12 : sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -19243,7 +18625,7 @@ H5 : {oneb P2 (dn (Z X Y)) M}
 
 2 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat P2 (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat P2 (diaIn (Z X Y) z\tt).
 Subgoal 5:
 
 Variables: X Y P Q Z P1 M P2 Q1
@@ -19254,13 +18636,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 2 other subgoals.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 5.1:
 
 Variables: X Y P Q Z P1 M P2 Q1
@@ -19271,9 +18653,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 3 other subgoals.
 
@@ -19287,9 +18669,9 @@ H1 : forall F, (forall X Y, sat (par (P3 X Y) (P4 X Y)) (F X Y) ->
             (forall X1 Y1, sat (par (P3 X1 Y1) (P4 X1 Y1)) (F X1 Y1)))
 H3 : x\par (M x) (P4 X Y) = x\P1 X Y x
 H5 : {oneb (P3 X Y) (dn (Z X Y)) M}
-H6 : sat (P3 X Y) (diaInL (Z X Y) z\tt)
+H6 : sat (P3 X Y) (diaIn (Z X Y) z\tt)
 ============================
- sat (par (P3 X Y) (P4 X Y)) (diaInL (Z X Y) z\tt)
+ sat (par (P3 X Y) (P4 X Y)) (diaIn (Z X Y) z\tt)
 
 3 other subgoals.
 
@@ -19304,14 +18686,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 2 other subgoals.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 5:
 
 Variables: X Y P Q Z P1 M P2 Q1
@@ -19322,12 +18704,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19344,13 +18726,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19367,14 +18749,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H11 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H11 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19383,7 +18765,7 @@ H11 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 5:
 
-Variables: X Y P Q Z P1 M P2 Q1 Q2
+Variables: X Y P Q Z P1 M P2 Q1 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19391,15 +18773,15 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19408,7 +18790,7 @@ H13 : forall w, sat (Q2 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 5:
 
-Variables: X Y P Q Z P1 M P2 Q1 Q2
+Variables: X Y P Q Z P1 M P2 Q1 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19416,15 +18798,15 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par (M x) Q1 = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb P2 (dn (Z X Y)) M}
-H6 : sat P2 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat P2 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -19446,7 +18828,7 @@ H5 : {oneb Q1 (dn (Z X Y)) N}
 
 1 other subgoal.
 
-sateq_oneb_dn_exists_L2 < assert sat Q1 (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat Q1 (diaIn (Z X Y) z\tt).
 Subgoal 6:
 
 Variables: X Y P Q Z P1 N Q1 P2
@@ -19457,13 +18839,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 1 other subgoal.
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 6.1:
 
 Variables: X Y P Q Z P1 N Q1 P2
@@ -19474,9 +18856,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 2 other subgoals.
 
@@ -19490,9 +18872,9 @@ H1 : forall F, (forall X Y, sat (par (P3 X Y) (P4 X Y)) (F X Y) ->
             (forall X1 Y1, sat (par (P3 X1 Y1) (P4 X1 Y1)) (F X1 Y1)))
 H3 : x\par (P3 X Y) (N x) = x\P1 X Y x
 H5 : {oneb (P4 X Y) (dn (Z X Y)) N}
-H6 : sat (P4 X Y) (diaInL (Z X Y) z\tt)
+H6 : sat (P4 X Y) (diaIn (Z X Y) z\tt)
 ============================
- sat (par (P3 X Y) (P4 X Y)) (diaInL (Z X Y) z\tt)
+ sat (par (P3 X Y) (P4 X Y)) (diaIn (Z X Y) z\tt)
 
 2 other subgoals.
 
@@ -19507,14 +18889,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 1 other subgoal.
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 6:
 
 Variables: X Y P Q Z P1 N Q1 P2
@@ -19525,12 +18907,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19547,13 +18929,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19570,14 +18952,14 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H11 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H11 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19586,7 +18968,7 @@ H11 : sat (Q X Y) (diaInL (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 6:
 
-Variables: X Y P Q Z P1 N Q1 P2 Q2
+Variables: X Y P Q Z P1 N Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19594,15 +18976,15 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19611,7 +18993,7 @@ H13 : forall w, sat (Q2 w) tt
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 6:
 
-Variables: X Y P Q Z P1 N Q1 P2 Q2
+Variables: X Y P Q Z P1 N Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19619,15 +19001,15 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : x\par P2 (N x) = x\P1 X Y x
 H4 : par P2 Q1 = P X Y
 H5 : {oneb Q1 (dn (Z X Y)) N}
-H6 : sat Q1 (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat Q1 (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -19647,7 +19029,7 @@ H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
-sateq_oneb_dn_exists_L2 < assert sat (nu P2) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (nu P2) (diaIn (Z X Y) z\tt).
 Subgoal 7:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19658,11 +19040,11 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
-sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaInL (Z X Y) z\tt).
+sateq_oneb_dn_exists_L2 < assert sat (P X Y) (diaIn (Z X Y) z\tt).
 Subgoal 7.1:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19673,9 +19055,9 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
 ============================
- sat (P X Y) (diaInL (Z X Y) z\tt)
+ sat (P X Y) (diaIn (Z X Y) z\tt)
 
 1 other subgoal.
 
@@ -19689,9 +19071,9 @@ H1 : forall F, (forall X Y, sat (nu (P3 X Y)) (F X Y) ->
             (forall X1 Y1, sat (nu (P3 X1 Y1)) (F X1 Y1)))
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H5 : {oneb (P3 X Y n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu (z1\P3 X Y z1)) (diaInL (Z X Y) z\tt)
+H6 : sat (nu (z1\P3 X Y z1)) (diaIn (Z X Y) z\tt)
 ============================
- sat (nu (P3 X Y)) (diaInL (Z X Y) z\tt)
+ sat (nu (P3 X Y)) (diaIn (Z X Y) z\tt)
 
 1 other subgoal.
 
@@ -19706,12 +19088,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
-sateq_oneb_dn_exists_L2 < apply with F = x\y\diaInL (Z x y) z\tt.
+sateq_oneb_dn_exists_L2 < apply with F = x\y\diaIn (Z x y) z\tt.
 Subgoal 7:
 
 Variables: X Y P Q Z P1 Q1 P2
@@ -19722,12 +19104,12 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19742,13 +19124,13 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -19763,21 +19145,21 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
-H11 : sat (Q X Y) (diaInL (Z X Y) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
+H11 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 7:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2
+Variables: X Y P Q Z P1 Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19785,22 +19167,22 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 7:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2
+Variables: X Y P Q Z P1 Q1 P2 Q2 w
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -19808,15 +19190,15 @@ H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
 H3 : y\nu (x\Q1 x y) = y\P1 X Y y
 H4 : nu (x\P2 x) = P X Y
 H5 : {oneb (P2 n1) (dn (Z X Y)) (y\Q1 n1 y)}
-H6 : sat (nu P2) (diaInL (Z X Y) z\tt)
-H7 : sat (P X Y) (diaInL (Z X Y) z\tt)
-H8 : forall X Y, sat (P X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H9 : forall X Y, sat (Q X Y) (diaInL (Z X Y) z\tt) ->
-       (forall X1 Y1, sat (P X1 Y1) (diaInL (Z X1 Y1) z\tt))
-H10 : forall X1 Y1, sat (Q X1 Y1) (diaInL (Z X1 Y1) z\tt)
+H6 : sat (nu P2) (diaIn (Z X Y) z\tt)
+H7 : sat (P X Y) (diaIn (Z X Y) z\tt)
+H8 : forall X Y, sat (P X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
+       (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
+H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : forall w, sat (Q2 w) tt
+H13 : sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
