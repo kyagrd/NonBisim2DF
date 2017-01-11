@@ -113,8 +113,6 @@ No solution.
 ?= forall x y, bisim (match x y (taup z)) (taup z).
 No solution.
 
-?= forall x y, 
-
 ?= T = taup z /\ TT = taup T /\
    P = (x\ y\ plus (match x y T) Q) /\ Q = plus TT T /\
    forall x y, bisim (P x y) Q. % ([x=y].t + t.t + t) ~ (t.t + t)
