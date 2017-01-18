@@ -3855,20 +3855,20 @@ H20 : bisim (N n1) (M1 n1) +
 
 bisim_trans < search.
 Proof completed.
-Abella < Theorem bisim_decide : 
+Abella < Theorem bisim_nbisim_absurd : 
 forall P Q, bisim P Q -> nbisim P Q -> false.
 
 
 ============================
  forall P Q, bisim P Q -> nbisim P Q -> false
 
-bisim_decide < induction on 2.
+bisim_nbisim_absurd < induction on 2.
 
 IH : forall P Q, bisim P Q -> nbisim P Q * -> false
 ============================
  forall P Q, bisim P Q -> nbisim P Q @ -> false
 
-bisim_decide < intros.
+bisim_nbisim_absurd < intros.
 
 Variables: P Q
 IH : forall P Q, bisim P Q -> nbisim P Q * -> false
@@ -3877,7 +3877,7 @@ H2 : nbisim P Q @
 ============================
  false
 
-bisim_decide < case H1.
+bisim_nbisim_absurd < case H1.
 
 Variables: P Q
 IH : forall P Q, bisim P Q -> nbisim P Q * -> false
@@ -3895,7 +3895,7 @@ H8 : forall X N, {oneb Q (up X) N} ->
 ============================
  false
 
-bisim_decide < case H2.
+bisim_nbisim_absurd < case H2.
 
 Variables: P Q
 IH : forall P Q, bisim P Q -> nbisim P Q * -> false
@@ -3924,7 +3924,7 @@ H9 : (exists A P2, {one P A P2} /\
 ============================
  false
 
-bisim_decide < case H9.
+bisim_nbisim_absurd < case H9.
 Subgoal 1:
 
 Variables: P Q A P2
@@ -3959,7 +3959,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 1:
 
 Variables: P Q A P2 Q2
@@ -3996,7 +3996,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 1:
 
 Variables: P Q A P2 Q2
@@ -4034,7 +4034,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < backchain IH.
+bisim_nbisim_absurd < backchain IH.
 Subgoal 2:
 
 Variables: P Q X M
@@ -4066,7 +4066,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 2:
 
 Variables: P Q X M N
@@ -4100,7 +4100,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 2:
 
 Variables: P Q X M N W
@@ -4135,7 +4135,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply with W = W.
+bisim_nbisim_absurd < apply with W = W.
 Subgoal 2:
 
 Variables: P Q X M N W
@@ -4171,7 +4171,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < backchain IH.
+bisim_nbisim_absurd < backchain IH.
 Subgoal 3:
 
 Variables: P Q X M
@@ -4200,7 +4200,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 3:
 
 Variables: P Q X M N
@@ -4231,7 +4231,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 3:
 
 Variables: P Q X M N
@@ -4263,7 +4263,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H13 H14.
+bisim_nbisim_absurd < apply to H13 H14.
 Subgoal 4:
 
 Variables: P Q A Q2
@@ -4289,7 +4289,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 4:
 
 Variables: P Q A Q2 P2
@@ -4317,7 +4317,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 4:
 
 Variables: P Q A Q2 P2
@@ -4346,7 +4346,7 @@ Subgoal 5 is:
 Subgoal 6 is:
  false
 
-bisim_decide < backchain IH.
+bisim_nbisim_absurd < backchain IH.
 Subgoal 5:
 
 Variables: P Q X N
@@ -4369,7 +4369,7 @@ H11 : forall M, {oneb P (dn X) M} -> (exists W, nbisim (N W) (M W) *)
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 5:
 
 Variables: P Q X N M
@@ -4394,7 +4394,7 @@ H13 : forall W, bisim (N W) (M W)
 Subgoal 6 is:
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 5:
 
 Variables: P Q X N M W
@@ -4420,7 +4420,7 @@ H14 : nbisim (N W) (M W) *
 Subgoal 6 is:
  false
 
-bisim_decide < apply with W = W.
+bisim_nbisim_absurd < apply with W = W.
 Subgoal 5:
 
 Variables: P Q X N M W
@@ -4447,7 +4447,7 @@ H15 : bisim (N W) (M W)
 Subgoal 6 is:
  false
 
-bisim_decide < backchain IH.
+bisim_nbisim_absurd < backchain IH.
 Subgoal 6:
 
 Variables: P Q X N
@@ -4467,7 +4467,7 @@ H11 : forall M, {oneb P (up X) M} -> (nabla w, nbisim (N w) (M w) *)
 ============================
  false
 
-bisim_decide < apply to H10.
+bisim_nbisim_absurd < apply to H10.
 Subgoal 6:
 
 Variables: P Q X N M
@@ -4489,7 +4489,7 @@ H13 : bisim (N n1) (M n1)
 ============================
  false
 
-bisim_decide < apply to H12.
+bisim_nbisim_absurd < apply to H12.
 Subgoal 6:
 
 Variables: P Q X N M
@@ -4512,7 +4512,7 @@ H14 : nbisim (N n1) (M n1) *
 ============================
  false
 
-bisim_decide < apply to H13 H14.
+bisim_nbisim_absurd < apply to H13 H14.
 Proof completed.
 Abella < Kind o' type.
 
@@ -4538,3103 +4538,8 @@ sat P (diaAct X A) := exists P1, {one P X P1} /\ sat P1 A;
 sat P (boxOut X A) := forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w));
 sat P (diaOut X A) := exists Q, {oneb P (up X) Q} /\ (nabla w, sat (Q w) (A w));
 sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w));
-sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ (exists w, sat (Q w) (A w)).
+sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ (forall w, sat (Q w) (A w)).
 
-Abella < Define neg : o' -> o' -> prop by 
-neg ff tt;
-neg tt ff;
-neg (conj A B) (disj A1 B1) := neg A A1 /\ neg B B1;
-neg (disj A B) (conj A1 B1) := neg A A1 /\ neg B B1;
-neg (boxMatch X Y A) (diaMatch X Y A1) := neg A A1;
-neg (diaMatch X Y A) (boxMatch X Y A1) := neg A A1;
-neg (boxAct X A) (diaAct X A1) := neg A A1;
-neg (diaAct X A) (boxAct X A1) := neg A A1;
-neg (boxOut X A) (diaOut X A1) := nabla x, neg (A x) (A1 x);
-neg (diaOut X A) (boxOut X A1) := nabla x, neg (A x) (A1 x);
-neg (boxIn X A) (diaIn X A1) := nabla x, neg (A x) (A1 x);
-neg (diaIn X A) (boxIn X A1) := nabla x, neg (A x) (A1 x).
-
-Abella < Theorem neg_nabla : 
-forall F G, nabla x, neg (F x) (G x) -> (forall W, neg (F W) (G W)).
-
-
-============================
- forall F G, nabla x, neg (F x) (G x) -> (forall W, neg (F W) (G W))
-
-neg_nabla < induction on 1.
-
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-============================
- forall F G, nabla x, neg (F x) (G x) @ -> (forall W, neg (F W) (G W))
-
-neg_nabla < intros.
-
-Variables: F G W
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H1 : neg (F n1) (G n1) @
-============================
- neg (F W) (G W)
-
-neg_nabla < case H1.
-Subgoal 1:
-
-Variables: W
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-============================
- neg ff tt
-
-Subgoal 2 is:
- neg tt ff
-
-Subgoal 3 is:
- neg (conj (A W) (B W)) (disj (A1 W) (B1 W))
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < search.
-Subgoal 2:
-
-Variables: W
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-============================
- neg tt ff
-
-Subgoal 3 is:
- neg (conj (A W) (B W)) (disj (A1 W) (B1 W))
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < search.
-Subgoal 3:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (conj (A W) (B W)) (disj (A1 W) (B1 W))
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 3.1:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 3.2 is:
- neg (B W) (B1 W)
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 3.1:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-H4 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 3.2 is:
- neg (B W) (B1 W)
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H4.
-Subgoal 3.2:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (B W) (B1 W)
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H3.
-Subgoal 3.2:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-H4 : forall W, neg (B W) (B1 W)
-============================
- neg (B W) (B1 W)
-
-Subgoal 4 is:
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H4.
-Subgoal 4:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (disj (A W) (B W)) (conj (A1 W) (B1 W))
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 4.1:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 4.2 is:
- neg (B W) (B1 W)
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 4.1:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-H4 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 4.2 is:
- neg (B W) (B1 W)
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H4.
-Subgoal 4.2:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-============================
- neg (B W) (B1 W)
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H3.
-Subgoal 4.2:
-
-Variables: W B1 A1 B A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : neg (B n1) (B1 n1) *
-H4 : forall W, neg (B W) (B1 W)
-============================
- neg (B W) (B1 W)
-
-Subgoal 5 is:
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H4.
-Subgoal 5:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (boxMatch (X W) (Y W) (A W)) (diaMatch (X W) (Y W) (A1 W))
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 5:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 5:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 6 is:
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H3.
-Subgoal 6:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (diaMatch (X W) (Y W) (A W)) (boxMatch (X W) (Y W) (A1 W))
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 6:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 6:
-
-Variables: W A1 Y X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 7 is:
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H3.
-Subgoal 7:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (boxAct (X W) (A W)) (diaAct (X W) (A1 W))
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 7:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 7:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 8 is:
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H3.
-Subgoal 8:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (diaAct (X W) (A W)) (boxAct (X W) (A1 W))
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 8:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A W) (A1 W)
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 8:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1) (A1 n1) *
-H3 : forall W, neg (A W) (A1 W)
-============================
- neg (A W) (A1 W)
-
-Subgoal 9 is:
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < backchain H3.
-Subgoal 9:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- neg (boxOut (X W) (A W)) (diaOut (X W) (A1 W))
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 9:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 9:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply with W = W.
-Subgoal 9:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-H4 : neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 10 is:
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < search.
-Subgoal 10:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- neg (diaOut (X W) (A W)) (boxOut (X W) (A1 W))
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 10:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 10:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply with W = W.
-Subgoal 10:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-H4 : neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 11 is:
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < search.
-Subgoal 11:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- neg (boxIn (X W) (A W)) (diaIn (X W) (A1 W))
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 11:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply to H2.
-Subgoal 11:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < apply with W = W.
-Subgoal 11:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-H4 : neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-Subgoal 12 is:
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < search.
-Subgoal 12:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- neg (diaIn (X W) (A W)) (boxIn (X W) (A1 W))
-
-neg_nabla < unfold.
-Subgoal 12:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-============================
- nabla x, neg (A W x) (A1 W x)
-
-neg_nabla < apply to H2.
-Subgoal 12:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-neg_nabla < apply with W = W.
-Subgoal 12:
-
-Variables: W A1 X A
-IH : forall F G, nabla x, neg (F x) (G x) * -> (forall W, neg (F W) (G W))
-H2 : neg (A n1 n2) (A1 n1 n2) *
-H3 : forall W, neg (A W n2) (A1 W n2)
-H4 : neg (A W n2) (A1 W n2)
-============================
- nabla x, neg (A W x) (A1 W x)
-
-neg_nabla < search.
-Proof completed.
-Abella < Theorem neg_sat : 
-forall P F NF, neg F NF -> sat P F -> sat P NF -> false.
-
-
-============================
- forall P F NF, neg F NF -> sat P F -> sat P NF -> false
-
-neg_sat < induction on 2.
-
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-============================
- forall P F NF, neg F NF -> sat P F @ -> sat P NF -> false
-
-neg_sat < intros.
-
-Variables: P F NF
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg F NF
-H2 : sat P F @
-H3 : sat P NF
-============================
- false
-
-neg_sat < case H2.
-Subgoal 1:
-
-Variables: P NF
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg tt NF
-H3 : sat P NF
-============================
- false
-
-Subgoal 2 is:
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 1:
-
-Variables: P
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P ff
-============================
- false
-
-Subgoal 2 is:
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 2:
-
-Variables: P NF B A
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (conj A B) NF
-H3 : sat P NF
-H4 : sat P A *
-H5 : sat P B *
-============================
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 2:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (disj A2 B2)
-H4 : sat P A *
-H5 : sat P B *
-H6 : neg A A2
-H7 : neg B B2
-============================
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 2:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : sat P B *
-H6 : neg A A2
-H7 : neg B B2
-H8 : sat P A2 \/ sat P B2
-============================
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H8.
-Subgoal 2.1:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : sat P B *
-H6 : neg A A2
-H7 : neg B B2
-H9 : sat P A2
-============================
- false
-
-Subgoal 2.2 is:
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6 H4 _.
-Subgoal 2.2:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : sat P B *
-H6 : neg A A2
-H7 : neg B B2
-H9 : sat P B2
-============================
- false
-
-Subgoal 3 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H7 H5 _.
-Subgoal 3:
-
-Variables: P NF B A
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (disj A B) NF
-H3 : sat P NF
-H4 : sat P A * \/ sat P B *
-============================
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 3:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (conj A2 B2)
-H4 : sat P A * \/ sat P B *
-H5 : neg A A2
-H6 : neg B B2
-============================
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 3:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A * \/ sat P B *
-H5 : neg A A2
-H6 : neg B B2
-H7 : sat P A2
-H8 : sat P B2
-============================
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H4.
-Subgoal 3.1:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H5 : neg A A2
-H6 : neg B B2
-H7 : sat P A2
-H8 : sat P B2
-H9 : sat P A *
-============================
- false
-
-Subgoal 3.2 is:
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5 H9 _.
-Subgoal 3.2:
-
-Variables: P B A B2 A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H5 : neg A A2
-H6 : neg B B2
-H7 : sat P A2
-H8 : sat P B2
-H9 : sat P B *
-============================
- false
-
-Subgoal 4 is:
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6 H9 _.
-Subgoal 4:
-
-Variables: P NF A Y X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (boxMatch X Y A) NF
-H3 : sat P NF
-H4 : X = Y -> sat P A *
-============================
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 4:
-
-Variables: P A Y X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (diaMatch X Y A2)
-H4 : X = Y -> sat P A *
-H5 : neg A A2
-============================
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 4:
-
-Variables: P A Y A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : Y = Y -> sat P A *
-H5 : neg A A2
-H6 : sat P A2
-============================
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < assert Y = Y.
-Subgoal 4:
-
-Variables: P A Y A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : Y = Y -> sat P A *
-H5 : neg A A2
-H6 : sat P A2
-H7 : Y = Y
-============================
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H7.
-Subgoal 4:
-
-Variables: P A Y A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : Y = Y -> sat P A *
-H5 : neg A A2
-H6 : sat P A2
-H7 : Y = Y
-H8 : sat P A *
-============================
- false
-
-Subgoal 5 is:
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5 H8 _.
-Subgoal 5:
-
-Variables: P NF Y A
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (diaMatch Y Y A) NF
-H3 : sat P NF
-H4 : sat P A *
-============================
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 5:
-
-Variables: P Y A A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (boxMatch Y Y A2)
-H4 : sat P A *
-H5 : neg A A2
-============================
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 5:
-
-Variables: P Y A A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : neg A A2
-H6 : Y = Y -> sat P A2
-============================
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < assert Y = Y.
-Subgoal 5:
-
-Variables: P Y A A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : neg A A2
-H6 : Y = Y -> sat P A2
-H7 : Y = Y
-============================
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H7.
-Subgoal 5:
-
-Variables: P Y A A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : sat P A *
-H5 : neg A A2
-H6 : Y = Y -> sat P A2
-H7 : Y = Y
-H8 : sat P A2
-============================
- false
-
-Subgoal 6 is:
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5 H4 _.
-Subgoal 6:
-
-Variables: P NF A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (boxAct X A) NF
-H3 : sat P NF
-H4 : forall P2, {one P X P2} -> sat P2 A *
-============================
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 6:
-
-Variables: P A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (diaAct X A2)
-H4 : forall P2, {one P X P2} -> sat P2 A *
-H5 : neg A A2
-============================
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 6:
-
-Variables: P A X A2 P2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall P2, {one P X P2} -> sat P2 A *
-H5 : neg A A2
-H6 : {one P X P2}
-H7 : sat P2 A2
-============================
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6.
-Subgoal 6:
-
-Variables: P A X A2 P2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall P2, {one P X P2} -> sat P2 A *
-H5 : neg A A2
-H6 : {one P X P2}
-H7 : sat P2 A2
-H8 : sat P2 A *
-============================
- false
-
-Subgoal 7 is:
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5 H8 _.
-Subgoal 7:
-
-Variables: P NF P2 A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (diaAct X A) NF
-H3 : sat P NF
-H4 : {one P X P2}
-H5 : sat P2 A *
-============================
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 7:
-
-Variables: P P2 A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (boxAct X A2)
-H4 : {one P X P2}
-H5 : sat P2 A *
-H6 : neg A A2
-============================
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 7:
-
-Variables: P P2 A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {one P X P2}
-H5 : sat P2 A *
-H6 : neg A A2
-H7 : forall P2, {one P X P2} -> sat P2 A2
-============================
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H4.
-Subgoal 7:
-
-Variables: P P2 A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {one P X P2}
-H5 : sat P2 A *
-H6 : neg A A2
-H7 : forall P2, {one P X P2} -> sat P2 A2
-H8 : sat P2 A2
-============================
- false
-
-Subgoal 8 is:
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6 H5 _.
-Subgoal 8:
-
-Variables: P NF A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (boxOut X A) NF
-H3 : sat P NF
-H4 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w) *)
-============================
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 8:
-
-Variables: P A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (diaOut X A2)
-H4 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-============================
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 8:
-
-Variables: P A X A2 Q
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (up X) Q}
-H7 : sat (Q n1) (A2 n1)
-============================
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6.
-Subgoal 8:
-
-Variables: P A X A2 Q
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (up X) Q}
-H7 : sat (Q n1) (A2 n1)
-H8 : sat (Q n1) (A n1) *
-============================
- false
-
-Subgoal 9 is:
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5 H8 _.
-Subgoal 9:
-
-Variables: P NF Q A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (diaOut X A) NF
-H3 : sat P NF
-H4 : {oneb P (up X) Q}
-H5 : sat (Q n1) (A n1) *
-============================
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 9:
-
-Variables: P Q A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (boxOut X A2)
-H4 : {oneb P (up X) Q}
-H5 : sat (Q n1) (A n1) *
-H6 : neg (A n1) (A2 n1)
-============================
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 9:
-
-Variables: P Q A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (up X) Q}
-H5 : sat (Q n1) (A n1) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A2 w))
-============================
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H4.
-Subgoal 9:
-
-Variables: P Q A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (up X) Q}
-H5 : sat (Q n1) (A n1) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (up X) Q} -> (nabla w, sat (Q w) (A2 w))
-H8 : sat (Q n1) (A2 n1)
-============================
- false
-
-Subgoal 10 is:
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6 H5 _.
-Subgoal 10:
-
-Variables: P NF A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (boxIn X A) NF
-H3 : sat P NF
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H1.
-Subgoal 10:
-
-Variables: P A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (diaIn X A2)
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < case H3.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : sat (Q w) (A2 w)
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H6.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : sat (Q w) (A2 w)
-H8 : forall w, sat (Q w) (A w) *
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply to H5.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : sat (Q w) (A2 w)
-H8 : forall w, sat (Q w) (A w) *
-H9 : forall W, neg (A W) (A2 W)
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply with W = w.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : sat (Q w) (A2 w)
-H8 : forall w, sat (Q w) (A w) *
-H9 : forall W, neg (A W) (A2 W)
-H10 : neg (A w) (A2 w)
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < apply with w = w.
-Subgoal 10:
-
-Variables: P A X A2 Q w
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A w) *)
-H5 : neg (A n1) (A2 n1)
-H6 : {oneb P (dn X) Q}
-H7 : sat (Q w) (A2 w)
-H8 : forall w, sat (Q w) (A w) *
-H9 : forall W, neg (A W) (A2 W)
-H10 : neg (A w) (A2 w)
-H11 : sat (Q w) (A w) *
-============================
- false
-
-Subgoal 11 is:
- false
-
-neg_sat < backchain IH.
-Subgoal 11:
-
-Variables: P NF Q w A X
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H1 : neg (diaIn X A) NF
-H3 : sat P NF
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-============================
- false
-
-neg_sat < case H1.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H3 : sat P (boxIn X A2)
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-============================
- false
-
-neg_sat < case H3.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
-============================
- false
-
-neg_sat < apply to H4.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
-H8 : forall w, sat (Q w) (A2 w)
-============================
- false
-
-neg_sat < apply to H6.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
-H8 : forall w, sat (Q w) (A2 w)
-H9 : forall W, neg (A W) (A2 W)
-============================
- false
-
-neg_sat < apply with W = w.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
-H8 : forall w, sat (Q w) (A2 w)
-H9 : forall W, neg (A W) (A2 W)
-H10 : neg (A w) (A2 w)
-============================
- false
-
-neg_sat < apply with w = w.
-Subgoal 11:
-
-Variables: P Q w A X A2
-IH : forall P F NF, neg F NF -> sat P F * -> sat P NF -> false
-H4 : {oneb P (dn X) Q}
-H5 : sat (Q w) (A w) *
-H6 : neg (A n1) (A2 n1)
-H7 : forall Q, {oneb P (dn X) Q} -> (forall w, sat (Q w) (A2 w))
-H8 : forall w, sat (Q w) (A2 w)
-H9 : forall W, neg (A W) (A2 W)
-H10 : neg (A w) (A2 w)
-H11 : sat (Q w) (A2 w)
-============================
- false
-
-neg_sat < backchain IH.
-Proof completed.
-Abella < Theorem neg_sym : 
-forall F NF, neg F NF -> neg NF F.
-
-
-============================
- forall F NF, neg F NF -> neg NF F
-
-neg_sym < induction on 1.
-
-IH : forall F NF, neg F NF * -> neg NF F
-============================
- forall F NF, neg F NF @ -> neg NF F
-
-neg_sym < intros.
-
-Variables: F NF
-IH : forall F NF, neg F NF * -> neg NF F
-H1 : neg F NF @
-============================
- neg NF F
-
-neg_sym < case H1.
-Subgoal 1:
-
-IH : forall F NF, neg F NF * -> neg NF F
-============================
- neg tt ff
-
-Subgoal 2 is:
- neg ff tt
-
-Subgoal 3 is:
- neg (disj A1 B1) (conj A B)
-
-Subgoal 4 is:
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < search.
-Subgoal 2:
-
-IH : forall F NF, neg F NF * -> neg NF F
-============================
- neg ff tt
-
-Subgoal 3 is:
- neg (disj A1 B1) (conj A B)
-
-Subgoal 4 is:
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < search.
-Subgoal 3:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg (disj A1 B1) (conj A B)
-
-Subgoal 4 is:
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 3.1:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg A1 A
-
-Subgoal 3.2 is:
- neg B1 B
-
-Subgoal 4 is:
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 3.2:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg B1 B
-
-Subgoal 4 is:
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 4:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg (conj A1 B1) (disj A B)
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 4.1:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg A1 A
-
-Subgoal 4.2 is:
- neg B1 B
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 4.2:
-
-Variables: B1 A1 B A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-H3 : neg B B1 *
-============================
- neg B1 B
-
-Subgoal 5 is:
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 5:
-
-Variables: A1 Y X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg (diaMatch X Y A1) (boxMatch X Y A)
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 5:
-
-Variables: A1 Y X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg A1 A
-
-Subgoal 6 is:
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 6:
-
-Variables: A1 Y X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg (boxMatch X Y A1) (diaMatch X Y A)
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 6:
-
-Variables: A1 Y X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg A1 A
-
-Subgoal 7 is:
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 7:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg (diaAct X A1) (boxAct X A)
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 7:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg A1 A
-
-Subgoal 8 is:
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 8:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg (boxAct X A1) (diaAct X A)
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 8:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg A A1 *
-============================
- neg A1 A
-
-Subgoal 9 is:
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 9:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (diaOut X A1) (boxOut X A)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 9:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- nabla x, neg (A1 x) (A x)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < intros.
-Subgoal 9:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A1 n1) (A n1)
-
-Subgoal 10 is:
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 10:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (boxOut X A1) (diaOut X A)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 10:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- nabla x, neg (A1 x) (A x)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < intros.
-Subgoal 10:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A1 n1) (A n1)
-
-Subgoal 11 is:
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 11:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (diaIn X A1) (boxIn X A)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 11:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- nabla x, neg (A1 x) (A x)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < intros.
-Subgoal 11:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A1 n1) (A n1)
-
-Subgoal 12 is:
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < backchain IH.
-Subgoal 12:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (boxIn X A1) (diaIn X A)
-
-neg_sym < unfold.
-Subgoal 12:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- nabla x, neg (A1 x) (A x)
-
-neg_sym < intros.
-Subgoal 12:
-
-Variables: A1 X A
-IH : forall F NF, neg F NF * -> neg NF F
-H2 : neg (A n1) (A1 n1) *
-============================
- neg (A1 n1) (A n1)
-
-neg_sym < backchain IH.
-Proof completed.
-Abella < Theorem neg_anti_refl : 
-forall F, neg F F -> false.
-
-
-============================
- forall F, neg F F -> false
-
-neg_anti_refl < intros.
-
-Variables: F
-H1 : neg F F
-============================
- false
-
-neg_anti_refl < case H1.
-Proof completed.
 Abella < Theorem dist_form0 : 
 forall P Q, ((forall F, sat P F -> sat Q F) -> false) \/
   ((forall F, sat Q F -> sat P F) -> false) ->
@@ -9923,43 +6828,43 @@ Subgoal 11 is:
 bisim_sat0_L < backchain H13.
 Subgoal 11:
 
-Variables: P Q Q1 w A X
+Variables: P Q Q1 A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 ============================
  sat Q (diaIn X A)
 
 bisim_sat0_L < unfold.
 Subgoal 11:
 
-Variables: P Q Q1 w A X
+Variables: P Q Q1 A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
 
 bisim_sat0_L < intros.
 Subgoal 11:
 
-Variables: P Q Q1 w A X
+Variables: P Q Q1 A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H1 : bisim P Q
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
 
 bisim_sat0_L < case H1.
 Subgoal 11:
 
-Variables: P Q Q1 w A X
+Variables: P Q Q1 A X
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -9971,15 +6876,15 @@ H9 : forall X N, {oneb Q (dn X) N} ->
 H10 : forall X N, {oneb Q (up X) N} ->
         (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
 
 bisim_sat0_L < apply to H3.
 Subgoal 11:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -9993,15 +6898,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- exists Q1, {oneb Q (dn X) Q1} /\ (exists w, sat (Q1 w) (A w))
+ exists Q1, {oneb Q (dn X) Q1} /\ (forall w, sat (Q1 w) (A w))
 
 bisim_sat0_L < exists N.
 Subgoal 11:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10015,15 +6920,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- {oneb Q (dn X) N} /\ (exists w, sat (N w) (A w))
+ {oneb Q (dn X) N} /\ (forall w, sat (N w) (A w))
 
 bisim_sat0_L < split.
 Subgoal 11.1:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10040,15 +6945,15 @@ H12 : forall W, bisim (Q1 W) (N W)
  {oneb Q (dn X) N}
 
 Subgoal 11.2 is:
- exists w, sat (N w) (A w)
+ forall w, sat (N w) (A w)
 
 bisim_sat0_L < search.
 Subgoal 11.2:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10062,15 +6967,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- exists w, sat (N w) (A w)
+ forall w, sat (N w) (A w)
 
 bisim_sat0_L < intros.
 Subgoal 11.2:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N w
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10084,15 +6989,15 @@ H10 : forall X N, {oneb Q (up X) N} ->
 H11 : {oneb Q (dn X) N}
 H12 : forall W, bisim (Q1 W) (N W)
 ============================
- exists w, sat (N w) (A w)
+ sat (N w) (A w)
 
 bisim_sat0_L < assert bisim (Q1 w) (N w).
 Subgoal 11.2.1:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N w
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10109,38 +7014,15 @@ H12 : forall W, bisim (Q1 W) (N W)
  bisim (Q1 w) (N w)
 
 Subgoal 11.2 is:
- exists w, sat (N w) (A w)
+ sat (N w) (A w)
 
 bisim_sat0_L < backchain H12.
 Subgoal 11.2:
 
-Variables: P Q Q1 w A X N
+Variables: P Q Q1 A X N w
 IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
 H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
-H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
-H6 : forall X M, {oneb P (dn X) M} ->
-       (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
-H7 : forall X M, {oneb P (up X) M} ->
-       (exists N, {oneb Q (up X) N} /\ (nabla w, bisim (M w) (N w)))
-H8 : forall A Q1, {one Q A Q1} -> (exists P2, {one P A P2} /\ bisim Q1 P2)
-H9 : forall X N, {oneb Q (dn X) N} ->
-       (exists M, {oneb P (dn X) M} /\ (forall W, bisim (N W) (M W)))
-H10 : forall X N, {oneb Q (up X) N} ->
-        (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
-H11 : {oneb Q (dn X) N}
-H12 : forall W, bisim (Q1 W) (N W)
-H13 : bisim (Q1 w) (N w)
-============================
- exists w, sat (N w) (A w)
-
-bisim_sat0_L < exists w.
-Subgoal 11.2:
-
-Variables: P Q Q1 w A X N
-IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
-H3 : {oneb P (dn X) Q1}
-H4 : sat (Q1 w) (A w) *
+H4 : forall w, sat (Q1 w) (A w) *
 H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
 H6 : forall X M, {oneb P (dn X) M} ->
        (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
@@ -10158,6 +7040,29 @@ H13 : bisim (Q1 w) (N w)
  sat (N w) (A w)
 
 bisim_sat0_L < backchain IH.
+Subgoal 11.2:
+
+Variables: P Q Q1 A X N w
+IH : forall P Q F, bisim P Q -> sat P F * -> sat Q F
+H3 : {oneb P (dn X) Q1}
+H4 : forall w, sat (Q1 w) (A w) *
+H5 : forall A P2, {one P A P2} -> (exists Q1, {one Q A Q1} /\ bisim P2 Q1)
+H6 : forall X M, {oneb P (dn X) M} ->
+       (exists N, {oneb Q (dn X) N} /\ (forall W, bisim (M W) (N W)))
+H7 : forall X M, {oneb P (up X) M} ->
+       (exists N, {oneb Q (up X) N} /\ (nabla w, bisim (M w) (N w)))
+H8 : forall A Q1, {one Q A Q1} -> (exists P2, {one P A P2} /\ bisim Q1 P2)
+H9 : forall X N, {oneb Q (dn X) N} ->
+       (exists M, {oneb P (dn X) M} /\ (forall W, bisim (N W) (M W)))
+H10 : forall X N, {oneb Q (up X) N} ->
+        (exists M, {oneb P (up X) M} /\ (nabla w, bisim (N w) (M w)))
+H11 : {oneb Q (dn X) N}
+H12 : forall W, bisim (Q1 W) (N W)
+H13 : bisim (Q1 w) (N w)
+============================
+ sat (Q1 w) (A w) *
+
+bisim_sat0_L < backchain H4.
 Proof completed.
 Abella < Theorem bisim_sat0_R : 
 forall P Q F, bisim P Q -> sat Q F -> sat P F.
@@ -11874,55 +8779,55 @@ Subgoal 11 is:
 sat_match1 < search.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
  sat (match X X P) (diaIn X1 A)
 
 sat_match1 < unfold.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- exists Q, {oneb (match X X P) (dn X1) Q} /\ (exists w, sat (Q w) (A w))
+ exists Q, {oneb (match X X P) (dn X1) Q} /\ (forall w, sat (Q w) (A w))
 
 sat_match1 < exists Q.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- {oneb (match X X P) (dn X1) Q} /\ (exists w, sat (Q w) (A w))
+ {oneb (match X X P) (dn X1) Q} /\ (forall w, sat (Q w) (A w))
 
 sat_match1 < split.
 Subgoal 11.1:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
  {oneb (match X X P) (dn X1) Q}
 
 Subgoal 11.2 is:
- exists w, sat (Q w) (A w)
+ forall w, sat (Q w) (A w)
 
 sat_match1 < search.
 Subgoal 11.2:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat P F * -> sat (match X X P) F
 H2 : {oneb P (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- exists w, sat (Q w) (A w)
+ forall w, sat (Q w) (A w)
 
 sat_match1 < search.
 Proof completed.
@@ -13095,68 +10000,68 @@ Subgoal 11 is:
 sat_match2 < backchain sat_match1.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
  sat P (diaIn X1 A)
 
 sat_match2 < unfold.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- exists Q, {oneb P (dn X1) Q} /\ (exists w, sat (Q w) (A w))
+ exists Q, {oneb P (dn X1) Q} /\ (forall w, sat (Q w) (A w))
 
 sat_match2 < exists Q.
 Subgoal 11:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- {oneb P (dn X1) Q} /\ (exists w, sat (Q w) (A w))
+ {oneb P (dn X1) Q} /\ (forall w, sat (Q w) (A w))
 
 sat_match2 < split.
 Subgoal 11.1:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
  {oneb P (dn X1) Q}
 
 Subgoal 11.2 is:
- exists w, sat (Q w) (A w)
+ forall w, sat (Q w) (A w)
 
 sat_match2 < case H2.
 Subgoal 11.1:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 H4 : {oneb P (dn X1) Q}
 ============================
  {oneb P (dn X1) Q}
 
 Subgoal 11.2 is:
- exists w, sat (Q w) (A w)
+ forall w, sat (Q w) (A w)
 
 sat_match2 < search.
 Subgoal 11.2:
 
-Variables: P X Q w A X1
+Variables: P X Q A X1
 IH : forall P F X, sat (match X X P) F * -> sat P F
 H2 : {oneb (match X X P) (dn X1) Q}
-H3 : sat (Q w) (A w) *
+H3 : forall w, sat (Q w) (A w) *
 ============================
- exists w, sat (Q w) (A w)
+ forall w, sat (Q w) (A w)
 
 sat_match2 < search.
 Proof completed.
@@ -17368,44 +14273,44 @@ sat_diaIn_plus1 < unfold.
 Variables: P Q X F
 H1 : sat P (diaIn X F)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus1 < case H1.
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb P (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus1 < exists Q1.
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb P (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus1 < split.
 Subgoal 1:
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb P (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
  {oneb (plus P Q) (dn X) Q1}
 
 Subgoal 2 is:
- exists w, sat (Q1 w) (F w)
+ forall w, sat (Q1 w) (F w)
 
 sat_diaIn_plus1 < search.
 Subgoal 2:
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb P (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- exists w, sat (Q1 w) (F w)
+ forall w, sat (Q1 w) (F w)
 
 sat_diaIn_plus1 < search.
 Proof completed.
@@ -17428,44 +14333,44 @@ sat_diaIn_plus2 < unfold.
 Variables: P Q X F
 H1 : sat Q (diaIn X F)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus2 < case H1.
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb Q (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ exists Q1, {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus2 < exists Q1.
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb Q (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- {oneb (plus P Q) (dn X) Q1} /\ (exists w, sat (Q1 w) (F w))
+ {oneb (plus P Q) (dn X) Q1} /\ (forall w, sat (Q1 w) (F w))
 
 sat_diaIn_plus2 < split.
 Subgoal 1:
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb Q (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
  {oneb (plus P Q) (dn X) Q1}
 
 Subgoal 2 is:
- exists w, sat (Q1 w) (F w)
+ forall w, sat (Q1 w) (F w)
 
 sat_diaIn_plus2 < search.
 Subgoal 2:
 
-Variables: P Q X F Q1 w
+Variables: P Q X F Q1
 H2 : {oneb Q (dn X) Q1}
-H3 : sat (Q1 w) (F w)
+H3 : forall w, sat (Q1 w) (F w)
 ============================
- exists w, sat (Q1 w) (F w)
+ forall w, sat (Q1 w) (F w)
 
 sat_diaIn_plus2 < search.
 Proof completed.
@@ -17602,13 +14507,13 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H6.
 Subgoal 1:
 
-Variables: Q X P1 Q1 w
+Variables: Q X P1 Q1
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
 H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
 H5 : sat (in X P1) (diaIn X z\tt)
 H7 : {oneb Q (dn X) Q1}
-H8 : sat (Q1 w) tt
+H8 : forall w, sat (Q1 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -17633,13 +14538,13 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q1.
 Subgoal 1:
 
-Variables: Q X P1 Q1 w
+Variables: Q X P1 Q1
 H1 : forall F, (sat (in X P1) F -> sat Q F) /\ (sat Q F -> sat (in X P1) F)
 H3 : sat (in X P1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H4 : sat Q (diaIn X z\tt) -> sat (in X P1) (diaIn X z\tt)
 H5 : sat (in X P1) (diaIn X z\tt)
 H7 : {oneb Q (dn X) Q1}
-H8 : sat (Q1 w) tt
+H8 : forall w, sat (Q1 w) tt
 ============================
  {oneb Q (dn X) Q1}
 
@@ -17773,7 +14678,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 2:
 
-Variables: Q X P1 P2 X1 Q1 w
+Variables: Q X P1 P2 X1 Q1
 H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
        (sat Q F -> sat (match X1 X1 P2) F)
 H3 : {oneb P2 (dn X) P1}
@@ -17781,7 +14686,7 @@ H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
 H6 : sat (match X1 X1 P2) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q1}
-H9 : sat (Q1 w) tt
+H9 : forall w, sat (Q1 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -17803,7 +14708,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q1.
 Subgoal 2:
 
-Variables: Q X P1 P2 X1 Q1 w
+Variables: Q X P1 P2 X1 Q1
 H1 : forall F, (sat (match X1 X1 P2) F -> sat Q F) /\
        (sat Q F -> sat (match X1 X1 P2) F)
 H3 : {oneb P2 (dn X) P1}
@@ -17811,7 +14716,7 @@ H4 : sat (match X1 X1 P2) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (match X1 X1 P2) (diaIn X z\tt)
 H6 : sat (match X1 X1 P2) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q1}
-H9 : sat (Q1 w) tt
+H9 : forall w, sat (Q1 w) tt
 ============================
  {oneb Q (dn X) Q1}
 
@@ -17930,7 +14835,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 3:
 
-Variables: Q X P1 P2 Q1 Q2 w
+Variables: Q X P1 P2 Q1 Q2
 H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (plus P2 Q1) F)
 H3 : {oneb P2 (dn X) P1}
@@ -17938,7 +14843,7 @@ H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
 H6 : sat (plus P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -17957,7 +14862,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 3:
 
-Variables: Q X P1 P2 Q1 Q2 w
+Variables: Q X P1 P2 Q1 Q2
 H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (plus P2 Q1) F)
 H3 : {oneb P2 (dn X) P1}
@@ -17965,7 +14870,7 @@ H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
 H6 : sat (plus P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -18069,7 +14974,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 4:
 
-Variables: Q X P1 Q1 P2 Q2 w
+Variables: Q X P1 Q1 P2 Q2
 H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (plus P2 Q1) F)
 H3 : {oneb Q1 (dn X) P1}
@@ -18077,7 +14982,7 @@ H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
 H6 : sat (plus P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -18093,7 +14998,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 4:
 
-Variables: Q X P1 Q1 P2 Q2 w
+Variables: Q X P1 Q1 P2 Q2
 H1 : forall F, (sat (plus P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (plus P2 Q1) F)
 H3 : {oneb Q1 (dn X) P1}
@@ -18101,7 +15006,7 @@ H4 : sat (plus P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (plus P2 Q1) (diaIn X z\tt)
 H6 : sat (plus P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -18190,7 +15095,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 5:
 
-Variables: Q X M P2 Q1 Q2 w
+Variables: Q X M P2 Q1 Q2
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
 H3 : {oneb P2 (dn X) M}
@@ -18198,7 +15103,7 @@ H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
 H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -18211,7 +15116,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 5:
 
-Variables: Q X M P2 Q1 Q2 w
+Variables: Q X M P2 Q1 Q2
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
 H3 : {oneb P2 (dn X) M}
@@ -18219,7 +15124,7 @@ H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
 H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -18293,7 +15198,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 6:
 
-Variables: Q X N Q1 P2 Q2 w
+Variables: Q X N Q1 P2 Q2
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
 H3 : {oneb Q1 (dn X) N}
@@ -18301,7 +15206,7 @@ H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
 H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
@@ -18311,7 +15216,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 6:
 
-Variables: Q X N Q1 P2 Q2 w
+Variables: Q X N Q1 P2 Q2
 H1 : forall F, (sat (par P2 Q1) F -> sat Q F) /\
        (sat Q F -> sat (par P2 Q1) F)
 H3 : {oneb Q1 (dn X) N}
@@ -18319,7 +15224,7 @@ H4 : sat (par P2 Q1) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (par P2 Q1) (diaIn X z\tt)
 H6 : sat (par P2 Q1) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -18378,7 +15283,7 @@ H7 : sat Q (diaIn X z\tt)
 sateq_oneb_dn_exists_L < case H7.
 Subgoal 7:
 
-Variables: Q X Q1 P2 Q2 w
+Variables: Q X Q1 P2 Q2
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
 H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
@@ -18386,14 +15291,14 @@ H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
 H6 : sat (nu P2) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb Q (dn X) Q1}
 
 sateq_oneb_dn_exists_L < exists Q2.
 Subgoal 7:
 
-Variables: Q X Q1 P2 Q2 w
+Variables: Q X Q1 P2 Q2
 H1 : forall F, (sat (nu (x\P2 x)) F -> sat Q F) /\
        (sat Q F -> sat (nu (x\P2 x)) F)
 H3 : {oneb (P2 n1) (dn X) (y\Q1 n1 y)}
@@ -18401,7 +15306,7 @@ H4 : sat (nu (x\P2 x)) (diaIn X z\tt) -> sat Q (diaIn X z\tt)
 H5 : sat Q (diaIn X z\tt) -> sat (nu (x\P2 x)) (diaIn X z\tt)
 H6 : sat (nu P2) (diaIn X z\tt)
 H8 : {oneb Q (dn X) Q2}
-H9 : sat (Q2 w) tt
+H9 : forall w, sat (Q2 w) tt
 ============================
  {oneb Q (dn X) Q2}
 
@@ -28440,7 +25345,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H8.
 Subgoal 1:
 
-Variables: X Y P Q Z P1 Q1 w
+Variables: X Y P Q Z P1 Q1
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -28453,7 +25358,7 @@ H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H9 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H10 : sat (Q1 w) tt
+H10 : forall w, sat (Q1 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -28478,7 +25383,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q1.
 Subgoal 1:
 
-Variables: X Y P Q Z P1 Q1 w
+Variables: X Y P Q Z P1 Q1
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -28491,7 +25396,7 @@ H6 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H7 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H9 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H10 : sat (Q1 w) tt
+H10 : forall w, sat (Q1 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q1}
 
@@ -28889,7 +25794,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 2:
 
-Variables: X Y P Q Z P1 P2 X1 Q1 w
+Variables: X Y P Q Z P1 P2 X1 Q1
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -28904,7 +25809,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H12 : sat (Q1 w) tt
+H12 : forall w, sat (Q1 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -28926,7 +25831,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q1.
 Subgoal 2:
 
-Variables: X Y P Q Z P1 P2 X1 Q1 w
+Variables: X Y P Q Z P1 P2 X1 Q1
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -28941,7 +25846,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q1}
-H12 : sat (Q1 w) tt
+H12 : forall w, sat (Q1 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q1}
 
@@ -29194,7 +26099,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 3:
 
-Variables: X Y P Q Z P1 P2 Q1 Q2 w
+Variables: X Y P Q Z P1 P2 Q1 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29209,7 +26114,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : sat (Q2 w) tt
+H12 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -29228,7 +26133,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 3:
 
-Variables: X Y P Q Z P1 P2 Q1 Q2 w
+Variables: X Y P Q Z P1 P2 Q1 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29243,7 +26148,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : sat (Q2 w) tt
+H12 : forall w, sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -29469,7 +26374,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H10.
 Subgoal 4:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2 w
+Variables: X Y P Q Z P1 Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29484,7 +26389,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : sat (Q2 w) tt
+H12 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -29500,7 +26405,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 4:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2 w
+Variables: X Y P Q Z P1 Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29515,7 +26420,7 @@ H8 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H9 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H11 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H12 : sat (Q2 w) tt
+H12 : forall w, sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -29722,7 +26627,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 5:
 
-Variables: X Y P Q Z P1 M P2 Q1 Q2 w
+Variables: X Y P Q Z P1 M P2 Q1 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29738,7 +26643,7 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -29751,7 +26656,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 5:
 
-Variables: X Y P Q Z P1 M P2 Q1 Q2 w
+Variables: X Y P Q Z P1 M P2 Q1 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29767,7 +26672,7 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -29947,7 +26852,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 6:
 
-Variables: X Y P Q Z P1 N Q1 P2 Q2 w
+Variables: X Y P Q Z P1 N Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29963,7 +26868,7 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
@@ -29973,7 +26878,7 @@ Subgoal 7 is:
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 6:
 
-Variables: X Y P Q Z P1 N Q1 P2 Q2 w
+Variables: X Y P Q Z P1 N Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -29989,7 +26894,7 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 
@@ -30142,7 +27047,7 @@ H11 : sat (Q X Y) (diaIn (Z X Y) z\tt)
 sateq_oneb_dn_exists_L2 < case H11.
 Subgoal 7:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2 w
+Variables: X Y P Q Z P1 Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -30158,14 +27063,14 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}
 
 sateq_oneb_dn_exists_L2 < exists x\y\Q2.
 Subgoal 7:
 
-Variables: X Y P Q Z P1 Q1 P2 Q2 w
+Variables: X Y P Q Z P1 Q1 P2 Q2
 H1 : forall F, (forall X Y, sat (P X Y) (F X Y) ->
                     (forall X1 Y1, sat (Q X1 Y1) (F X1 Y1))) /\
        (forall X Y, sat (Q X Y) (F X Y) ->
@@ -30181,7 +27086,7 @@ H9 : forall X Y, sat (Q X Y) (diaIn (Z X Y) z\tt) ->
        (forall X1 Y1, sat (P X1 Y1) (diaIn (Z X1 Y1) z\tt))
 H10 : forall X1 Y1, sat (Q X1 Y1) (diaIn (Z X1 Y1) z\tt)
 H12 : {oneb (Q X Y) (dn (Z X Y)) Q2}
-H13 : sat (Q2 w) tt
+H13 : forall w, sat (Q2 w) tt
 ============================
  {oneb (Q X Y) (dn (Z X Y)) Q2}
 

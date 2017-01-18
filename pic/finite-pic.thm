@@ -152,9 +152,9 @@ by sat P ff := false
  ; sat P (boxOut X A) := forall Q, {oneb P (up X) Q} -> nabla w, sat (Q w) (A w)
  ; sat P (diaOut X A) := exists Q, {oneb P (up X) Q} /\ nabla w, sat (Q w) (A w)
  ; sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> forall w, sat (Q w) (A w)
- ; sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ exists w, sat (Q w) (A w)
+ ; sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ forall w, sat (Q w) (A w)
  .
-
+/*
 Define neg : o' -> o' -> prop
 by neg ff tt
  ; neg tt ff
@@ -258,13 +258,13 @@ Theorem neg_anti_refl : forall F, neg F F -> false.
 % Proof.
   intros. case H1.
 % Q.E.D.
-
+*/
 
 Theorem dist_form0 : forall P Q,
   ((forall F, sat P F -> sat Q F) -> false) \/
   ((forall F, sat Q F -> sat P F) -> false) ->
   ((forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> false).
-% Proof..
+% Proof.
    intros. case H1.
    backchain H3. intros. apply H2 with F = F. backchain H5.
    backchain H3. intros. apply H2 with F = F. backchain H6.
@@ -327,94 +327,6 @@ Theorem example1a : forall x y,
       % Subgoal 2.2
       case H2.
 
-/*
-Theorem example2 : forall x y,
-  sat (plus (taup null) null) (disj (boxMatch x y (boxAct tau ff))
-                                    (boxDiff  x y (diaAct tau tt))).
-  intros. search.
-
-% not provable
-Theorem example2a1 : forall x y, 
-  sat (match x y (taup null)) (disj (boxMatch x y (boxAct tau ff))
-                                    (boxDiff  x y (diaAct tau tt))).
-
-  intros. unfold. left.
-  unfold. intros. unfold.
-  intros. unfold.
-  case H2. case H3.
-    % Variables: y 
-    % H1 : y = y
-    % ============================ this subgoal is unprovable
-    %  false
-  abort.
-
-
-% not provable
-Theorem example2a2 : forall x y, 
-  sat (match x y (taup null)) (disj (boxMatch x y (boxAct tau ff))
-                                    (boxDiff  x y (diaAct tau tt))).
-
-
-  intros. unfold. right.
-  unfold.  intros.  unfold.
-  exists null. split.
-    % Subgoal 1:
-    % 
-    % Variables: x y
-    % H1 : x = y -> false
-    % ============================ this subgoal is unprovable
-    %  {one (match x y (taup null)) tau null}
-    skip.
-    %
-    unfold. search.
-
-% if we assume x = y then provable
-Theorem example2b : forall x y, x = y -> 
-  sat (match x y (taup null)) (disj (boxMatch x y (boxAct tau ff))
-                                    (boxDiff  x y (diaAct tau tt))).
-
-  intros. case H1. unfold. right. unfold. intros. unfold.
-  exists null. split.
-  search.
-  search.
-
-% if we assume (x = y -> false) then provable
-Theorem example2c : forall x y, (x = y -> false) -> 
-  sat (match x y (taup null)) (disj (boxMatch x y (boxAct tau ff))
-                                    (boxDiff  x y (diaAct tau tt))).
-  intros.
-  unfold.
-  left.
-  unfold.
-  intros.
-  apply H1 to H2.
-
-
-Theorem example3 : forall x y,
-  sat (taup (match x y (taup null)))
-      (diaAct tau (conj (boxMatch x y (diaAct tau tt))
-                        (boxDiff  x y (boxAct tau ff)))).
-% Proof.
-  intros.
-  unfold.
-  exists (match x y (taup null)). split. search.
-  unfold. search.
-  unfold. intros.
-  unfold. intros.
-  unfold. backchain H1.
-  case H2.
-  assert false. backchain H1.
-  case H4.
-% Q.E.D.
-
-Theorem example4: forall x y,
-  sat (plus (taup (taup null)) (taup null))
-      (diaAct tau (disj (boxMatch x y (boxAct tau ff))
-                        (boxDiff  x y (diaAct tau tt)))).
-% Proof.
-  intros. unfold. exists (taup null). split. search. search.
-% Q.E.D.
-*/
 
 Theorem bisim_sat0_L : forall P Q F, bisim P Q -> sat P F -> sat Q F.
 % Proof.
@@ -459,8 +371,8 @@ Theorem bisim_sat0_L : forall P Q F, bisim P Q -> sat P F -> sat Q F.
   % Subgoal 11
   unfold. intros. case H1. apply H6 to H3.
   exists N. split. search. intros.
-  assert bisim (Q1 w) (N w). backchain H12. exists w.
-  backchain IH.
+  assert bisim (Q1 w) (N w). backchain H12.
+  backchain IH. backchain H4.
 % Q.E.D.
 
 Theorem bisim_sat0_R : forall P Q F, bisim P Q -> sat Q F -> sat P F.

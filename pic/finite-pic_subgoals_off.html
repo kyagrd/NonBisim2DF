@@ -3540,7 +3540,7 @@ Proof completed.
 </pre>
 <a name="162"></a>
 <pre class="code">
-Abella < <b>Theorem bisim_decide : 
+Abella < <b>Theorem bisim_nbisim_absurd : 
 forall P Q, bisim P Q -> nbisim P Q -> false.</b>
 
 </pre>
@@ -3550,7 +3550,7 @@ forall P Q, bisim P Q -> nbisim P Q -> false.</b>
 ============================
  forall P Q, bisim P Q -> nbisim P Q -> false
 
-bisim_decide < <b>induction on 2.</b>
+bisim_nbisim_absurd < <b>induction on 2.</b>
 </pre>
 <a name="164"></a>
 <pre class="code">
@@ -3559,7 +3559,7 @@ IH : forall P Q, bisim P Q -> nbisim P Q * -> false
 ============================
  forall P Q, bisim P Q -> nbisim P Q @ -> false
 
-bisim_decide < <b>intros.</b>
+bisim_nbisim_absurd < <b>intros.</b>
 </pre>
 <a name="165"></a>
 <pre class="code">
@@ -3571,7 +3571,7 @@ H2 : nbisim P Q @
 ============================
  false
 
-bisim_decide < <b>case H1.</b>
+bisim_nbisim_absurd < <b>case H1.</b>
 </pre>
 <a name="166"></a>
 <pre class="code">
@@ -3592,7 +3592,7 @@ H8 : forall X N, {oneb Q (up X) N} ->
 ============================
  false
 
-bisim_decide < <b>case H2.</b>
+bisim_nbisim_absurd < <b>case H2.</b>
 </pre>
 <a name="167"></a>
 <pre class="code">
@@ -3624,7 +3624,7 @@ H9 : (exists A P2, {one P A P2} /\
 ============================
  false
 
-bisim_decide < <b>case H9.</b>
+bisim_nbisim_absurd < <b>case H9.</b>
 </pre>
 <a name="168"></a>
 <pre class="code">
@@ -3649,7 +3649,7 @@ H11 : forall Q2, {one Q A Q2} -> nbisim P2 Q2 *
 
 5 other subgoals.
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="169"></a>
 <pre class="code">
@@ -3676,7 +3676,7 @@ H13 : bisim P2 Q2
 
 5 other subgoals.
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="170"></a>
 <pre class="code">
@@ -3704,7 +3704,7 @@ H14 : nbisim P2 Q2 *
 
 5 other subgoals.
 
-bisim_decide < <b>backchain IH.</b>
+bisim_nbisim_absurd < <b>backchain IH.</b>
 </pre>
 <a name="171"></a>
 <pre class="code">
@@ -3729,7 +3729,7 @@ H11 : forall N, {oneb Q (dn X) N} -> (exists W, nbisim (M W) (N W) *)
 
 4 other subgoals.
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="172"></a>
 <pre class="code">
@@ -3756,7 +3756,7 @@ H13 : forall W, bisim (M W) (N W)
 
 4 other subgoals.
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="173"></a>
 <pre class="code">
@@ -3784,7 +3784,7 @@ H14 : nbisim (M W) (N W) *
 
 4 other subgoals.
 
-bisim_decide < <b>apply with W = W.</b>
+bisim_nbisim_absurd < <b>apply with W = W.</b>
 </pre>
 <a name="174"></a>
 <pre class="code">
@@ -3813,7 +3813,7 @@ H15 : bisim (M W) (N W)
 
 4 other subgoals.
 
-bisim_decide < <b>backchain IH.</b>
+bisim_nbisim_absurd < <b>backchain IH.</b>
 </pre>
 <a name="175"></a>
 <pre class="code">
@@ -3838,7 +3838,7 @@ H11 : forall N, {oneb Q (up X) N} -> (nabla w, nbisim (M w) (N w) *)
 
 3 other subgoals.
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="176"></a>
 <pre class="code">
@@ -3865,7 +3865,7 @@ H13 : bisim (M n1) (N n1)
 
 3 other subgoals.
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="177"></a>
 <pre class="code">
@@ -3893,7 +3893,7 @@ H14 : nbisim (M n1) (N n1) *
 
 3 other subgoals.
 
-bisim_decide < <b>apply to H13 H14.</b>
+bisim_nbisim_absurd < <b>apply to H13 H14.</b>
 </pre>
 <a name="178"></a>
 <pre class="code">
@@ -3918,7 +3918,7 @@ H11 : forall P2, {one P A P2} -> nbisim Q2 P2 *
 
 2 other subgoals.
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="179"></a>
 <pre class="code">
@@ -3945,7 +3945,7 @@ H13 : bisim Q2 P2
 
 2 other subgoals.
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="180"></a>
 <pre class="code">
@@ -3973,7 +3973,7 @@ H14 : nbisim Q2 P2 *
 
 2 other subgoals.
 
-bisim_decide < <b>backchain IH.</b>
+bisim_nbisim_absurd < <b>backchain IH.</b>
 </pre>
 <a name="181"></a>
 <pre class="code">
@@ -3998,7 +3998,7 @@ H11 : forall M, {oneb P (dn X) M} -> (exists W, nbisim (N W) (M W) *)
 
 1 other subgoal.
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="182"></a>
 <pre class="code">
@@ -4025,7 +4025,7 @@ H13 : forall W, bisim (N W) (M W)
 
 1 other subgoal.
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="183"></a>
 <pre class="code">
@@ -4053,7 +4053,7 @@ H14 : nbisim (N W) (M W) *
 
 1 other subgoal.
 
-bisim_decide < <b>apply with W = W.</b>
+bisim_nbisim_absurd < <b>apply with W = W.</b>
 </pre>
 <a name="184"></a>
 <pre class="code">
@@ -4082,7 +4082,7 @@ H15 : bisim (N W) (M W)
 
 1 other subgoal.
 
-bisim_decide < <b>backchain IH.</b>
+bisim_nbisim_absurd < <b>backchain IH.</b>
 </pre>
 <a name="185"></a>
 <pre class="code">
@@ -4105,7 +4105,7 @@ H11 : forall M, {oneb P (up X) M} -> (nabla w, nbisim (N w) (M w) *)
 ============================
  false
 
-bisim_decide < <b>apply to H10.</b>
+bisim_nbisim_absurd < <b>apply to H10.</b>
 </pre>
 <a name="186"></a>
 <pre class="code">
@@ -4130,7 +4130,7 @@ H13 : bisim (N n1) (M n1)
 ============================
  false
 
-bisim_decide < <b>apply to H12.</b>
+bisim_nbisim_absurd < <b>apply to H12.</b>
 </pre>
 <a name="187"></a>
 <pre class="code">
@@ -4156,7 +4156,7 @@ H14 : nbisim (N n1) (M n1) *
 ============================
  false
 
-bisim_decide < <b>apply to H13 H14.</b>
+bisim_nbisim_absurd < <b>apply to H13 H14.</b>
 Proof completed.
 </pre>
 <a name="188"></a>
