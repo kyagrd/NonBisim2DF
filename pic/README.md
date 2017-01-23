@@ -6,7 +6,7 @@ Note: There was a bug found in the encoding after the LICS17 submission. We thou
  * `finite-pic.sig` and `finite-pic.mod` : lambda-Prolog specification of the pi-calculus operational semantics
  * `finite-pic.thm` : definitions and proofs for open bisimulation and its characterizing modal logic OM
  * `finite-pic.txt`, `finite-pic.html` : output file generated running Abella on `finite-pic.thm`
- * `finite-pic_subgoals_off.txt`, `finite-pic_subgoals_off.html` : output file generated running Abella on `finite-pic_subgoals_off.thm`
+ * `finite-pic_subgoals_off.txt`, `finite-pic_subgoals_off.html` : output files without enummerating all the subgoals (shorter version than above). 
 
 The html outputs are not rendered online via githup webpage, so either make a clone of this repository or download the files to view them with your browser. The sig/mod/thm files were adopted from Abella and modified for the purpose of mechanizing the proof for soundness and completeness of OM with regards to open bisimulation. Soundness (open bisimulation is OM-equivalence) is fully mechanized but complenetness (OM-equivalence is open bisimulation) is only partially meachized; the missing link is proved in the accompanying paper. The proof script has been developed using Abella 2.0.5-dev version, more specifically, https://github.com/abella-prover/abella/tree/120ac7f2472d9f15c7bd8aa3834ab8e96b232121
 
