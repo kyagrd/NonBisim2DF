@@ -355,10 +355,16 @@ No solution.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % More elaborate example (not in Arxiv version)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, bisim (P x y u v) (Q x y u v).
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, bisim (P x y u v) (Q x y u v).
 No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
 
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, sat (P x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
 Found a solution:
  P = x1\x2\x3\x4\
      plus
@@ -376,10 +382,17 @@ Found a solution:
  T = taup z
 More [y] ? 
 No more solutions (found 1).
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (Q x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (Q x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
 
+?= T = taup z /\ TT = taup T /\ 
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v, sat (Q x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
+No solution.
+
+?= T = taup z /\ TT = taup T /\ 
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v, sat (Q x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
 Found a solution:
  P = x1\x2\x3\x4\
      plus
@@ -397,11 +410,17 @@ Found a solution:
  T = taup z
 More [y] ? 
 No more solutions (found 1).
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
+
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v, sat (P x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
 No solution.
 
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (Q x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
-
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v, sat (Q x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
 Found a solution:
  P = x1\x2\x3\x4\
      plus
@@ -419,18 +438,12 @@ Found a solution:
  T = taup z
 More [y] ? 
 No more solutions (found 1).
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt)) (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (diaMatch x y (diaAct tau tt)) (boxAct tau (diaMatch u v tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (diaMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (diaMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (diaMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
 
+
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, sat (P x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
 Found a solution:
  P = x1\x2\x3\x4\
      plus
@@ -448,10 +461,17 @@ Found a solution:
  T = taup z
 More [y] ? 
 No more solutions (found 1).
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (Q x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
-No solution.
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (Q x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt) (boxAct tau (diaMatch u v tt))))).
 
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v, sat (Q x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) (boxAct tau (diaMatch x y tt))))).
+No solution.
+
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, sat (Q x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt) (boxAct tau (diaMatch u v tt))))).
 Found a solution:
  P = x1\x2\x3\x4\
      plus
@@ -469,7 +489,10 @@ Found a solution:
  T = taup z
 More [y] ? 
 No more solutions (found 1).
-?= T = taup z /\ TT = taup T /\ Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ forall x y u v, sat (P x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt) (boxAct tau (diaMatch u v tt))))).
-No solution.
 
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, sat (P x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt) (boxAct tau (diaMatch u v tt))))).
+No solution.
 ```
