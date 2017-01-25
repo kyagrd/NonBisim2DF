@@ -4,7 +4,8 @@ Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) paper is a revised v
   * The inductive example of Section IV-A-b), `P = tau.(out a a` TODO
   * The last example in p10 should be
        ```
-       P = tau.(tau.tau + tau.[x=y]tau) + tau.(tau.tau + tau.[x=y][w=z]tau) ~/~ tau.(tau.tau + tau.[x=y][w=z]tau) = Q
+       P = tau.(tau.tau + tau.[x=y]tau) + tau.(tau.tau + tau.[x=y][w=z]tau)
+       Q = tau.(tau.tau + tau.[x=y][w=z]tau)
        ```
     In addition, the comment that `P` and `Q` are equivalent to `tau.(tau + tau.tau)` assuming excuded middle is not true; this comment was intended for even more elaborate example. So, you can disregard the last pargraph of Section IV on p11.
   
