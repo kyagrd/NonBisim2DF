@@ -1,7 +1,7 @@
 # Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
 
 Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) paper is a revised version of the draft submistted to LICS 2017. The main differrence is that we noticed that the modalities we adopted from the prior work of Tui and Miller was not the accurrate encoding. We thought that Tiu and Miller's 2010 paper stated the completeness theorem about the open bisimulation and universal quantification of Parrow, Walker, and Milner's LM encoding was right but only the proof was incomplete. But it turns out the completeness theorem itself was not stated correctly because it uses late input modalities. By working out the examples, it turns out "basic box input modality" and "late diamond modality" should be used for our logic characterizing open bisimulation. This is a very interesting discovery becuase the diamond input and box input modalities for the logic characterizing open bisimulation are not logically dual in Abella/Bedwyr encoding. This choice of the modality encoding has been correctly addressed in the Arxive version. Additionally, the Arxiv version also have a few minor errata in the examples:
-  * The inductive example of Section IV-A-b), `P = tau.(out a a` TODO
+  * For inductive example of Section IV-A-b), `P = tau.(out a a` TODO
   * The last example in p10 should be
       * `P = tau.(tau.tau + tau.[x=y]tau) + tau.(tau.tau + tau.[x=y][w=z]tau)`
       * `Q = tau.(tau.tau + tau.[x=y][w=z]tau)`
