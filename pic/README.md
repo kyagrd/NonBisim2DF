@@ -11,7 +11,9 @@ Note: There was a bug found in the encoding after the LICS17 submission. This is
 The html outputs are not rendered online via githup webpage, so either make a clone of this repository or download the files to view them with your browser. The sig/mod/thm files were adopted from Abella and modified for the purpose of mechanizing the proof for soundness and completeness of OM with regards to open bisimulation. Soundness (open bisimulation is OM-equivalence) is fully mechanized but complenetness (OM-equivalence is open bisimulation) is only partially meachized; the missing link is proved in the accompanying paper. The proof script has been developed using Abella 2.0.5-dev version, more specifically, https://github.com/abella-prover/abella/tree/120ac7f2472d9f15c7bd8aa3834ab8e96b232121
 
 ## Bedwyr specifications and examples
-The Bedwyr scripts were adopted from the examples distributed with Bedwyr and modified.  They contain more things than what is described in the paper because it is from Tui and Miller's ACM TOCL 2010 paper, and also some of my unfinished attempts for distinguishing formula generation (there are some technical issues realted to Bedwyr's features). So, the pi-calculus and the modal logic specification here is basically a superset of the Abella version above. It is not ideally cleaned up soucre code as a supplimentaril material, but for the purpose of demaonstrating that there is an existing tool that can automaticlally decide the queries of bisimulation and some of the satisfaction judgements, it serves the purpose. The examples were tested using Bedwyr version 1.4-beta13 Rev. 1080.
+The Bedwyr scripts were adopted from the examples distributed with Bedwyr and modified.  They contain more things than what is described in the paper because it is from Tui and Miller's ACM TOCL 2010 paper, and also some of my unfinished attempts for distinguishing formula generation (there are some technical issues realted to Bedwyr's features). So, the pi-calculus and the modal logic specification here is basically a superset of the Abella version above. It is not ideally cleaned up soucre code as a supplimentaril material, but for the purpose of demaonstrating that there is anT = taup z /\ P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\ Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\ forall x y u v, bisim (P x y u v) (Q x y u v).
+No solution.
+ existing tool that can automaticlally decide the queries of bisimulation and some of the satisfaction judgements, it serves the purpose. The examples were tested using Bedwyr version 1.4-beta13 Rev. 1080.
 
 Files being used:
   * `../basics.def` : a library of some basic definitions (also used in the `../ccs` directory)
@@ -284,25 +286,65 @@ Found a solution:
 More [y] ? 
 No more solutions (found 1).
 
- T = taup z /\
- P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\
- Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\
- forall x y u v, sat (P x y u v) (diaAct tau (boxAct tau (diaMatch u v tt))).
+?= T = taup z /\
+    P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\
+    Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\
+    forall x y u v, bisim (P x y u v) (Q x y u v).
 No solution.
 
-?= T = taup z /\
-   P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\
-   Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\ 
+?= T = taup z /\ TT = taup T /\ 
+   P = x\y\u\v\ plus (taup (plus TT (taup (match x y T)))) (Q x y u v) /\
+   Q = x\y\u\v\ taup (plus TT (taup (match x y (match u v T)))) /\ 
+   forall x y u v, bisim (P x y u v) (Q x y u v).
+No solution.
+
+?= T = taup z /\ TT = taup T /\ 
+   P = x\y\u\v\ plus (taup (plus TT (taup (match x y T)))) (Q x y u v) /\
+   Q = x\y\u\v\ taup (plus TT (taup (match x y (match u v T)))) /\
    forall x y u v, sat (P x y u v) (boxAct tau (diaAct tau (boxAct tau (diaMatch u v tt)))).
+No solution.
+
+?= T = taup z /\ TT = taup T /\ 
+   P = x\y\u\v\ plus (taup (plus TT (taup (match x y T)))) (Q x y u v) /\
+   Q = x\y\u\v\ taup (plus TT (taup (match x y (match u v T)))) /\
+   forall x y u v, sat (Q x y u v) (boxAct tau (diaAct tau (boxAct tau (diaMatch u v tt)))).
 Found a solution:
  Q = x1\x2\x3\x4\
-     taup (plus (taup z) (taup (match x1 x2 (match x3 x4 (taup z)))))
+     taup
+      (plus (taup (taup z)) (taup (match x1 x2 (match x3 x4 (taup z)))))
  P = x1\x2\x3\x4\
-     plus (taup (plus (taup z) (taup (match x1 x2 (taup z)))))
-      (taup (plus (taup z) (taup (match x1 x2 (match x3 x4 (taup z))))))
+     plus (taup (plus (taup (taup z)) (taup (match x1 x2 (taup z)))))
+      (taup
+        (plus (taup (taup z))
+          (taup (match x1 x2 (match x3 x4 (taup z))))))
+ TT = taup (taup z)
  T = taup z
 More [y] ? 
 No more solutions (found 1).
 
+?= T = taup z /\ TT = taup T /\ 
+   P = x\y\u\v\ plus (taup (plus TT (taup (match x y T)))) (Q x y u v) /\ 
+   Q = x\y\u\v\ taup (plus TT (taup (match x y (match u v T)))) /\ 
+   forall x y u v, sat (P x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
+
+Found a solution:
+ Q = x1\x2\x3\x4\
+     taup
+      (plus (taup (taup z)) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ P = x1\x2\x3\x4\
+     plus (taup (plus (taup (taup z)) (taup (match x1 x2 (taup z)))))
+      (taup
+        (plus (taup (taup z))
+          (taup (match x1 x2 (match x3 x4 (taup z))))))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+
+?= T = taup z /\ TT = taup T /\
+   P = x\y\u\v\ plus (taup (plus TT (taup (match x y T)))) (Q x y u v) /\ 
+   Q = x\y\u\v\ taup (plus TT (taup (match x y (match u v T)))) /\ 
+   forall x y u v, sat (Q x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff) (boxMatch x y (diaAct tau tt))))).
+No solution.
 
 ```
