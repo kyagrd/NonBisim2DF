@@ -284,4 +284,25 @@ Found a solution:
 More [y] ? 
 No more solutions (found 1).
 
+ T = taup z /\
+ P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\
+ Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\
+ forall x y u v, sat (P x y u v) (diaAct tau (boxAct tau (diaMatch u v tt))).
+No solution.
+
+?= T = taup z /\
+   P = x\y\u\v\ plus (taup (plus T (taup (match x y T)))) (Q x y u v) /\
+   Q = x\y\u\v\ taup (plus T (taup (match x y (match u v T)))) /\ 
+   forall x y u v, sat (P x y u v) (boxAct tau (diaAct tau (boxAct tau (diaMatch u v tt)))).
+Found a solution:
+ Q = x1\x2\x3\x4\
+     taup (plus (taup z) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ P = x1\x2\x3\x4\
+     plus (taup (plus (taup z) (taup (match x1 x2 (taup z)))))
+      (taup (plus (taup z) (taup (match x1 x2 (match x3 x4 (taup z))))))
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+
+
 ```
