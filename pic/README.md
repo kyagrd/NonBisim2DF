@@ -239,4 +239,49 @@ No more solutions (found 1).
 No solution.
 
 
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, bisim (P a b x y) (Q a b).
+No solution.
+
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (P a b x y) (boxAct tau (disj (diaAct (up b b) tt) (diaMatch x y tt))).
+Found a solution:
+ Q = x1\x2\
+     plus (taup (plus (out x1 x1 z) (out x2 x2 z)))
+      (taup (out x1 x1 z))
+ P = x1\x2\x3\x4\
+     plus (taup (plus (out x1 x1 z) (out x2 x2 z)))
+      (match x3 x4 (taup (out x1 x1 z)))
+ S = x1\x2\ taup (out x1 x1 z)
+ R = x1\x2\ taup (plus (out x1 x1 z) (out x2 x2 z))
+More [y] ? 
+No more solutions (found 1).
+
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (Q a b) (boxAct tau (disj (diaAct (up b b) tt) (diaMatch x y tt))).
+No solution.
+
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (P a b x y) (diaAct tau (boxAct (up b b) (diaMatch a b tt))).
+No solution.
+
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\ 
+   forall a b x y, sat (Q a b) (diaAct tau (boxAct (up b b) (diaMatch a b tt))).
+Found a solution:
+ Q = x1\x2\
+     plus (taup (plus (out x1 x1 z) (out x2 x2 z)))
+      (taup (out x1 x1 z))
+ P = x1\x2\x3\x4\
+     plus (taup (plus (out x1 x1 z) (out x2 x2 z)))
+      (match x3 x4 (taup (out x1 x1 z)))
+ S = x1\x2\ taup (out x1 x1 z)
+ R = x1\x2\ taup (plus (out x1 x1 z) (out x2 x2 z))
+More [y] ? 
+No more solutions (found 1).
+
 ```
