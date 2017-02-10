@@ -1,0 +1,423 @@
+% spi.thm
+Specification "spi".
+
+Type a,b,c nm.
+
+Close nm, tm, p, pa.
+
+Define barb : p -> a -> prop by barb P X := exists A, {one P X A}.
+Define test : p -> a -> prop by test P X := exists Q, {taus P Q} /\ barb Q X.
+
+Define test_eq : p -> p -> prop
+by test_eq P Q := forall R X, (test (par P R) X -> test (par Q R) X)
+                           /\ (test (par Q R) X -> test (par P R) X).
+
+/*
+Abella < Query A = nm a /\ B = nm b /\ test (par (out A A zero) (in A x\out B B zero)) X.
+Found solution:
+A = nm a
+B = nm b
+X = up (nm a)
+
+Found solution:
+A = nm a
+B = nm b
+X = dn (nm a)
+
+Found solution:
+A = nm a
+B = nm b
+X = up (nm b)
+
+No more solutions.
+*/
+
+
+Theorem syn_empty_false : forall M T, {syn M T} -> false.
+% Proof:
+induction on 1. intros. case H1.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+% Q.E.D.
+
+Theorem mnd_empty_false : forall M N T, {mnd M N T} -> false.
+% Proof:
+induction on 1. intros. case H1.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+  backchain IH.
+% Q.E.D.
+
+Theorem syn_ex1 : forall X TX Y TY, {syn X TX, syn Y TY |- syn (pr X Y) (t_pr TX TY)}. 
+search.
+
+Theorem syn_ex2 : forall X TX Y TY, {syn (en X Y) (t_en TX TY), syn Y TY |- syn X TX}.
+search.
+
+Theorem mnd_ex1 : forall X1 X2 TX Y1 Y2 TY,
+    {mnd X1 X2 TX, mnd Y1 Y2 TY |- mnd (pr X1 Y1) (pr X2 Y2) (t_pr TX TY)}. 
+search.
+
+Theorem mnd_ex2 : forall X1 X2 TX Y1 Y2 TY,
+     {mnd (en X1 Y1) (en X2 Y2) (t_en TX TY), mnd Y1 Y2 TY |- mnd X1 X2 TX}.
+search.
+
+Define name : tm -> prop by
+    nabla x, name x.    
+
+Define same_name : tm -> tm -> prop by
+    nabla x, same_name x x.
+/*
+Define of_ctx : olist -> prop
+by of_ctx nil
+ ; nabla x, of_ctx (of x T :: L) := of_ctx L.
+*/
+Define ctx_zip : olist -> olist -> olist -> prop
+by ctx_zip nil nil nil
+ ; ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L) := ctx_zip L1 L2 L.
+    
+Define syn_of_ctx : olist -> olist -> prop
+by syn_of_ctx nil nil 
+ ; syn_of_ctx (syn M T :: L) (of M T :: C) := syn_of_ctx L C.
+
+Define mnd_of_ctx : olist -> olist -> olist -> prop
+by mnd_of_ctx nil nil nil
+ ; mnd_of_ctx (mnd M N T :: L) (of M T :: C1) (of N T :: C2) := mnd_of_ctx L C1 C2.
+
+Define syn_ctx : olist -> prop
+by syn_ctx nil
+ ; nabla x, syn_ctx (syn x T :: L) := syn_ctx L
+ ; syn_ctx (syn M T :: L) := syn_ctx L /\
+      exists C, syn_of_ctx L C /\ {C |- of M T}.
+
+      
+Define mnd_ctx : olist -> prop
+by mnd_ctx nil
+ ; nabla x, mnd_ctx (mnd x x T :: L) := mnd_ctx L
+ ; mnd_ctx (mnd M N T :: L) := mnd_ctx L /\
+      exists C1 C2, mnd_of_ctx L C1 C2 /\ {C1 |- of M T} /\ {C2 |- of N T}.
+
+Theorem syn_ctx_tail : forall M T L, syn_ctx (syn M T :: L) -> syn_ctx L.
+intros. case H1. search. search.
+      
+Theorem mnd_ctx_tail : forall M N T L, mnd_ctx (mnd M N T :: L) -> mnd_ctx L.
+intros. case H1. search. search.
+
+Theorem syn_of_ctx_uniq : forall L C1 C2, syn_ctx L ->
+     syn_of_ctx L C1 -> syn_of_ctx L C2 -> C1 = C2.
+induction on 2. intros. case H2.
+  % Subgoal 1   
+  case H3. search.
+  % Subgoal 2   
+  case H3. assert syn_ctx L1. case H1. search. search.
+  apply IH to _ H4 H5. search.
+      
+Theorem syn_of_ctx_exists : forall L, syn_ctx L ->
+     exists C, syn_of_ctx L C.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. exists (of n1 T :: C). search.
+  apply IH to H2. exists (of M T :: C). search.      
+
+Theorem mnd_of_ctx_exists : forall L, mnd_ctx L ->
+     exists C1 C2, mnd_of_ctx L C1 C2.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. exists (of n1 T :: C1), (of n1 T :: C2). search.
+  apply IH to H2. exists (of M T :: C1), (of N T :: C2). search.
+
+Theorem mnd_of_ctx_uniq : forall L C11 C12 C21 C22, mnd_ctx L ->
+     mnd_of_ctx L C11 C12 -> mnd_of_ctx L C21 C22 ->
+     C11 = C21 /\ C12 = C22.
+induction on 2. intros. case H2.
+     % Subgoal 1
+     case H3. search.
+     % Subgoal 2.
+     case H3. assert mnd_ctx L1. case H1. search. search.
+     apply IH to _ H4 H5. search.
+
+Theorem synctx_ex1 : forall T L, nabla n, syn_ctx L -> syn_ctx (syn n T :: L).
+search.
+
+Theorem member_prune : forall L E, nabla (x : tm),
+  member (E x) L -> exists F, E = x\ F.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
+Theorem zip_prune : forall L1 L2 L, nabla (x : tm),
+    ctx_zip (L1 x) (L2 x) L -> exists L1' L2', L1 = x\ L1' /\ L2 = x\ L2'.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+/*
+Theorem of_name : forall L E, of_ctx L -> member E L ->
+    exists X T, E = of X T /\ name X.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    search.
+    apply member_prune to H4. backchain IH.
+*/
+Theorem syn_name : forall L E, syn_ctx L -> member E L ->
+    exists X T, E = syn X T
+             /\ ( name X \/ (exists C, syn_of_ctx L C /\ {C |- of X T}) ).
+induction on 1. intros. case H1.
+  case H2.
+  case H2. search. apply member_prune to H4. apply IH to H3 H4.
+    exists X, T1. split. search. case H5.
+      left. search. right. search.
+  case H2. search. apply IH to H3 H6.
+    exists X, T1. split. search. case H7. left.
+      search. right. apply syn_of_ctx_uniq to _ H8 H4. search.
+    
+Theorem mnd_name : forall L E, mnd_ctx L -> member E L ->
+    exists X Y T, E = mnd X Y T
+               /\ ( same_name X Y \/
+                    (exists C1 C2, mnd_of_ctx L C1 C2 /\ {C1 |- of X T} /\ {C2 |- of Y T}) ).
+induction on 1. intros. case H1.
+  case H2.
+  case H2. search. apply member_prune to H4. apply IH to H3 H4.
+    exists X, Y, T1. split. search. case H5.
+      left. search. right. search.
+  case H2. search. apply IH to H3 H7.
+    exists X, Y, T1. split. search. case H8.
+      left. search. right. apply mnd_of_ctx_uniq to _ H9 H4. search.
+
+Theorem mnd_of_ctx_syn : forall L L1 L2 C1 C2,
+     mnd_of_ctx L C1 C2 -> ctx_zip L1 L2 L ->
+     syn_of_ctx L1 C1 /\ syn_of_ctx L2 C2.
+induction on 1. intros. case H1.
+  case H2. search.
+  case H2. apply IH to H3 H4. search.
+
+Theorem syn_mnd_ctx : forall L L1 L2, ctx_zip L1 L2 L ->
+    mnd_ctx L -> syn_ctx L1 /\ syn_ctx L2.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1. apply zip_prune to H4. apply IH to H4 H3. search.
+  case H1. apply mnd_of_ctx_syn to H4 H7. apply IH to H7 H3. search.
+
+Theorem member_mnd_syn : forall L L1 L2 M N T, ctx_zip L1 L2 L -> mnd_ctx L ->
+    member (mnd M N T) L -> member (syn M T) L1 /\ member (syn N T) L2.
+induction on 2. intros. apply syn_mnd_ctx to H1 H2. case H2.
+   case H3.
+   case H1.
+     apply zip_prune to H7. case H3. search.
+     apply IH to H7 H6 H8. search.
+   case H1. case H3.
+     search.
+     apply IH to H10 H6 H11. search.
+
+Theorem mnd_syn : forall L L1 L2 M N T, ctx_zip L1 L2 L -> mnd_ctx L ->
+    {L |- mnd M N T} -> {L1 |- syn M T} /\ {L2 |- syn N T}.     
+induction on 3. intros. case H3.
+  apply IH to _ _ H4. apply IH to _ _ H5. search.
+  apply IH to _ _ H4. search.
+  apply IH to _ _ H4. search.   
+  apply IH to _ _ H4. apply IH to _ _ H5. search.
+  apply IH to _ _ H4. apply IH to _ _ H5. search.
+  apply mnd_name to _ H5. case H4. apply member_mnd_syn to _ _ H5. search.
+
+Theorem member_syn_of : forall M T L C, syn_ctx L -> syn_of_ctx L C ->
+     member (syn M T) L -> member (of M T) C.
+induction on 3. intros. case H3.
+  case H2. search.
+  case H2. case H1.
+    apply IH to _ _ H4. search.
+    apply IH to _ _ H4. search.
+
+Theorem member_of_entail : forall M T C, member (of M T) C -> {C |- of M T}.
+induction on 1. intros. case H1. search. apply IH to H2. search.
+/*
+Theorem of_pr1 : forall M1 M2 T1 T2 C L, syn_ctx L -> syn_of_ctx L C ->
+    {C |- of (pr M1 M2) (t_pr T1 T2)} -> {C |- of M1 T1}. 
+induction on 3. intros. case H3.
+search.
+search.
+     
+Theorem syn_of : forall L C M T, syn_ctx L -> syn_of_ctx L C ->
+     {L |- syn M T} -> {C |- of M T}.
+induction on 3. intros. case H3.
+apply IH to _ _ H4. apply IH to _ _ H5. search.
+apply IH to _ _ H4. skip.
+apply IH to _ _ H4. skip.
+apply IH to _ _ H4. apply IH to _ _ H5. search.
+apply IH to _ _ H4. apply IH to _ _ H5. skip.
+apply syn_name to _ H5. apply member_syn_of to _ _ H5. backchain member_of_entail.
+*/
+      /*
+Theorem syn_of : forall L M T, syn_ctx L -> {L |- syn M T} ->
+     exists C, syn_of_ctx L C /\ {C |- of M T}.   
+induction on 2. intros. case H2.
+     % Subgoal 1   
+     apply IH to _ H3. apply IH to _ H4.
+     apply syn_of_ctx_uniq to _ H7 H5. exists C. search.
+     % Subgoal 2
+     apply IH to _ H3. exists C. split. search. search.
+     % Subgoal 3
+     apply IH to _ H3. exists C. search.
+     % Subgoal 4
+     apply IH to _ H3. apply IH to _ H4.
+     apply syn_of_ctx_uniq to _ H7 H5. exists C. split. search. search.
+     % Subgoal 5
+     apply IH to _ H3. apply IH to _ H4.
+     apply syn_of_ctx_uniq to _ H7 H5. exists C. search.
+     % Subgoal 6
+     apply syn_name to _ H4. case H5.
+       case H3. apply syn_of_ctx_exists to H1. exists C. split.
+         search.
+         skip. % need this:  member (syn M T) L -> {C |- of M T}
+       exists C. split. search. skip. % need uniqness of typing (of)
+*/
+Theorem pr_entail : forall M1 M2 N1 N2 T1 T2 L, mnd_ctx L ->
+     {L |- mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2)} ->
+     {L |- mnd M1 N1 T1} /\ {L |- mnd M2 N2 T2}.    
+intros. search.
+
+Theorem entail_pr : forall M1 M2 N1 N2 T1 T2 L, mnd_ctx L ->
+      {L |- mnd M1 N1 T1} -> {L |- mnd M2 N2 T2} ->
+      {L |- mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2)}.
+intros. search.
+      
+Theorem en_entail : forall M1 M2 N1 N2 T1 T2 L, mnd_ctx L ->
+       {L |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)} ->
+       {L |- mnd M2 N2 T2} -> {L |- mnd M1 N1 T1}.
+intros. search.
+
+Theorem entail_en : forall M1 M2 N1 N2 T1 T2 L, mnd_ctx L ->
+	{L |- mnd M2 N2 T2} -> {L |- mnd M1 N1 T1} ->
+	{L |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
+intros. search.
+/*
+Theorem mnd_ctx_cons : forall M N T L, mnd_ctx L ->
+	{L |- mnd M N T} -> mnd_ctx (mnd M N T :: L).
+intros. unfold. search.
+       
+	 induction on 2. intros. case H2.
+
+apply IH to _ H3. apply IH to _ H4. unfold
+	 apply mnd_empty_false to H2.
+apply IH to H3.
+*/
+
+
+
+	 
+Define unicity : olist -> prop
+by unicity L := forall M N T, {L |- mnd M N T} ->
+     (forall R, {L |- mnd M R T} -> R = N ) /\
+     (forall R, {L |- mnd M N T} -> R = M ).
+
+Theorem unicity_tail : forall M N T L,
+      unicity (mnd M N T :: L) -> unicity L.
+intros. case H1. unfold. intros. apply H2 to H3. split.
+      intros. backchain H4.
+      intros. backchain H5.
+/*
+Theorem unicity_cons : forall M N T L,
+      unicity L -> {L |- mnd M N T} -> unicity (mnd M N T :: L).      
+induction on 2. intros. case H2.
+
+apply IH to _ H3. apply IH to _ H4. 
+unfold. intros. split.
+intros.
+*/    
+Define eqknow : olist -> prop
+by eqknow L := forall M1 M2 N1 N2 L1 L2 T1 T2, ctx_zip L1 L2 L
+     -> {L |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}
+     -> ( {L1 |- syn M2 T2} \/ {L2 |- syn N2 T2} )
+     -> {L |- mnd M2 N2 T2}.
+
+Define consistent : olist -> prop
+by consistent L := mnd_ctx L /\ unicity L /\ eqknow L.
+/*
+Theorem eqknow_tail : forall M N T L,
+      eqknow (mnd M N T :: L) -> eqknow L.
+intros. case H1. unfold. intros. apply H2 to H3 H4 H5.
+*/
+
+Theorem or_syn_comm : forall L1 L2 M N T,
+      {L1 |- syn M T} \/ {L2 |- syn N T} -> {L2 |- syn N T} \/ {L1 |- syn M T}.
+intros. case H1. search. search.
+       
+Theorem consistent_tail : forall M N T L,
+     consistent (mnd M N T :: L) -> {L |- mnd M N T} -> consistent L.
+induction on 1. intros. case H1. unfold.
+      backchain mnd_ctx_tail.    
+      backchain unicity_tail.
+    
+      unfold.
+      intros.
+      apply mnd_ctx_tail to H3.
+      apply unicity_tail to H4.
+      case H8.
+    
+      case H5.
+      assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
+      assert {L1, syn M T |- syn M2 T2}.
+      assert {L1, syn M T |- syn M2 T2} \/ {L2, syn N T |- syn N2 T2}.
+      assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).
+      apply H12 to H16 H13 H15.
+      cut H17 with H2.    
+      search.
+
+      case H5.
+      assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
+      assert {L2, syn N T |- syn N2 T2}.
+      assert {L2, syn N T |- syn N2 T2} \/ {L1, syn M T |- syn M2 T2}.
+      apply or_syn_comm to H15 with L2 = syn M T :: L1, L1 = syn N T :: L2, N = M2, M = N2.   
+      assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).
+      apply H12 to H17 H13 H16.
+      cut H18 with H2.    
+      search.    
+
+/*
+Theorem consistent_cons : forall M N T L, 
+    consistent L -> {L |- mnd M N T} -> consistent (mnd M N T :: L).
+intros.
+case H1.
+unfold.
+
+unfold. search.
+apply mnd_of_ctx_exists to H3. exists C1, C2. split. search. skip. skip.   
+
+unfold. intros. split.
+intros.       search.
+       induction on 2. intros. case H2.
+
+apply IH to _ H3. apply IH to _ H4. skip.
+
+apply IH to _ H3. search.
+
+case H4.     
+apply IH to _ H3. skip.
+
+apply IH to _ H3. apply IH to _ H4. skip.      
+
+apply IH to _ H3. apply IH to _ H4. skip.
+
+apply mnd_name to _ H4. case H1. search. case H5.
+  unfold. case H1. unfold. apply mnd_of_ctx_exists to H7. exists C1, C2. split. search. case H6. case H1. unfold.
+    skip.
+unfold. search.
+*/
+      
+Define compose_mnd_ctx : olist -> olist -> olist -> prop
+by compose_mnd_ctx nil nil nil
+ ; compose_mnd_ctx (mnd M R T :: L1) (mnd R N T :: L2) (mnd M N T :: L)
+     := compose_mnd_ctx L1 L2 L.
+/*
+Theorem compose_consistent_mnd_ctx : forall L1 L2 L,
+     consistent L1 -> consistent L2 -> compose_mnd_ctx L1 L2 L ->
+     consistent L.
+induction on 3. intros. case H3.
+  search.
+  case H1. case H2.
+      */
+
