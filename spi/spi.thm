@@ -3,7 +3,8 @@ Specification "spi".
 
 Type a,b,c nm.
 
-Close nm, tm, p, pa.
+Close nm, tm, ty.
+Close p, pa.
 
 Define barb : p -> a -> prop by barb P X := exists A, {one P X A}.
 Define test : p -> a -> prop by test P X := exists Q, {taus P Q} /\ barb Q X.
@@ -31,7 +32,6 @@ X = up (nm b)
 
 No more solutions.
 */
-
 
 Theorem syn_empty_false : forall M T, {syn M T} -> false.
 % Proof:
@@ -72,15 +72,56 @@ Define name : tm -> prop by
 
 Define same_name : tm -> tm -> prop by
     nabla x, same_name x x.
-/*
+
 Define of_ctx : olist -> prop
 by of_ctx nil
- ; nabla x, of_ctx (of x T :: L) := of_ctx L.
-*/
+ ; nabla x, of_ctx (of x T :: C) := of_ctx C.
+
+Theorem member_prune : forall L E, nabla (x : tm),
+  member (E x) L -> exists F, E = x\ F.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
+Theorem of_name : forall L E, of_ctx L -> member E L ->
+    exists X T, E = of X T /\ name X.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    search.
+    apply member_prune to H4. backchain IH.    
+
+Theorem member_nabla_false : forall T L,
+      nabla x, member (of x T) L -> false.
+induction on 1. intros. case H1. apply IH to H2.
+
+Theorem of_ctx_uniq : forall C E T1 T2, of_ctx C ->
+      member (of E T1) C -> member (of E T2) C -> T1 = T2.
+induction on 2. intros. case H2.
+   case H3.
+      search.
+      case H1. apply member_nabla_false to H4.
+   case H3.
+      case H1. apply member_nabla_false to H4.
+      case H1. apply IH to _ H4 H5. search.
+
+Theorem of_uniq : forall C E T1 T2, of_ctx C ->
+     {C |- of E T1} -> {C |- of E T2} -> T1 = T2.
+induction on 2. intros. case H2.    
+case H3. search.
+      apply of_name to _ H5. case H4. case H6.
+case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
+      apply of_name to _ H7. case H6. case H8.
+case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
+      apply of_name to _ H7. case H6. case H8.
+apply of_name to _ H5. case H4. case H6.
+      case H3. apply of_name to _ H8. case H7.
+      apply of_ctx_uniq to _ H5 H8. search.
+    
 Define ctx_zip : olist -> olist -> olist -> prop
 by ctx_zip nil nil nil
  ; ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L) := ctx_zip L1 L2 L.
-    
+      
 Define syn_of_ctx : olist -> olist -> prop
 by syn_of_ctx nil nil 
  ; syn_of_ctx (syn M T :: L) (of M T :: C) := syn_of_ctx L C.
@@ -143,27 +184,13 @@ induction on 2. intros. case H2.
 
 Theorem synctx_ex1 : forall T L, nabla n, syn_ctx L -> syn_ctx (syn n T :: L).
 search.
-
-Theorem member_prune : forall L E, nabla (x : tm),
-  member (E x) L -> exists F, E = x\ F.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H2. search.
-
+    
 Theorem zip_prune : forall L1 L2 L, nabla (x : tm),
     ctx_zip (L1 x) (L2 x) L -> exists L1' L2', L1 = x\ L1' /\ L2 = x\ L2'.
 induction on 1. intros. case H1.
   search.
   apply IH to H2. search.
-/*
-Theorem of_name : forall L E, of_ctx L -> member E L ->
-    exists X T, E = of X T /\ name X.
-induction on 1. intros. case H1.
-  case H2.
-  case H2.
-    search.
-    apply member_prune to H4. backchain IH.
-*/
+
 Theorem syn_name : forall L E, syn_ctx L -> member E L ->
     exists X T, E = syn X T
              /\ ( name X \/ (exists C, syn_of_ctx L C /\ {C |- of X T}) ).
