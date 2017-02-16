@@ -111,15 +111,15 @@ induction on 2. intros. case H2.
 Theorem of_uniq : forall C E T1 T2, of_ctx C ->
      {C |- of E T1} -> {C |- of E T2} -> T1 = T2.
 induction on 2. intros. case H2.    
-case H3. search.
-      apply of_name to _ H5. case H4. case H6.
-case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
-      apply of_name to _ H7. case H6. case H8.
-case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
-      apply of_name to _ H7. case H6. case H8.
-apply of_name to _ H5. case H4. case H6.
-      case H3. apply of_name to _ H8. case H7.
-      apply of_ctx_uniq to _ H5 H8. search.
+  case H3. search.
+    apply of_name to _ H5. case H4. case H6.
+  case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
+    apply of_name to _ H7. case H6. case H8.
+  case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
+    apply of_name to _ H7. case H6. case H8.
+  apply of_name to _ H5. case H4. case H6.
+    case H3. apply of_name to _ H8. case H7.
+    apply of_ctx_uniq to _ H5 H8. search.
 
 Theorem member_of : forall M T C, member (of M T) C -> {C |- of M T}.
 induction on 1. intros. case H1. search. apply IH to H2. search.
@@ -178,24 +178,6 @@ induction on 2. intros. case H2.
       case H1. search.
       case H1. apply IH to _ H5. search.
 
-Define append : olist -> olist -> olist -> prop
-by append nil L L
- ; append (O :: L1) L2 (O :: L) := append L1 L2 L.
-
-Theorem append_nil : forall L1 L2, append L1 nil L2 -> L1 = L2.
-induction on 1. intros. case H1. search. apply IH to H2. search.
-       
-Theorem append_uniq : forall L1 L2 L L',
-       append L1 L2 L -> append L1 L2 L' -> L = L'.      
-induction on 1. intros. case H1.
-case H2. search. case H2. apply IH to H3 H4. search.
-
-Theorem append_member : forall L1 L2 L E, append L1 L2 L ->
-       member E L -> member E L1 \/ member E L2.
-induction on 2. intros. case H2.
-       case H1. search. search.     
-       case H1. search. apply IH to H4 H3. case H5. search. search.
-
 Theorem syn_member : forall E C L, syn_ctx C L ->
        member E L -> exists M T, E = syn M T.
 induction on 1. intros. case H1.
@@ -218,6 +200,27 @@ induction on 2. intros. case H2.
        apply syn_member to _ H4. case H3. backchain syn_member_of.
 
 /*
+% appending differnt kinds of contexts and working with them
+% is certainly doable but doesn't seem like a very good idea
+
+Define append : olist -> olist -> olist -> prop
+by append nil L L
+ ; append (O :: L1) L2 (O :: L) := append L1 L2 L.
+
+Theorem append_nil : forall L1 L2, append L1 nil L2 -> L1 = L2.
+induction on 1. intros. case H1. search. apply IH to H2. search.
+       
+Theorem append_uniq : forall L1 L2 L L',
+       append L1 L2 L -> append L1 L2 L' -> L = L'.      
+induction on 1. intros. case H1.
+case H2. search. case H2. apply IH to H3 H4. search.
+
+Theorem append_member : forall L1 L2 L E, append L1 L2 L ->
+       member E L -> member E L1 \/ member E L2.
+induction on 2. intros. case H2.
+       case H1. search. search.     
+       case H1. search. apply IH to H4 H3. case H5. search. search.
+
 Theorem of_name' : forall C L CL E,
        syn_ctx C L -> append L C CL -> member E CL ->
        exists X T, (E = of X T /\ name X) \/ E = syn X T.
@@ -440,7 +443,8 @@ backchain or_obj_comm with L1 = L1, L2 = L2, P1 = syn M T, P2 = syn N T.
 % becase of this bug https://github.com/abella-prover/abella/issues/77
 % object sequent *context* should be explicitly provided for workaround
 % using the long list of hints provided after "with". 
-       
+
+/*     
 Theorem eqknow_tail' : forall M N T L,
       eqknow (mnd M N T :: L) -> {L |- mnd M N T} -> eqknow L.    
 intros. case H1. intros. unfold. intros. case H6.
@@ -457,11 +461,8 @@ intros. case H1. intros. unfold. intros. case H6.
   apply or_syn_comm to H10 with L2 = syn M T :: L1, L1 = syn N T :: L2.     
   assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).     
   apply H3 to H12 H8 H11. cut H13 with H2. search.
+*/
      
-Theorem or_obj_strenthen : forall L1 L2 P1 P2 A1 A2, 
-     {L1 |- P1} \/ {L2 |- P2} -> {L1, A1 |- P1} \/ {L2, A2 |- P2}.
-intros. case H1. left. search. right. search.
-
 Theorem or_obj_cut : forall L1 L2 P1 P2 A1 A2,
      {L1 |- A1} -> {L2 |- A2} ->      
      {L1, A1 |- P1} \/ {L2, A2 |- P2} ->
@@ -522,14 +523,14 @@ induction on 3. intros. case H3.
         L2 = L4, A1 = syn N T, P2 = syn N3 T3.
   apply H11 to H12 H10 H15. search.
 
-% This defintion is not yet fully describes the consistency
-% in the traced-based bisimmulation paper but it is just enough
-% for Lemma 13 to hold. We would need to enforce additional condition
+% This defintion is not yet the full description of the consistency
+% in the traced-based bisimulation paper but just enough for Lemma 13
+% to hold. We would need to enforce remaining additional conditions
 % other than just the usual well-typedness by mnd_ctx because
-% the left and right terms of mnd should be of the same structure
+% the left and right terms of "mnd" should be of the same structure
 % to be consistent (e.g. var rule enforces exactly the same variables);
 % Without the additional conditions, lemmas involving composition of
-% consistent obersrver theories would not hold
+% consistent obersrver theories would not be provable.
 Define consistent : olist -> prop
 by consistent L := (exists C1 C2, mnd_ctx C1 C2 L) /\ unicity L /\ eqknow L.
 
@@ -543,6 +544,7 @@ intros. case H1. unfold.
        backchain unicity_cons.
        backchain eqknow_cons.
 
+/*    
 Define consistent' : olist -> olist -> olist -> prop
 by consistent' C1 C2 L := mnd_ctx C1 C2 L /\ unicity L /\ eqknow L.
       
@@ -569,7 +571,6 @@ induction on 3. intros. case H3.
       case H1. case H2. unfold. search. search.
       case H1. case H2. unfold. search. search. backchain IH.
 
-/*
 Theorem compose_unicity : forall L1 L2 L,
       unicity L1 -> unicity L2 ->
       compose_mnd_ctx L1 L2 L -> unicity L.
