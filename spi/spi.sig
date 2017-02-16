@@ -1,6 +1,30 @@
 % vim: ts=2: sw=2: expandtab: ai: syntax=lprolog
 sig spi. % spi.sig
 
+/*
+Ki Yung Ahn
+
+Specification of the spi calculus and its observer theory, intruder deuction
+described in " A Trace Based Bisimulation for the Spi Calculus" by Alwen Tiu
+https://arxiv.org/abs/0901.2166
+
+The stylistic difference is this specification is that the rules for obserer
+theories and intruder decuction are in natrual deduction style (simply
+using the most natural way Abella provides as an object logic specification)
+instead of sequent calculus rules in the paper to establish decidabilty.
+Since the purpose of this specification is formal proof of properties of
+the therories in Abella's reasoning logic, we put aside the isssue of
+decidabilty and focus on a simpler specification.
+
+The tool called SPEC http://www.ntu.edu.sg/home/atiu/spec%2Dprover/
+which is implemnted by sequent calculus style rules of the paper using
+the Bedwyer engine.
+
+Currently there are only containsproofs on basic lemmas of observer theories
+in spi.thm and using observer theories to define bisimulation and to reason
+formally about its properties is still an ongoing work.
+*/
+
 kind nm type. % rigid names
 
 kind ty type.
