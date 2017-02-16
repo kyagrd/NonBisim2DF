@@ -1,7 +1,7 @@
 % vim: ts=2: sw=2: expandtab: ai: syntax=lprolog
 sig spi. % spi.sig
 
-kind nm type. % name
+kind nm type. % rigid names
 
 kind ty type.
 type t_nm  ty.

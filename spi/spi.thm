@@ -150,7 +150,7 @@ by syn_ctx C nil := of_ctx C
 
 Theorem syn_of_ctx : forall C L, syn_ctx C L -> of_ctx C.
 induction on 1. intros. case H1. search. backchain IH.
-     
+  
 Define mnd_ctx : olist -> olist -> olist -> prop
 by mnd_ctx C1 C2 nil := of_ctx C1 /\ of_ctx C2
  ; mnd_ctx C1 C2 (mnd M N T :: L) := {C1 |- of M T} /\ {C2 |- of N T} /\ mnd_ctx C1 C2 L.
@@ -429,59 +429,119 @@ by eqknow L := forall M1 M2 N1 N2 L1 L2 T1 T2, ctx_zip L1 L2 L
      -> ( {L1 |- syn M2 T2} \/ {L2 |- syn N2 T2} )
      -> {L |- mnd M2 N2 T2}.
 
+Theorem or_obj_comm : forall L1 L2 P1 P2,
+      {L1 |- P1} \/ {L2 |- P2} -> {L2 |- P2} \/ {L1 |- P1}.
+intros. case H1. search. search.
+    
 Theorem or_syn_comm : forall L1 L2 M N T,
       {L1 |- syn M T} \/ {L2 |- syn N T} -> {L2 |- syn N T} \/ {L1 |- syn M T}.
-intros. case H1. search. search.
+intros.
+backchain or_obj_comm with L1 = L1, L2 = L2, P1 = syn M T, P2 = syn N T.
+% becase of this bug https://github.com/abella-prover/abella/issues/77
+% object sequent *context* should be explicitly provided for workaround
+% using the long list of hints provided after "with". 
        
 Theorem eqknow_tail' : forall M N T L,
       eqknow (mnd M N T :: L) -> {L |- mnd M N T} -> eqknow L.    
 intros. case H1. intros. unfold. intros. case H6.
-       % Subgoal 1     
-       assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.     
-       assert {L1, syn M T |- syn M2 T2}.
-       assert {L1, syn M T |- syn M2 T2} \/ {L2, syn N T |- syn N2 T2}.
-       assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).
-       apply H3 to H11 H8 H10. cut H12 with H2. search.
-       % Subgoa 2.     
-       assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
-       assert {L2, syn N T |- syn N2 T2}.
-       assert {L2, syn N T |- syn N2 T2} \/ {L1, syn M T |- syn M2 T2}.
-       apply or_syn_comm to H10 with L2 = syn M T :: L1, L1 = syn N T :: L2.     
-       assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).     
-       apply H3 to H12 H8 H11. cut H13 with H2. search.
-
-Theorem lemma_to_help_eqknow_cons : forall L1 L2 M3 N3 T3 M N T, 
-     ({L1 |- syn M3 T3} \/ {L2 |- syn N3 T3}) ->
-     {L1, syn M T |- syn M3 T3} \/ {L2, syn N T |- syn N3 T3}.
+  % Subgoal 1     
+  assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.     
+  assert {L1, syn M T |- syn M2 T2}.
+  assert {L1, syn M T |- syn M2 T2} \/ {L2, syn N T |- syn N2 T2}.
+  assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).
+  apply H3 to H11 H8 H10. cut H12 with H2. search.
+  % Subgoal 2.     
+  assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
+  assert {L2, syn N T |- syn N2 T2}.
+  assert {L2, syn N T |- syn N2 T2} \/ {L1, syn M T |- syn M2 T2}.
+  apply or_syn_comm to H10 with L2 = syn M T :: L1, L1 = syn N T :: L2.     
+  assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).     
+  apply H3 to H12 H8 H11. cut H13 with H2. search.
+     
+Theorem or_obj_strenthen : forall L1 L2 P1 P2 A1 A2, 
+     {L1 |- P1} \/ {L2 |- P2} -> {L1, A1 |- P1} \/ {L2, A2 |- P2}.
 intros. case H1. left. search. right. search.
-      
+
+Theorem or_obj_cut : forall L1 L2 P1 P2 A1 A2,
+     {L1 |- A1} -> {L2 |- A2} ->      
+     {L1, A1 |- P1} \/ {L2, A2 |- P2} ->
+     {L1 |- P1} \/ {L2 |- P2}.
+intros. case H3.
+      left.  cut H4 with H1. search.
+      right. cut H4 with H2. search.
+
 Theorem eqknow_cons : forall M N T C1 C2 L, mnd_ctx C1 C2 L ->
       eqknow L -> {L |- mnd M N T} -> eqknow (mnd M N T :: L).
 induction on 3. intros. case H3.
   % Subgoal 1
-  apply IH to _ _ H4. apply IH to _ _ H5. case H6. case H7.
-  unfold. intros. apply mnd_pr to _ H4 H5. cut H11 with H13.
-skip.
+  apply IH to _ _ H4. apply IH to _ _ H5. unfold. intros.
+  apply mnd_pr to _ H4 H5. cut H9 with H11.
+  case H8. apply mnd_syn to _ _ H11.
+  apply or_obj_cut to H14 H15 H10
+   with L1 = L3, A1 = syn (pr M1 M2) (t_pr T1 T2), P1 = syn M4 T4,
+        L2 = L4, A2 = syn (pr N1 N2) (t_pr T1 T2), P2 = syn N4 T4.
+  case H2. apply H17 to H13 H12 H16. search.
   % Subgoal 2
-skip.
+  apply IH to _ _ H4. unfold. intros.
+  apply mnd_pr1 to _ H4. cut H7 with H9.
+  case H6. apply mnd_syn to _ _ H9. 
+  apply or_obj_cut to H12 H13 H8
+   with L1 = L3, A1 = syn M T, P1 = syn M3 T3,
+        L2 = L4, A2 = syn N T, P2 = syn N3 T3.
+  case H2. apply H15 to H11 H10 H14. search.
   % Subgoal 3
-skip.
+  apply IH to _ _ H4. unfold. intros.
+  apply mnd_pr2 to _ H4. cut H7 with H9.
+  case H6. apply mnd_syn to _ _ H9.
+  apply or_obj_cut to H12 H13 H8
+   with L1 = L3, A1 = syn M T, P1 = syn M3 T3,
+        L2 = L4, A2 = syn N T, P2 = syn N3 T3.
+  case H2. apply H15 to H11 H10 H14. search.
   % Subgoal 4
-skip.
+  apply IH to _ _ H4. apply IH to _ _ H5. unfold. intros.
+  apply mnd_en to _ H4 H5. cut H9 with H11.
+  case H8. apply mnd_syn to _ _ H11.
+  apply or_obj_cut to H14 H15 H10
+   with L1 = L3, A1 = syn (en M1 M2) (t_en T1 T2), P1 = syn M4 T4,
+        L2 = L4, A2 = syn (en N1 N2) (t_en T1 T2), P2 = syn N4 T4.
+  case H2. apply H17 to H13 H12 H16. search.
   % Subgoal 5
-skip.
+  apply IH to _ _ H4. apply IH to _ _ H5. unfold. intros.
+  apply mnd_en' to _ H4 H5. cut H9 with H11.
+  case H8. apply mnd_syn to _ _ H11.
+  apply or_obj_cut to H14 H15 H10
+   with L1 = L3, A1 = syn M T, P1 = syn M3 T3,
+        L2 = L4, A2 = syn N T, P2 = syn N3 T3.
+  case H2. apply H17 to H13 H12 H16. search.
   % Subgoal 6
   apply mnd_member to H1 H5. case H4. unfold. intros.
-  case H2. assert {L |- mnd M N T}. cut H7 with H10.
-  case H6.
-  % apply lemma_to_help_eqknow_cons to H8.
-  %%%%% due to issue #77 cannot do it right now so skipping (same issue for each subgoal above too)
-  % bug reported to https://github.com/abella-prover/abella/issues/77
-  skip.
+  assert {L |- mnd M N T}. cut H7 with H9.
+  case H2. case H6. apply mnd_syn to _ _ H9.
+  apply or_obj_cut to H13 H14 H8
+   with L1 = L3, A1 = syn M T, P1 = syn M3 T3,
+        L2 = L4, A1 = syn N T, P2 = syn N3 T3.
+  apply H11 to H12 H10 H15. search.
 
-
+% This defintion is not yet fully describes the consistency
+% in the traced-based bisimmulation paper but it is just enough
+% for Lemma 13 to hold. We would need to enforce additional condition
+% other than just the usual well-typedness by mnd_ctx because
+% the left and right terms of mnd should be of the same structure
+% to be consistent (e.g. var rule enforces exactly the same variables);
+% Without the additional conditions, lemmas involving composition of
+% consistent obersrver theories would not hold
 Define consistent : olist -> prop
 by consistent L := (exists C1 C2, mnd_ctx C1 C2 L) /\ unicity L /\ eqknow L.
+
+% Lemmma 13 of https://arxiv.org/abs/0901.2166
+% Alwen Tiu
+% A Trace Based Bisimulation for the Spi Calculus
+Theorem consistent_cons : forall M N T L, 
+    consistent L -> {L |- mnd M N T} -> consistent (mnd M N T :: L).
+intros. case H1. unfold.
+       exists C1, C2. backchain mnd_ctx_cons.
+       backchain unicity_cons.
+       backchain eqknow_cons.
 
 Define consistent' : olist -> olist -> olist -> prop
 by consistent' C1 C2 L := mnd_ctx C1 C2 L /\ unicity L /\ eqknow L.
@@ -497,26 +557,19 @@ induction on 1. intros. case H1. unfold.
   % Subgoal 3.   
   backchain eqknow_tail'.
 
-Theorem consistent_cons : forall M N T L, 
-    consistent L -> {L |- mnd M N T} -> consistent (mnd M N T :: L).
-intros. case H1. unfold.
-       exists C1, C2. backchain mnd_ctx_cons.
-       backchain unicity_cons.
-       backchain eqknow_cons.
-
 Define compose_mnd_ctx : olist -> olist -> olist -> prop
 by compose_mnd_ctx nil nil nil
  ; compose_mnd_ctx (mnd M R T :: L1) (mnd R N T :: L2) (mnd M N T :: L)
      := compose_mnd_ctx L1 L2 L.
 
-Theorem compose_mnd_ctx : forall C1 C C2 L1 L2 L,
+Theorem mnd_ctx_compose : forall C1 C C2 L1 L2 L,
       mnd_ctx C1 C L1 -> mnd_ctx C C2 L2 ->
       compose_mnd_ctx L1 L2 L -> mnd_ctx C1 C2 L.
 induction on 3. intros. case H3.
       case H1. case H2. unfold. search. search.
       case H1. case H2. unfold. search. search. backchain IH.
 
-      /*      
+/*
 Theorem compose_unicity : forall L1 L2 L,
       unicity L1 -> unicity L2 ->
       compose_mnd_ctx L1 L2 L -> unicity L.
