@@ -544,6 +544,25 @@ intros. case H1. unfold.
        backchain unicity_cons.
        backchain eqknow_cons.
 
+Define mnd_same_name : olist -> prop
+by mnd_same_name L := forall M N T, {L |- mnd M N T} -> (name M \/ name N) -> M = N.
+
+Theorem mnd_same_name_cons : forall M N T L,
+      mnd_same_name L -> {L |- mnd M N T} -> mnd_same_name (mnd M N T :: L).
+intros. case H1. unfold. intros. cut H4 with H2. apply H3 to H6 H5. search.
+      
+Define consistent' : olist -> prop
+by consistent' L :=
+     (exists C1 C2, mnd_ctx C1 C2 L) /\ mnd_same_name L /\ unicity L /\ eqknow L.      
+
+Theorem consistent'_cons : forall M N T L, 
+    consistent' L -> {L |- mnd M N T} -> consistent' (mnd M N T :: L).
+intros. case H1. unfold.
+      exists C1, C2. backchain mnd_ctx_cons.
+      backchain mnd_same_name_cons.
+      backchain unicity_cons.
+      backchain eqknow_cons.
+
 /*    
 Define consistent' : olist -> olist -> olist -> prop
 by consistent' C1 C2 L := mnd_ctx C1 C2 L /\ unicity L /\ eqknow L.
