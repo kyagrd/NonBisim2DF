@@ -293,7 +293,50 @@ Theorem mnd_en' : forall C1 C2 L M1 M2 N1 N2 T1 T2, mnd_ctx C1 C2 L ->
     {L |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)} ->
     {L |- mnd M2 N2 T2} -> {L |- mnd M1 N1 T1}.    
 intros. search.
-     
+       
+Theorem mnd_ctx_pr : forall C1 C2 L M1 M2 N1 N2 T1 T2 M N T,
+      mnd_ctx C1 C2 (mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2) :: L) ->
+      {L, mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2) |- mnd M N T} ->
+      {L, mnd M1 N1 T1, mnd M2 N2 T2 |- mnd M N T}.
+induction on 2. intros. case H2.
+  apply IH to _ H3. apply IH to _ H4. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.       
+  apply IH to _ H3. apply IH to _ H4. search.
+  apply IH to _ H3. apply IH to _ H4. search.
+  apply mnd_member to _ H4. case H4. case H3. search. case H3. search.
+
+Theorem obj_member : forall L P, member P L -> {L |- P}.
+search.
+       
+   
+Theorem mnd_ctx_pr' : forall C1 C2 L M1 M2 N1 N2 T1 T2 M N T,
+      mnd_ctx C1 C2 (mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2) :: L) ->
+      {L, mnd M1 N1 T1, mnd M2 N2 T2 |- mnd M N T} ->
+      {L, mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2) |- mnd M N T}.
+induction on 2. intros. case H2.
+  apply IH to _ H3. apply IH to _ H4. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.       
+  apply IH to _ H3. apply IH to _ H4. search.
+  apply IH to _ H3. apply IH to _ H4. search.
+  %     
+  assert mnd_ctx C1 C2 (mnd M2 N2 T2 :: mnd M1 N1 T1 :: L).
+       case H1. apply mnd_of_ctx to H7.
+       apply of_pr1 to _ H5. apply of_pr2 to _ H5.
+       apply of_pr1 to _ H6. apply of_pr2 to _ H6.     
+       unfold. search. search. search.
+  apply mnd_member to _ H4. case H4. case H3. search. case H3.
+  assert {L, mnd M1 N1 T1, mnd M2 N2 T2 |- mnd M2 N2 T2}.    
+  assert {L, mnd M1 N1 T1 |- mnd M N T}. backchain obj_member.
+  assert {L, mnd M1 N1 T1, mnd M2 N2 T2 |- mnd M N T}.
+  assert {L, mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2), mnd M1 N1 T1, mnd M2 N2 T2 |- mnd M N T}.
+  assert {L, mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2), mnd M1 N1 T1 |- mnd M2 N2 T2}.
+  cut H10 with H11.
+  assert {L, mnd (pr M1 M2) (pr N1 N2) (t_pr T1 T2) |- mnd M1 N1 T1}.
+  cut H12 with H13.
+  search.
+       
 Theorem mnd_ctx_zip_exists : forall L C1 C2,
      mnd_ctx C1 C2 L -> exists L1 L2, ctx_zip L1 L2 L.
 induction on 1. intros. case H1. search. apply IH to H4. search.
@@ -444,7 +487,7 @@ backchain or_obj_comm with L1 = L1, L2 = L2, P1 = syn M T, P2 = syn N T.
 % object sequent *context* should be explicitly provided for workaround
 % using the long list of hints provided after "with". 
 
-/*     
+     
 Theorem eqknow_tail' : forall M N T L,
       eqknow (mnd M N T :: L) -> {L |- mnd M N T} -> eqknow L.    
 intros. case H1. intros. unfold. intros. case H6.
@@ -461,7 +504,7 @@ intros. case H1. intros. unfold. intros. case H6.
   apply or_syn_comm to H10 with L2 = syn M T :: L1, L1 = syn N T :: L2.     
   assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).     
   apply H3 to H12 H8 H11. cut H13 with H2. search.
-*/
+
      
 Theorem or_obj_cut : forall L1 L2 P1 P2 A1 A2,
      {L1 |- A1} -> {L2 |- A2} ->      
@@ -544,12 +587,29 @@ intros. case H1. unfold.
        backchain unicity_cons.
        backchain eqknow_cons.
 
+Theorem consistent_tail' : forall M N T L,
+     consistent (mnd M N T :: L) -> {L |- mnd M N T} -> consistent L.
+induction on 1. intros. case H1. unfold.
+  % Subgoal 1
+  exists C1, C2.
+  backchain mnd_ctx_tail.
+  % Subgoal 2
+  backchain unicity_tail.
+  % Subgoal 3.   
+  backchain eqknow_tail'.
+      
 Define mnd_same_name : olist -> prop
 by mnd_same_name L := forall M N T, {L |- mnd M N T} -> (name M \/ name N) -> M = N.
 
 Theorem mnd_same_name_cons : forall M N T L,
       mnd_same_name L -> {L |- mnd M N T} -> mnd_same_name (mnd M N T :: L).
 intros. case H1. unfold. intros. cut H4 with H2. apply H3 to H6 H5. search.
+
+Theorem mnd_same_name_tail : forall M N T L,
+      mnd_same_name (mnd M N T :: L) -> mnd_same_name L.
+intros. case H1. unfold. intros.
+assert {L, mnd M N T |- mnd M1 N1 T1}.
+apply H2 to H5 H4. search.
       
 Define consistent' : olist -> prop
 by consistent' L :=
@@ -563,21 +623,33 @@ intros. case H1. unfold.
       backchain unicity_cons.
       backchain eqknow_cons.
 
-/*    
-Define consistent' : olist -> olist -> olist -> prop
-by consistent' C1 C2 L := mnd_ctx C1 C2 L /\ unicity L /\ eqknow L.
-      
-Theorem consistent_tail' : forall M N T L,
-     consistent (mnd M N T :: L) -> {L |- mnd M N T} -> consistent L.
-induction on 1. intros. case H1. unfold.
-  % Subgoal 1
-  exists C1, C2.
-  backchain mnd_ctx_tail.
-  % Subgoal 2
-  backchain unicity_tail.
-  % Subgoal 3.   
-  backchain eqknow_tail'.
 
+Theorem or_strengthen : forall L1 A1 P1 L2 A2 P2,
+      {L1 |- P1} \/ {L2 |- P2} -> {L1, A1 |- P1} \/ {L2, A2 |- P2}.    
+intros. case H1. search. search.
+
+/*
+Theorem consistent'_tail : forall M N T L,
+      consistent' (mnd M N T :: L) -> consistent' L.       
+intros. case H1. unfold.
+       % Subgoal 1       
+       case H2. exists C1, C2. search.
+       % Subgoal 2       
+       backchain mnd_same_name_tail.
+       % Subgoal 3       
+       backchain unicity_tail.
+       % Subgoal 4     
+       unfold. intros.     
+       assert ctx_zip (syn M T :: L1) (syn N T :: L2) (mnd M N T :: L).
+       assert {L, mnd M N T |- mnd (en M1 M2) (en N1 N2) (t_en T1 T2)}.
+       apply or_strengthen to H8
+        with L1 = L1, A1 = syn M T, P1 = syn M2 T2,
+             L2 = L2, A2 = syn N T, P2 = syn N2 T2.
+       case H5. apply H12 to H9 H10 H11.
+      case H5. case H4. case H3. case H2.
+*/
+
+/*     
 Define compose_mnd_ctx : olist -> olist -> olist -> prop
 by compose_mnd_ctx nil nil nil
  ; compose_mnd_ctx (mnd M R T :: L1) (mnd R N T :: L2) (mnd M N T :: L)
@@ -589,7 +661,7 @@ Theorem mnd_ctx_compose : forall C1 C C2 L1 L2 L,
 induction on 3. intros. case H3.
       case H1. case H2. unfold. search. search.
       case H1. case H2. unfold. search. search. backchain IH.
-
+       
 Theorem compose_unicity : forall L1 L2 L,
       unicity L1 -> unicity L2 ->
       compose_mnd_ctx L1 L2 L -> unicity L.
@@ -599,10 +671,11 @@ induction on 3. intros. case H3.
 
 apply unicity_tail to H1. apply unicity_tail to H2.    
 apply IH to _ _ H4.
+
+ unfold. intros. split.
 case H1. case H2. case H5. case H6. case H7.
-unfold. intros. split.
-intros. 
-*
+intros. skip.
+intros.
 
       
 Theorem compose_consistent_mnd_ctx : forall C1 C C2 L1 L2 L,

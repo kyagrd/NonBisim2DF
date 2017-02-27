@@ -71,9 +71,5 @@ syn M TM :- syn K TK, syn (en M K) (t_en TM TK).
 
 of (nm X) (t_nm).
 of (pr M N) (t_pr TM TN) :- of M TM, of N TN.
-% of M TM :- of (pr M N) (t_pr TM TN).
-% of N TN :- of (pr M N) (t_pr TM TN).
 of (en M N) (t_en TM TN) :- of M TM, of N TN.
-% of M TM :- of (en M K) (t_en TM TK).
-% of K TK :- of (en M K) (t_en TM TK).
 
