@@ -495,4 +495,16 @@ No more solutions (found 1).
    P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
    forall x y u v, sat (P x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt) (boxAct tau (diaMatch u v tt))))).
 No solution.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Another simple example ( "[ab]<a=b>tt" satisfy "aa" but not "ab")
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+?= forall a b, sat (out a a z) (boxAct (up a b) (diaMatch a b tt)). 
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+?= forall a b, sat (out a b z) (boxAct (up a b) (diaMatch a b tt)).
+No solution.
+
 ```
