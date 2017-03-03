@@ -500,10 +500,14 @@ No solution.
 % Another simple example ( "[ab]<a=b>tt" satisfy "aa" but not "ab")
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+?= forall a b, bisim  (out a a z)  (out a b z).
+No solution.
+
 ?= forall a b, sat (out a a z) (boxAct (up a b) (diaMatch a b tt)). 
 Found a solution.
 More [y] ? 
 No more solutions (found 1).
+
 ?= forall a b, sat (out a b z) (boxAct (up a b) (diaMatch a b tt)).
 No solution.
 
