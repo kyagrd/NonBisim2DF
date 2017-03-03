@@ -511,4 +511,24 @@ No more solutions (found 1).
 ?= forall a b, sat (out a b z) (boxAct (up a b) (diaMatch a b tt)).
 No solution.
 
+%%%%%%%%%%%%%%%%%%%%%%
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, bisim (P a) (Q a).
+No solution.
+
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, sat (P a) (diaOut a b\ diaInL a x\ boxAct (up x x) (diaMatch x b tt)).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ out x3 x3 z)))
+ P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x3 x2 (out x3 x3 z))))
+More [y] ? 
+No more solutions (found 1).
+
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, sat (Q a) (diaOut a b\ diaInL a x\ boxAct (up x x) (diaMatch x b tt)).
+No solution.
+
 ```
