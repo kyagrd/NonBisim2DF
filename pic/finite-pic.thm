@@ -223,6 +223,19 @@ Theorem example1a : forall x y,
       case H2.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From here, Soundness (bisim implies logical equivalaence) proof is
+% completely mechanized in Abella.				 
+%
+% In fact, bisim_sat0 is enough because bisimulation is closed under
+% input prefixes and to induct over the case of the input prefix,
+% it introduces more free variables in the inductive case. Thus,
+% in order to prove n free variable case you essentially need to
+% prove the case for n+1 free variables. We are showing bisim_sat2
+% just for the purpose of demonstration, not becuase it is really
+% necessary for generality of the proof.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				     
 Theorem bisim_sat0_L : forall P Q F, bisim P Q -> sat P F -> sat Q F.
 % Proof.
   induction on 2.
@@ -357,6 +370,22 @@ Theorem bisim_sat2_ : forall P Q (F : n -> n -> o'),
     backchain bisim_sat0_R.
 % Q.E.D.
 
+%% End of soundness proofs %% 
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From here, some parts of Completness (logical equivalence implies bisim)
+% proof is mechanized (so you can see several "skip"s). The formal proof
+% is incomplete and the missing gap is hand-proved in the paper on this logic.
+% The purpose of this incomplete proof is to show the overall proof sketch
+% exept the part of generating a pair of distinguishing formulae for a given
+% pair of non-bisimilar processes.
+% 
+% Completenes proof is harder than soundness proof because we need 
+% image finiteness, which is non-trivial to show that our current
+% specification of pi calculus is image finite within Abella.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
 Theorem sat_match1 : forall P F X, sat P F -> sat (match X X P) F.
   induction on 1. intros. case H1.
     search.
@@ -1098,7 +1127,9 @@ Theorem sat_bisim2 : forall (X : n) (Y : n) P Q,
   intros. apply H4 with F = F n1. split. search. search.
 % Q.E.D.
 
+%% End of completenes proofs %%
 
+ 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Example judgement that is necessary and suffficient
 %% to the Excluded Middle over names 
