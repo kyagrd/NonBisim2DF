@@ -1101,7 +1101,7 @@ Theorem sat_bisim2 : forall (X : n) (Y : n) P Q,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Example judgement that is necessary and suffficient
-%% to the absence of Excluded Middle over names 
+%% to the Excluded Middle over names 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem excl_middle1 :
   (forall (x : n) (y : n), x = y \/ (x = y -> false))
