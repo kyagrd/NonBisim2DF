@@ -120,7 +120,7 @@ coinduction. intros. case H1. case H2. unfold.
   intros. apply H14 to H15. apply H8 to H16.
   apply CH to H17 H19. search.
 
-Theorem bisim_decide : forall P Q, bisim P Q -> nbisim P Q -> false.
+Theorem nbisim_consistent : forall P Q, bisim P Q -> nbisim P Q -> false.
 % Proof.
   induction on 2. intros. case H1. case H2. case H9.
     apply H3 to H10. apply H11 to H12. backchain IH.
@@ -154,111 +154,6 @@ by sat P ff := false
  ; sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> forall w, sat (Q w) (A w)
  ; sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ forall w, sat (Q w) (A w)
  .
-/*
-Define neg : o' -> o' -> prop
-by neg ff tt
- ; neg tt ff
- ; neg (conj A B) (disj A1 B1) := neg A A1 /\ neg B B1
- ; neg (disj A B) (conj A1 B1) := neg A A1 /\ neg B B1
- ; neg (boxMatch X Y A) (diaMatch X Y A1) := neg A A1
- ; neg (diaMatch X Y A) (boxMatch X Y A1) := neg A A1
- ; neg (boxAct X A) (diaAct X A1) := neg A A1
- ; neg (diaAct X A) (boxAct X A1) := neg A A1
- ; neg (boxOut X A) (diaOut X A1) := nabla x, neg (A x) (A1 x)
- ; neg (diaOut X A) (boxOut X A1) := nabla x, neg (A x) (A1 x)
- ; neg (boxIn X A) (diaIn X A1) := nabla x, neg (A x) (A1 x)
- ; neg (diaIn X A) (boxIn X A1) := nabla x, neg (A x) (A1 x)
- .
-
-Theorem neg_nabla : forall (F : n -> o') (G : n -> o'),
-  nabla x, neg (F x) (G x) ->  forall W, neg (F W) (G W).
-% Proof.
-  induction on 1. intros. case H1.
-    search.
-    search.
-    unfold. 
-      apply IH to H2. backchain H4.
-      apply IH to H3. backchain H4.
-    unfold.
-      apply IH to H2. backchain H4.
-      apply IH to H3. backchain H4.
-    unfold. apply IH to H2. backchain H3.
-    unfold. apply IH to H2. backchain H3.
-    unfold. apply IH to H2. backchain H3.
-    unfold. apply IH to H2. backchain H3.
-    unfold. apply IH to H2. apply H3 with W = W. search.
-    unfold. apply IH to H2. apply H3 with W = W. search.
-    unfold. apply IH to H2. apply H3 with W = W. search.
-    unfold. apply IH to H2. apply H3 with W = W. search.
-% Q.E.D.
-
-Theorem neg_sat : forall P F NF, neg F NF -> sat P F -> sat P NF -> false.
-% Proof.
-  induction on 2. intros. case H2.
-  
-  case H1. case H3.
-
-  case H1. case H3. case H8.
-    apply IH to H6 H4 _.
-    apply IH to H7 H5 _.
-
-  case H1. case H3. case H4.
-    apply IH to H5 H9 _.
-    apply IH to H6 H9 _.
-
-  case H1. case H3. assert Y = Y. apply H4 to H7. apply IH to H5 H8 _.
-
-  case H1. case H3. assert Y = Y. apply H6 to H7. apply IH to H5 H4 _.
-  
-  case H1. case H3. apply H4 to H6. apply IH to H5 H8 _.
-
-  case H1. case H3. apply H7 to H4. apply IH to H6 H5 _.
-
-  case H1. case H3. apply H4 to H6. apply IH to H5 H8 _.
-
-  case H1. case H3. apply H7 to H4. apply IH to H6 H5 _.
-
-  case H1. case H3. apply H4 to H6.
-  apply neg_nabla to H5. apply H9 with W = w. apply H8 with w = w. backchain IH.
-
-  case H1. case H3. apply H7 to H4.
-  apply neg_nabla to H6. apply H9 with W = w. apply H8 with w = w. backchain IH.
-% Q.E.D.
-
-Theorem neg_sym : forall F NF, neg F NF -> neg NF F.
-% Proof.
-  induction on 1. intros. case H1.
-
-  search.
-
-  search.
-
-  unfold. backchain IH. backchain IH.
-
-  unfold. backchain IH. backchain IH.
-
-  unfold. backchain IH.
-
-  unfold. backchain IH.
-
-  unfold. backchain IH.
-
-  unfold. backchain IH.
-
-  unfold. intros. backchain IH.
-
-  unfold. intros. backchain IH.
-
-  unfold. intros. backchain IH.
-
-  unfold. intros. backchain IH.
-% Q.E.D.
-
-Theorem neg_anti_refl : forall F, neg F F -> false.
-% Proof.
-  intros. case H1.
-% Q.E.D.
-*/
 
 Theorem dist_form0 : forall P Q,
   ((forall F, sat P F -> sat Q F) -> false) \/
@@ -1203,3 +1098,55 @@ Theorem sat_bisim2 : forall (X : n) (Y : n) P Q,
   intros. apply H4 with F = F n1. split. search. search.
 % Q.E.D.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Example judgement that is necessary and suffficient
+%% to the absence of Excluded Middle over names 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem excl_middle1 :
+  (forall (x : n) (y : n), x = y \/ (x = y -> false))
+  ->  
+  forall x y, sat (plus (taup null) (taup (taup null)))
+                  (diaAct tau (conj (boxAct tau (diaMatch x y tt) )
+                                    (boxMatch x y (diaAct tau tt)) ) ).
+intros.
+apply H1 with x = x, y = y.
+case H2.
+search.
+unfold.
+exists null.
+split.
+search.
+unfold.
+unfold.
+intros.
+case H4.
+unfold.
+intros.
+apply H3 to H4.
+
+Theorem excl_middle2 :
+  (forall x y, sat (plus (taup null) (taup (taup null)))
+                   (diaAct tau (conj (boxAct tau (diaMatch x y tt) )
+                                     (boxMatch x y (diaAct tau tt) ) ) ) )
+  ->
+  (forall (x : n) (y : n), x = y \/ (x = y -> false)).
+intros.
+apply H1 with x = x, y = y.
+case H2.
+case H3.
+case H5.
+case H4.
+right.
+intros.
+case H8.
+case H7.
+apply H9 to _.
+case H10.
+case H11.
+case H5.
+case H4.
+case H6.
+apply H8 to _ with P1 = null.
+case H9.
+search.
