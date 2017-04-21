@@ -1,6 +1,6 @@
 # Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
 
-Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) paper has two errata in the examples:
+Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) has two errata in the examples:
   * For inductive example of Section IV-A-b), the latter distinguishing formula should be
     ![\tau.(\bar{a}a+\bar{b}b) + \tau.\bar{a}a \models \langle\tau\rangle[\bar{b}b]\langle x=y\rangle \mathtt{t\!t}"](https://latex.codecogs.com/svg.latex?%5Ctau.%28%5Cbar%7Ba%7Da&plus;%5Cbar%7Bb%7Db%29%20&plus;%20%5Ctau.%5Cbar%7Ba%7Da%20%5Cmodels%20%5Clangle%5Ctau%5Crangle%5B%5Cbar%7Bb%7Db%5D%5Clangle%20x%3Dy%5Crangle%20%5Cmathtt%7Bt%5C%21t%7D)
   * The last example in p10 should be
