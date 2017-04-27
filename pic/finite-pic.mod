@@ -3,7 +3,6 @@ module finite-pic.
 % Finite pi-calculus specification
 
 % A specification of the late transition system for the pi calculus.
-% This specification involves the bang constructor.
 
 % bound input
 oneb (in X M) (dn X) M.
