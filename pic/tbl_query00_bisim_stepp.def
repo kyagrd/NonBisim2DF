@@ -1,7 +1,0 @@
-% Table for bisim_stepp_tbl contains :
-Define
-  proved'' : (nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop) -> 
-           nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop,
-  disproved'' : (nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop) -> 
-              nat -> p -> p -> (name -> a) -> (name -> p) -> (name -> p) -> prop
-.
