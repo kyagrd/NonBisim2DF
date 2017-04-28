@@ -70,54 +70,6 @@ by example 0  (nu x\ match x a (taup z))
  ; example 18 (out x y (nu v\ par (out x v z) (in y w\ z)))
  .
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%     Place here a list of defined pi-calculus agents    %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Type quiet  p.
-% The following constants are used to present an approach to arithmetic
-%% Type zz     name.
-%% Type s      name -> name.
-%% Type zero   name -> p.
-%% Type suc    name -> name -> p.
-%% Type num    name -> name -> p.
-%% Type add    name -> name -> name -> p.
-%% % The following constants are used to encode the lambda-calculus, following
-%% % the first Milner, Parrow, & Walker paper.
-%% Type zzero, un, deux   name -> name -> p.
-%% Type succ, copy        name -> name -> name -> name -> p.
-%% Type ssum              name -> name -> name -> name -> name -> name -> p.
-%% Kind ch_nat            type.
-%% Type church            name -> name -> ch_nat -> p.
-%% Type zzz               ch_nat.
-%% Type sss               ch_nat -> ch_nat.
-
-%% Define pidef : p -> p -> prop
-%% by pidef quiet       (nu x\ out x x z)
-%% % The follow define processes related to arithmetic
-%% ;  pidef (zero C)    (in C s\ in C n\ out n null z)
-%% ;  pidef (suc P C)   (in C s\ in C n\ out s P z)
-%% ;  pidef (add P Q R) (nu s\ nu n\ out P s (out P n
-%%                      (in R ss\ in R nn\
-%%                      (plus (in s k\ nu kk\ (par (out ss kk z) (add k Q kk)))
-%%                            (in n null\ out Q ss (out Q nn z))))))
-%% ;  pidef (num (s N) C) (in C s\ in C zz\ nu n\ par (out s n z) (num N n))
-%% ;  pidef (num zz    C) (zero C)
-%% % The follow define processes related to encoding the lambda-calculus
-%% ;  pidef (zzero _ Z)    (nu i\ out Z i z)
-%% ;  pidef (un   S Z)     (nu i\ out S i (nu i\ out Z i z))
-%% ;  pidef (deux S Z)     (nu i\ out S i (nu i\ out S i (nu i\ out Z i z)))
-%% ;  pidef (succ S Z Y W) (nu i\ out Y i (copy S Z Y W))
-%% ;  pidef (copy S Z Y W) (plus (in S i\ succ S Z Y W)
-%%                               (in Z i\ nu i\ out W i z))
-%% ;  pidef (ssum S1 Z1 S2 Z2 Y W)
-%%          (plus (in S1 i\ nu i\ out Y i (ssum S1 Z1 S2 Z2 Y W))
-%%                (in Z1 i\ copy S2 Z2 Y W))
-%% ;  pidef (church _ Z zzz)     (nu i\ out Z i z)
-%% ;  pidef (church S Z (sss N)) (nu i\ out S i (church S Z N))
-%% .
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%     One step transition rules for the pi-calculus      %%%%
 %%%%     Notice the rules are nearly identical to the       %%%%
@@ -206,14 +158,14 @@ Define
    coinductive bisim : p -> p -> prop
  , coinductive bisim_step_tbl : nat -> p -> p -> a -> p -> p -> prop
  , bisim_step : p -> p -> a -> p -> p -> prop
- , bisim_step_1st : p -> p -> a -> p -> prop
- , bisim_step_2nd : p -> p -> a -> p -> prop
- , bisim_step_label : p -> p -> a -> prop
+% , bisim_step_1st : p -> p -> a -> p -> prop
+% , bisim_step_2nd : p -> p -> a -> p -> prop
+% , bisim_step_label : p -> p -> a -> prop
  , coinductive bisim_stepp_tbl : nat -> p -> p -> (name -> a)-> (name -> p) -> (name -> p) -> prop
  , bisim_stepp : p -> p -> (name -> a)-> (name -> p) -> (name -> p) -> prop
- , bisim_stepp_1st : p -> p -> (name -> a)-> (name -> p) -> prop
- , bisim_stepp_2nd : p -> p -> (name -> a)-> (name -> p) -> prop
- , bisim_stepp_label : p -> p -> (name -> a) -> prop
+% , bisim_stepp_1st : p -> p -> (name -> a)-> (name -> p) -> prop
+% , bisim_stepp_2nd : p -> p -> (name -> a)-> (name -> p) -> prop
+% , bisim_stepp_label : p -> p -> (name -> a) -> prop
 by bisim P P
  ; bisim P Q :=
       (forall A P1, one P A P1 ->
@@ -236,20 +188,20 @@ by bisim P P
                                    /\ nabla w, bisim (M w) (N w))
  ; bisim_step_tbl _ _ _ _ _ _
  ; bisim_step P Q X P1 Q1 := bisim_step_tbl 0 P Q X P1 Q1
-                          /\ bisim_step_1st P Q X P1
-                          /\ bisim_step_2nd P Q X Q1
-                          /\ bisim_step_label P Q X
- ; bisim_step_1st P Q X P1 := bisim_step_tbl 1 P Q X P1 z
- ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X z Q1
- ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X z z
+%                          /\ bisim_step_1st P Q X P1
+%                          /\ bisim_step_2nd P Q X Q1
+%                          /\ bisim_step_label P Q X
+% ; bisim_step_1st P Q X P1 := bisim_step_tbl 1 P Q X P1 z
+% ; bisim_step_2nd P Q X Q1 := bisim_step_tbl 2 P Q X z Q1
+% ; bisim_step_label P Q X := bisim_step_tbl 3 P Q X z z
  ; bisim_stepp_tbl _ _ _ _ _ _
  ; bisim_stepp P Q X P1 Q1 := bisim_stepp_tbl 0 P Q X P1 Q1
-                           /\ bisim_stepp_1st P Q X P1
-                           /\ bisim_stepp_2nd P Q X Q1
-                           /\ bisim_stepp_label P Q X 
- ; bisim_stepp_1st P Q X P1 := bisim_stepp_tbl 1 P Q X P1 (x\z)
- ; bisim_stepp_2nd P Q X Q1 := bisim_stepp_tbl 2 P Q X (x\z) Q1
- ; bisim_stepp_label P Q X := bisim_stepp_tbl 3 P Q X (x\z) (x\z)
+%                           /\ bisim_stepp_1st P Q X P1
+%                           /\ bisim_stepp_2nd P Q X Q1
+%                           /\ bisim_stepp_label P Q X 
+% ; bisim_stepp_1st P Q X P1 := bisim_stepp_tbl 1 P Q X P1 (x\z)
+% ; bisim_stepp_2nd P Q X Q1 := bisim_stepp_tbl 2 P Q X (x\z) Q1
+% ; bisim_stepp_label P Q X := bisim_stepp_tbl 3 P Q X (x\z) (x\z)
  .
 
 %% Of the finite pi-calculus examples above (numbered 1-11), the following
