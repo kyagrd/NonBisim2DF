@@ -8,7 +8,10 @@ Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) has two errata in th
     ![last example on p10](https://latex.codecogs.com/svg.latex?%5Cbegin%7Balign*%7D%20P%20%5Cstackrel%7B_%7B%5C%2C_%5Ctriangle%7D%7D%7B%3D%7D%20%5Ctau.%28%5Ctau.%5Ctau%20&plus;%20%5Ctau.%5Bx%3Dy%5D%5Ctau%29%20&plus;%20%5Ctau.%28%5Ctau.%5Ctau&plus;%5Ctau.%5Bx%3Dy%5D%5Bw%3Dz%5D%5Ctau%29%20%5Cqquad%20%5C%5C%20%5Cnot%5Csim%20%5Cquad%20%5Ctau.%28%5Ctau.%5Ctau&plus;%5Ctau.%5Bx%3Dy%5D%5Bw%3Dz%5D%5Ctau%29%20%5Cstackrel%7B_%7B%5C%2C_%5Ctriangle%7D%7D%7B%3D%7D%20Q%20%5Cend%7Balign*%7D)
     
     In addition, the comment following this example on p11 that `P` and `Q` are equivalent to `tau.(tau + tau.tau)` assuming excuded middle is not true; this comment was intended for even more elaborate example. So, you can disregard the last pargraph of Section IV on p11.
-  
+
+We also have a companion work implementing automatic gerneration of distinguishing formulae using Haskell.
+(See https://github.com/kyagrd/hs-picalc-unbound-example )
+
 ## Abella specifications and proofs
  * `finite-pic.sig` and `finite-pic.mod` : lambda-Prolog specification of the pi-calculus operational semantics
  * `finite-pic.thm` : definitions and proofs for open bisimulation and its characterizing modal logic OM
