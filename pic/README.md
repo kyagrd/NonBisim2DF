@@ -1,4 +1,4 @@
-# Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic"
+# Supplementary materials for "A Logical Characterisation of Open Bisimulation using an Intuitionistic Modal Logic" (to appear in [CONCUR 2017](https://www.concur2017.tu-berlin.de)) 
 
 Note: Our [Arxiv version](https://arxiv.org/abs/1701.05324) has two errata in the examples:
   * For inductive example of Section IV-A-b), the latter distinguishing formula should be
