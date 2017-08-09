@@ -508,6 +508,41 @@ Theorem sat_match2 : forall P F X, sat (match X X P) F -> sat P F.
    unfold. exists Q. split. case H2. search. search.
 % Q.E.D.
 
+Theorem sat_diff1 : forall X Y P F,
+   (X = Y -> false) -> sat P F -> sat (diff X Y P) F.
+induction on 2. intros. case H2.
+    search.
+    apply IH to _ H3. apply IH to _ H4. search.
+    case H3. apply IH to _ H4. search. apply IH to _ H4. search.
+    unfold. intros. apply H3 to H4. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. apply H3 to H4. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. case H4. apply H3 to H6. apply IH to _ H7. search.
+    unfold. apply IH to _ H4. search.
+    unfold. intros. case H4. apply H3 to H6. apply IH to _ H7. search.
+    unfold. apply IH to _ H4. search.
+    unfold. intros. case H4. apply H3 to H6. apply H7 with w = w. apply IH to _ H8. search.
+    unfold. exists Q. split. search. intros. apply H4 with w = w. apply IH to _ H5. search.
+    
+Theorem sat_diff2 : forall X Y P F,
+   (X = Y -> false) -> sat (diff X Y P) F -> sat P F.
+induction on 2. intros. case H2.
+    search.
+    apply IH to _ H3. apply IH to _ H4. search.
+    case H3. apply IH to _ H4. search. apply IH to _ H4. search.
+    unfold. intros. apply H3 to H4. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. apply H3 to H4. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. assert one (diff X Y P) X1 P1. apply H3 to H5. search.    
+    unfold. exists P2. split. case H3. search. search.
+    unfold. intros. assert oneb (diff X Y P) (up X1) Q. apply H3 to H5. search.
+    unfold. exists Q. split. case H3. search. search.
+    unfold. intros. assert oneb (diff X Y P) (dn X1) Q. apply H3 to H5. apply H6 with w = w. search.
+    unfold. exists Q. split. case H3. search. intros. apply H4 with w = w. search.
+
+   
 Theorem sat_diaAct_plus1 : forall P Q A F,
   sat P (diaAct A F) -> sat (plus P Q) (diaAct A F).
 % Proof.
@@ -519,6 +554,7 @@ Theorem sat_diaAct_plus2 : forall P Q A F,
 % Proof.
   intros. unfold. case H1. exists P2. split. search. search.
 % Q.E.D.
+
 
 Theorem sateq_one_exists_L : forall P Q A P1,
   (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
@@ -541,8 +577,8 @@ Theorem sateq_one_exists_L : forall P Q A P1,
   % Subgoal 4
   backchain IH with P = P2.
   intros. apply H1 with F = F. split.
-    intros. backchain H5. skip. % TODO sat_diff1 lemma
-    intros. apply H6 to H7. skip. % TODO sat_diff2 lemma
+    intros. backchain H5. backchain sat_diff1.
+    intros. apply H6 to H7. backchain sat_diff2.
   % Subgoal 5
   assert forall F, sat P2 (diaAct A F) -> sat Q (diaAct A F).
     intros. apply H1 with F = diaAct A F. backchain H5.
@@ -773,8 +809,8 @@ Theorem sateq_oneb_up_exists_L : forall P Q X P1,
   % Subgoal 2
   backchain IH with P = P2.
   intros. apply H1 with F = F. split.
-    intros. backchain H5. skip. % TODO sat_diff1 lemma
-    intros. apply H6 to H7. skip. % TODO sat_match2 lemma
+    intros. backchain H5. backchain sat_diff1.
+    intros. apply H6 to H7. backchain sat_diff2.
   % Subgoal 3
   assert forall F, sat P2 (diaOut X F) -> sat Q (diaOut X F).
     intros. apply H1 with F = diaOut X F.
@@ -873,6 +909,7 @@ Theorem sat_bisim0 : forall P Q,
       split. intros. backchain H6. intros. backchain H5.
     intros. backchain CH.
 % Q.E.D.
+
 /*
 Theorem sateq_one_exists_L2 : forall (X : n) (Y : n) P Q A P1,
   ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
