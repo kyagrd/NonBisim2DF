@@ -45,8 +45,9 @@ Kind o'                type.
 Type tt, ff            o'.
 Type conj, disj           o' -> o' -> o'.
 Type boxMatch, boxDiff,       
+     boxActE, diaActE,
      diaMatch, diaDiff   name -> name -> o' -> o'.
-Type boxAct, diaAct      a -> o' -> o'.
+Type boxAct, diaAct                 a -> o' -> o'.
 Type boxOut, diaOut,
      boxIn, diaIn,
      boxInL, diaInL,
@@ -67,6 +68,8 @@ by sat _ tt
  ; sat P (diaDiff X Y A) := (X = Y -> false) /\ sat P A
  ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
  ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
+ ; sat P (boxActE X M A) := forall B, onep P (dn X) B -> sat (B M) A % RH: plain input modalities
+ ; sat P (diaActE X M A) := exists B, onep P (dn X) B /\ sat (B M) A % RH: plain input modalities
  ; sat P (boxOut X A) :=
       forall Q, onep P (up X) Q -> nabla y, sat (Q y) (A y)
  ; sat P (diaOut X A) :=
@@ -99,6 +102,12 @@ by lsat _ _ tt
  ; lsat L P (diaDiff X Y A) := (X = Y -> false) /\ lsat L P A % X /= Y /\ ...
  ; lsat L P (boxAct X A) := forall P1, one P X P1 -> lsat L P1 A
  ; lsat L P (diaAct X A) := exists P1, one P X P1 /\ lsat L P1 A
+ ; lsat L P (boxActE X M A) := nabla w, member M (w :: L) /\
+                                 forall B, onep P (dn X) B -> lsat (w :: L) (B M) A
+     % RH: plain input modalities (member M L checks input is allowed)
+ ; lsat L P (diaActE X M A) := nabla w, member M (w :: L) /\
+                                 exists B, onep P (dn X) B /\ lsat (w :: L) (B M) A 
+     % RH: plain input modalities (member M L checks input is allowed)
  ; lsat L P (boxOut X A) :=
      forall Q, onep P (up X) Q -> nabla y, lsat (y :: L) (Q y) (A y)
  ; lsat L P (diaOut X A) :=
@@ -305,4 +314,12 @@ forall a, forall b, sat (plus (taup (match a b (taup z))) (plus (taup z) (taup (
 
 forall a, forall b, sat (plus (taup z) (taup (taup z))) (diaAct tau (conj (boxMatch a b (diaAct tau tt)) (boxAct tau (diaMatch a b tt)))).
 
+*/
+
+/*
+quasi-open example:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ A = a\ boxActE a x (conj (boxMatch a x (diaAct tau tt)) (boxAct tau (diaMatch a x tt))) /\
+ forall a, sat (P a) (A a). 
 */

@@ -1,0 +1,113 @@
+%% Early bisimulation specification.
+
+#include "pi_modal.def".
+#include "pi.def".
+#include "../basic.def".
+
+Define
+   coinductive bisim_e : list name -> p -> p -> prop
+by bisim_e L P P
+ ; bisim_e L P Q :=
+      (forall A P1, one P A P1 ->
+         exists Q1, one Q A Q1 /\ bisim_e L P1 Q1)
+   /\ (forall X M, onep P (dn X) M ->
+        nabla n, forall w, member w (n :: L) ->
+          exists N, onep Q (dn X) N /\ bisim_e (n :: L) (M w) (N w))
+   /\ (forall X M, onep P (up X) M ->
+         exists N, onep Q (up X) N /\ nabla w, bisim_e (w :: L) (M w) (N w))
+   /\ (forall A Q1, one Q A Q1 ->
+         exists P1, one P A P1 /\ bisim_e L P1 Q1)
+   /\ (forall X N, onep Q (dn X) N ->
+        nabla n, forall w, member w (n :: L) ->
+          exists M, onep P (dn X) M /\ bisim_e (n :: L) (M w) (N w))
+   /\ (forall X N, onep Q (up X) N ->
+         exists M, onep P (up X) M /\ nabla w, bisim_e (w :: L) (M w) (N w))
+.
+
+
+%% Example that should hold for early bisimulation (and early congruence), but not quasi bisimulation, late or open bisimulation. 
+/*
+Early bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Early congruence:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, forall x, member x (a :: nil) -> bisim_e (x :: nil) (P x) (Q x).
+
+Quasi bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/
+
+%% Example that should hold for early and quasi bisimulation, but not late or open bisimulation.
+/*
+Early bisimulation:
+ P = a\ (nu k\ (out a k (plus (in a x\ z) (in a x\ (taup z))))) /\
+ Q = a\ (nu k\ (out a k (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x k (taup z))))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Quasi bisimulation:
+ P = a\ (nu k\ (out a k (plus (in a x\ z) (in a x\ (taup z))))) /\
+ Q = a\ (nu k\ (out a k (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x k (taup z))))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/
+
+%% Example that holds for neither quasi bisimilarity nor open bisimilarity, but holds for late and early bisimilarity.
+/*
+Early bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ nabla x y, bisim_e nil (P x y) (Q x y).
+
+Quasi bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ forall x y w, bisim_e (w :: nil) (P x y) (Q x y).
+*/
+
+%% Guide for using early bisimulations.
+/*
+ For classical early bisimulation write:
+ nabla a1 .. an, bisim_e nil (P a1 .. an) (Q a1 .. an)
+  where a1 .. an are the free names of the process.
+
+ For classical early congruence write:
+ nabla m1 .. mk, forall a1 .. an, 
+   member a1 (m1 :: .. (mk :: nil)..) /\ ...  member an (m1 :: .. (mk :: nil)..)
+     -> bisim_e (a1 :: .. (an :: nil)..) (P a1 .. an) (Q a1 .. an).
+ where a1 .. an are the free names of the process
+   and m1 .. mk is a supply of fresh names exceeding the number of free names.
+
+ For intuitionistic quasi bisimulation write:
+ forall a1 .. an x1 .. xm, bisim_e (x1 :: .. (xm :: nil)..) (P a1 .. an) (Q a1 .. an)
+  where x1 .. xm is a supply of univeral names greater than the maximum number
+                      of input actions encountered on the longest execution path.
+
+ The universal names avoid the following problem. The processes below are not bisimilar,
+ however if we remove the universal name x from the list, we get the wrong answer.
+ The univeral variable x allows the input to be instantiated with anything, inluding
+ the variable a, as required.
+ 
+ P = a\ (in a x\ (match x a (taup z))) /\
+ Q = a\ (in a x\ z) /\
+ forall a w, bisim_e (x :: nil) (P a) (Q a).
+*/
+
+%% Guide for modal logic.
+/*
+ For early intuitionistic modal logic write as follows:
+
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ A = a\ w\ (boxActE a w (disj (diaAct tau tt) (boxAct tau ff))) /\
+ forall a w, lsat (w :: nil) (P a) (A a w).
+
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ B = a\ w\ (diaActE a w (conj (boxMatch w a (diaAct tau tt)) (boxAct tau (diaMatch w a tt)))) /\
+ forall a w, lsat (w :: nil) (Q a) (B a w).
+
+ Notice that if P and Q are swapped then neither holds. Thus we have a distinguishing formula.
+*/
