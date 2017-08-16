@@ -68,8 +68,6 @@ by sat _ tt
  ; sat P (diaDiff X Y A) := (X = Y -> false) /\ sat P A
  ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
  ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
- ; sat P (boxActE X M A) := forall B, onep P (dn X) B -> sat (B M) A % RH: plain input modalities
- ; sat P (diaActE X M A) := exists B, onep P (dn X) B /\ sat (B M) A % RH: plain input modalities
  ; sat P (boxOut X A) :=
       forall Q, onep P (up X) Q -> nabla y, sat (Q y) (A y)
  ; sat P (diaOut X A) :=
@@ -316,10 +314,3 @@ forall a, forall b, sat (plus (taup z) (taup (taup z))) (diaAct tau (conj (boxMa
 
 */
 
-/*
-quasi-open example:
- P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
- Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
- A = a\ boxActE a x (conj (boxMatch a x (diaAct tau tt)) (boxAct tau (diaMatch a x tt))) /\
- forall a, sat (P a) (A a). 
-*/
