@@ -1,0 +1,954 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{wasysym}
+\usepackage{txfonts}
+
+\pagestyle{empty}
+
+\let\oldvDash\vDash
+\newcommand{\txvDash}{\oldvDash}
+\renewcommand{\vDash}{\models}
+\renewcommand{\nvDash}{\not\models}
+\newcommand{\OM}{\ensuremath{\mathcal{O\!M}}}
+\newcommand{\lProlog}{{$\lambda$Prolog}}
+\newcommand{\ttt}{\mathtt{t\hspace*{-.25em}t}}
+\newcommand{\fff}{\mathtt{f\hspace*{-.25em}f}}
+\newcommand{\nsimL}{\mathop{\nsim\hspace*{-1.9ex}\raisebox{2pt}{$\scriptstyle^{\vDash}\;$}}}
+\newcommand{\simL}{\mathop{\sim\hspace*{-1.9ex}\raisebox{2pt}{$\scriptstyle^{\vDash}\;$}}}
+\newcommand{\boxm}[1]{\mathopen{\big[ #1 \big]}} %{[\hspace{.2ex}#1\hspace{.2ex}]}
+\newcommand{\diam}[1]{\mathopen{\big\langle #1 \big\rangle}}
+%\newcommand{\respects}{\ensuremath{\mathop{\scriptstyle{\pmb{\texttt{\char`_}\!\sqcap\!\backslash}\!\medbullet}}}}
+\newcommand{\respects}{\mathrel{\textrm{respects}}}%{\ensuremath{\mathop{\scriptstyle{\pmb{\texttt{\char`_}\!\sqcap\!\backslash}\!\medbullet}}}}
+\newcommand{\respecting}{\mathrel{\textrm{respecting}}}%{\ensuremath{\mathop{\scriptstyle{\pmb{\texttt{\char`_}\!\sqcap\!\backslash}\!\medbullet}}}}
+\newcommand{\cpar}{\mathrel{\|}}
+\newcommand{\co}[1]{\overline{#1}}
+\newcommand{\match}[1]{\mathopen{\left[#1\right]}}
+\newcommand{\lts}[1]{\xsta{#1}}
+\newcommand{\xsta}[1]{ 
+\setbox0=\hbox{\,${\scriptstyle#1}$\,}
+\ifdim\wd0<14pt\wd0=10pt\fi
+%  \setbox1=\hbox{}
+%  \loop\setbox1=\hbox{$-$\kern-2pt\unhbox1}\ifdim\wd1<\wd0\repeat
+%  \mathrel{\mathop{\box1}\limits^{#1}}
+%\mathrel{\stackrel{#1}{\box1}\blacktriangleright}
+\mathrel{\raise1.6pt\hbox{$\mathop{\rule{\wd0}{0.62pt}}\limits^{{#1}\;}$}\mkern-6mu{\scriptstyle\blacktriangleright}}
+}
+\newcommand{\sub}[2]{\mathclose{\{^{#2\!\!\!}\reflectbox{$\!\smallsetminus$}_{\!#1}\hspace{-.2mm}\}}}
+\newcommand{\fv}[1]{\mathopen{\mathrm{fv}}\left(#1\right)}
+\newcommand{\bn}[1]{\mathopen{\mathrm{bn}}\left(#1\right)}
+\newcommand{\fn}[1]{\mathopen{\mathrm{fn}}\left(#1\right)}
+\newcommand{\nfv}[2]{#1 \# #2}
+\newcommand{\dom}[1]{\mathopen{\mathrm{dom}}\left(#1\right)}
+\newcommand{\context}[1]{\mathopen{\mathcal{C}}\left\{\,#1\,\right\}}
+\newcommand{\oprivate}[2]{\mathopen{\co{ #1 }}\left( #2 \right)} 
+\newcommand{\iprivate}[2]{\mathopen{ #1 }\left[ #2 \right]} 
+\newcommand{\n}[1]{\mathopen{\mathrm{n}}\left(#1\right)}
+
+
+
+\begin{document}
+
+% \section{}
+% \fbox{ $\co{a}b \cpar c(x) \not \models \diam{\tau}\ttt \vee \boxm{\tau}\fff$ }
+% {\small%
+% \begin{verbatim}
+% ?= forall a b c,
+%    sat (par (out a b z) (in c x\ z)) (disj (diaAct tau tt) (boxAct tau ff)).
+% No solution.
+% \end{verbatim}}
+% \fbox{ $\co{a}b \cpar c(x) \not \models \diam{\tau}\ttt $ }
+% {\small%
+% \begin{verbatim}
+% ?= forall a b c, sat (par (out a b z) (in c x\ z)) (diaAct tau tt).
+% No solution.
+% \end{verbatim}}
+% \fbox{ $\co{a}b \cpar c(x) \not \models \boxm{\tau}\fff$ }
+% {\small%
+% \begin{verbatim}
+% ?= forall a b c, sat (par (out a b z) (in c x\ z)) (boxAct tau ff).
+% No solution.
+% \end{verbatim}}
+% 
+% \newpage
+\section{}
+\[
+Q \triangleq
+\mathopen{\tau.}\left(\co{a}{b}.{{a}{(x)}} + {a}{(x)}.{\co{a}{b}} + \tau\right)%\big(\underbrace{\co{a}{b}.{{a}{(x)}} + {a}{(x)}.{\co{a}{b}} + \tau}_{R_1}\big)
+   +
+\mathopen{\tau.}\left(\co{a}{b}.{{c}{(x)}} + {c}{(x)}.{\co{a}{b}}\right)%\big(\underbrace{\co{a}{b}.{{c}{(x)}} + {c}{(x)}.{\co{a}{b}}}_{R_2}\big)
+\qquad\qquad
+P \triangleq Q + \mathopen{\tau.}\left(\co{a}{b} \cpar {c}{(x)}\right)
+\]
+~\\[-.5ex]
+\fbox{$ P \not\sim Q$}\hfill
+{\small%
+\begin{verbatim}
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, bisim (P a b c) (Q a b c).
+No solution.
+\end{verbatim}}
+%
+\fbox{ $Q \models
+\mathopen{\boxm{\tau}}\left( \diam{\tau}\ttt \vee \boxm{\tau}\fff \right)$ }
+{\small%
+\begin{verbatim}
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, sat (Q a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+Found a solution:
+ P = x1\x2\x3\
+     plus (taup (par (out x1 x2 z) (in x3 (x4\ z))))
+          (plus (taup (plus (out x1 x2 (in x3 (x4\ z))) (in x3 (x4\ out x1 x2 z))))
+                (taup (plus (plus (out x1 x2 (in x1 (x4\ z))) (in x1 (x4\ out x1 x2 z))) (taup z))))
+ Q = x1\x2\x3\
+     plus (taup (plus (out x1 x2 (in x3 (x4\ z))) (in x3 (x4\ out x1 x2 z))))
+          (taup (plus (plus (out x1 x2 (in x1 (x4\ z))) (in x1 (x4\ out x1 x2 z))) (taup z)))
+ AxAB = x1\x2\ in x1 (x3\ out x1 x2 z)
+ ABAx = x1\x2\ out x1 x2 (in x1 (x3\ z))
+ CxAB = x1\x2\x3\ in x3 (x4\ out x1 x2 z)
+ ABCx = x1\x2\x3\ out x1 x2 (in x3 (x4\ z))
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{ $P \not\models
+\mathopen{\boxm{\tau}}\left( \diam{\tau}\ttt \vee \boxm{\tau}\fff \right)$ }
+{\small%
+\begin{verbatim}
+?= ABCx = a\b\c\ out a b (in c x\z) /\ CxAB = a\b\c\ in c x\out a b z /\
+   ABAx = a\b\ out a b (in a x\z)   /\ AxAB = a\b\ in a x\out a b z   /\
+   Q = a\b\c\ plus (taup (plus (ABCx a b c) (CxAB a b c)))
+                   (taup (plus (plus (ABAx a b) (AxAB a b)) (taup z))) /\
+   P = a\b\c\ plus (taup (par (out a b z) (in c x\z))) (Q a b c) /\
+   forall a b c, sat (P a b c) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+No solution.
+\end{verbatim}}
+
+%% \newpage
+%% \section{}
+%% \fbox{$\tau \not\sim [a=c]\tau$}
+%% {\small%
+%% \begin{verbatim}
+%% ?= forall a c, bisim (taup z) (match a c (taup z)).
+%% No solution.
+%% \end{verbatim}}
+%% %
+%% \fbox{$\tau \models \diam{\tau} \ttt$}
+%% {\small%
+%% \begin{verbatim}
+%% ?= forall a c, sat (taup z) (diaAct tau tt).
+%% Found a solution.
+%% More [y] ? 
+%% No more solutions (found 1).
+%% \end{verbatim}}
+%% %
+%% \fbox{$[a=c]\tau \not \models \diam{\tau}\ttt$}
+%% {\small%
+%% \begin{verbatim}
+%% ?= forall a c, sat (match a c (taup z)) (diaAct tau tt).
+%% No solution.
+%% \end{verbatim}}
+%% %
+%% \fbox{$\tau \not \models \boxm{\tau}\fff$}
+%% {\small%
+%% \begin{verbatim}
+%% ?= forall a c, sat (taup z) (boxAct tau ff).
+%% No solution.
+%% \end{verbatim}}
+%% %
+%% \fbox{$[a=c]\tau \not \models \boxm{\tau}\fff$}
+%% {\small%
+%% \begin{verbatim}
+%% ?= forall a c, sat (match a c (taup z)) (boxAct tau ff).
+%% No solution.
+%% \end{verbatim}}
+
+
+\newpage
+\section{}
+\fbox{$[x=y]\tau \not \sim \tau$}
+{\small%
+\begin{verbatim}
+?= forall x y, bisim (match x y (taup z)) (taup z).
+No solution.
+\end{verbatim}}
+%
+\fbox{$[x=y]\tau \models \boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (match x y (taup z)) (boxAct tau (diaMatch x y tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$\tau \not\models \boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (taup z) (boxAct tau (diaMatch x y tt)).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\tau \models \boxm{x=y}\diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (taup z) (boxMatch x y (diaAct tau tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$[x=y]\tau \models \boxm{x=y}\diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (match x y (taup z)) (boxMatch x y (diaAct tau tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$[x=y]\tau \not\models \diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (match x y (taup z)) (diaAct tau tt).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\tau \models \diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat (taup z) (diaAct tau tt).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+
+
+\newpage
+\section{}
+\fbox{$[x=y]\tau \not \sim 0$}
+{\small%
+\begin{verbatim}
+?= forall x y, bisim (match x y (taup z)) z.
+No solution.
+\end{verbatim}}
+%
+\fbox{$0 \not\models \boxm{x=y}\diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat z (boxMatch x y (diaAct tau tt)).
+No solution.
+\end{verbatim}}
+%
+\fbox{$0 \models \boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat z (boxAct tau (diaMatch x y tt)).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$0 \models \boxm{\tau}\fff$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat z (boxAct tau ff).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$0 \not\models \diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, sat z (diaAct tau tt).
+No solution.
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$
+\tau.\match{x=y}\tau + \tau + \tau.\tau 
+\nsim
+\tau + \tau.\tau 
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   forall x y, bisim (P x y) Q. % (t.[x=y].t + t.t + t) /~ (t.t + t)
+No solution.
+\end{verbatim}}
+%
+\fbox{
+$\tau.\match{x=y}\tau + \tau + \tau.\tau 
+\vDash
+\mathopen{\diam{\tau}}
+\left(
+ \boxm{\tau}\diam{x=y}\ttt \wedge \boxm{x=y}\diam{\tau}\ttt
+\right)$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   forall x y, sat (P x y) (diaAct tau (conj (boxAct tau (diaMatch x y tt))
+                                             (boxMatch x y (diaAct tau tt)))).
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\
+     plus (taup (match x1 x2 (taup z))) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\tau + \tau.\tau 
+\not\vDash
+\mathopen{\diam{\tau}}
+\left(
+ \boxm{\tau}\diam{x=y}\ttt \wedge \boxm{x=y}\diam{\tau}\ttt
+\right)$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\
+   sat Q (diaAct tau (conj (boxAct tau (diaMatch x y tt))
+                           (boxMatch x y (diaAct tau tt)))).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+\tau + \tau.\tau 
+\vDash
+\mathopen{\diam{\tau}}\left(
+ \boxm{\tau}\diam{x=y}\ttt
+ \wedge
+ \boxm{x=y}\diam{\tau}\ttt
+\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\ 
+   forall x y, sat Q (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\
+     plus (taup (match x1 x2 (taup z))) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\tau.[x=y]\tau + \tau + \tau.\tau 
+\not\vDash
+\mathopen{\diam{\tau}}\left(
+ \boxm{\tau}\diam{x=y}\ttt
+ \wedge
+ \boxm{x=y}\diam{\tau}\ttt
+\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (taup (match x y T)) Q) /\ Q = plus TT T /\ 
+   forall x y, sat (P x y) (boxAct tau (disj (diaAct tau tt) (boxAct tau ff))).
+No solution.
+\end{verbatim}}
+
+\newpage
+\section*{(non-example, i.e., bisimilar)}
+\fbox{$
+\match{x=y}\tau + \tau + \tau.\tau 
+\sim
+\tau + \tau.\tau 
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   P = (x\ y\ plus (match x y T) Q) /\ Q = plus TT T /\
+   forall x y, bisim (P x y) Q. % ([x=y].t + t.t + t) ~ (t.t + t)
+Found a solution:
+ Q = plus (taup (taup z)) (taup z)
+ P = x1\x2\ plus (match x1 x2 (taup z)) (plus (taup (taup z)) (taup z))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$
+P\triangleq \nu x.\co{a}x.a(y).\tau
+\nsim 
+\nu x.\co{a}x.a(y).\match{x=y}\tau
+\triangleq Q
+$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, bisim (P a) (Q a).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\nu x.\co{a}x.a(y).\tau \vDash \diam{\co{a}(x)}\diam{a(y)}\diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (P a) (diaOut a x\ diaInL a y\ diaAct tau tt).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
+ P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$\nu x.\co{a}x.a(y).[x=y]\tau \not\vDash \diam{\co{a}(x)}\diam{a(y)}\diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (Q a) (diaOut a x\ diaInL a y\ diaAct tau tt).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\nu x.\co{a}x.a(y).\tau \not\vDash \boxm{\co{a}(x)}\boxm{a(y)}\boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (P a) (boxOut a x\ boxIn a y\ boxAct tau (diaMatch x y tt)).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\nu x.\co{a}x.a(y).\match{x=y}\tau \vDash \boxm{\co{a}(x)}\boxm{a(y)}\boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x (in a y\ taup z) /\
+   Q = a\ nu x\ out a x (in a y\ match x y (taup z)) /\
+   forall a, sat (Q a) (boxOut a x\ boxIn a y\ boxAct tau (diaMatch x y tt)).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x2 x3 (taup z))))
+ P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ taup z)))
+More [y] ?  
+No more solutions (found 1).
+\end{verbatim}}
+
+\newpage
+\section*{(non-example, i.e., bisimilar)}
+\fbox{$\nu x.\co{a}x \sim \nu x.\co{a}x.\match{x=a}\tau$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu x\ out a x z /\ Q = a\ nu x\ out a x (match x a (taup z)) /\
+   forall a, bisim (P a) (Q a).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (match x2 x1 (taup z)))
+ P = x1\ nu (x2\ out x1 x2 z)
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$\match{x=y}\tau + [w=z]\tau \not\sim \tau$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ forall x y u v, bisim (plus (match x y T) (match u v T)) T.
+No solution.
+\end{verbatim}}
+%
+\fbox{$\match{x=y}\tau + [w=z]\tau \vDash \mathopen{\boxm{\tau}}\big(\diam{x=y}\ttt \vee \diam{w=z}\ttt\big)$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   forall x y u v,
+   sat (plus (match x y T) (match u v T)) (boxAct tau (disj (diaMatch x y tt) (diaMatch u v tt))).
+Found a solution:
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$\tau \not\vDash \mathopen{\boxm{\tau}}\big(\diam{x=y}\ttt \vee \diam{w=z}\ttt\big)$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   forall x y u v,
+   sat T (boxAct tau (disj (diaMatch x y tt) (diaMatch u v tt))).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\tau \vDash \diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ forall x y u v, sat T (diaAct tau tt).
+Found a solution:
+ T = taup z
+More [y] ? 
+\end{verbatim}}
+%
+\fbox{$\match{x=y}\tau + [w=z]\tau \not\vDash \diam{\tau}\ttt$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   forall x y u v, sat (plus (match x y T) (match u v T)) (diaAct tau tt).
+No solution.
+\end{verbatim}}
+%
+
+\newpage
+\section{}
+\fbox{$ P\triangleq \mathopen{\tau.}\big(\co{a}a + \co{b}b\big) + \match{x=y}\tau.\co{a}a
+~ \not\sim ~
+\mathopen{\tau.}\big(\co{a}a + \co{b}b\big) + \tau.\co{a}a \triangleq Q $}
+{\small%
+\begin{verbatim}
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, bisim (P a b x y) (Q a b).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+\mathopen{\tau.}\big(\co{a}a + \co{b}b\big) +
+\match{x=y}\tau.\co{a}a
+\vDash
+\mathopen{\boxm{\tau}}\big( \diam{\co{b}b}\ttt \vee \diam{x=y}\ttt \big)
+$}
+{\small%
+\begin{verbatim}
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (P a b x y) (boxAct tau (disj (diaAct (up b b) tt) (diaMatch x y tt))).
+Found a solution:
+ Q = x1\x2\ plus (taup (plus (out x1 x1 z) (out x2 x2 z))) (taup (out x1 x1 z))
+ P = x1\x2\x3\x4\ plus (taup (plus (out x1 x1 z) (out x2 x2 z))) (match x3 x4 (taup (out x1 x1 z)))
+ S = x1\x2\ taup (out x1 x1 z)
+ R = x1\x2\ taup (plus (out x1 x1 z) (out x2 x2 z))
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\mathopen{\tau.}\big(\co{a}a + \co{b}b\big) + \tau.\co{a}a
+\not\vDash
+\mathopen{\boxm{\tau}}\big( \diam{\co{b}b}\ttt \vee \diam{x=y}\ttt \big)
+$}
+{\small%
+\begin{verbatim}
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (Q a b) (boxAct tau (disj (diaAct (up b b) tt) (diaMatch x y tt))).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+\mathopen{\tau.}\big(\co{a}a + \co{b}b\big) +
+\match{x=y}\tau.\co{a}a
+\not\vDash
+\diam{\tau}\boxm{\co{b}b}\diam{a=b}\ttt
+$}
+{\small%
+\begin{verbatim}
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\
+   forall a b x y, sat (P a b x y) (diaAct tau (boxAct (up b b) (diaMatch a b tt))).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+\mathopen{\tau.}\big(\co{a}a + \co{b}b\big) +
+\tau.\co{a}a
+\vDash
+\diam{\tau}\boxm{\co{b}b}\diam{a=b}\ttt
+$}
+{\small%
+\begin{verbatim}
+?= R = a\b\ taup (plus (out a a z) (out b b z)) /\ S = a\b\ taup (out a a z) /\
+   P = a\b\x\y\ plus (R a b) (match x y (S a b)) /\ Q = a\b\ plus (R a b) (S a b) /\ 
+   forall a b x y, sat (Q a b) (diaAct tau (boxAct (up b b) (diaMatch a b tt))).
+Found a solution:
+ Q = x1\x2\ plus (taup (plus (out x1 x1 z) (out x2 x2 z))) (taup (out x1 x1 z))
+ P = x1\x2\x3\x4\ plus (taup (plus (out x1 x1 z) (out x2 x2 z))) (match x3 x4 (taup (out x1 x1 z)))
+ S = x1\x2\ taup (out x1 x1 z)
+ R = x1\x2\ taup (plus (out x1 x1 z) (out x2 x2 z))
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$\co{a}a  \not\sim  \co{a}b$}
+{\small%
+\begin{verbatim}
+?= forall a b, bisim  (out a a z)  (out a b z).
+No solution.
+\end{verbatim}}
+%
+\fbox{$\co{a}a \models \boxm{\co{a}b}\diam{a=b}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall a b, sat (out a a z) (boxAct (up a b) (diaMatch a b tt)). 
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$\co{a}b \models \boxm{\co{a}b}\diam{a=b}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall a b, sat (out a b z) (boxAct (up a b) (diaMatch a b tt)).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+\nu b.\co{a}b.a(x).\match{x=b}\co{x}x
+\not\sim
+\nu b.\co{a}b.a(x).\co{x}x
+$}
+\begin{verbatim}
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, bisim (P a) (Q a).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+\nu b.\co{a}b.a(x).\match{x=b}\co{x}x
+\vDash
+\boxm{a(b)}\boxm{a(x)}\boxm{\co{x}x}\diam{x=b}\ttt
+$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, sat (P a) (diaOut a b\ diaInL a x\ boxAct (up x x) (diaMatch x b tt)).
+Found a solution:
+ Q = x1\ nu (x2\ out x1 x2 (in x1 (x3\ out x3 x3 z)))
+ P = x1\ nu (x2\ out x1 x2 (in x1 (x3\ match x3 x2 (out x3 x3 z))))
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\nu b.\co{a}b.a(x).\co{x}x
+\not\vDash
+\boxm{a(b)}\boxm{a(x)}\boxm{\co{x}x}\diam{x=b}\ttt
+$}
+{\small%
+\begin{verbatim}
+?= P = a\ nu b\ out a b (in a x\ match x b (out x x z)) /\
+   Q = a\ nu b\ out a b (in a x\ out x x z) /\
+   forall a, sat (Q a) (diaOut a b\ diaInL a x\ boxAct (up x x) (diaMatch x b tt)).
+No solution.
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$\boxm{x=y}\tau.\tau + \tau
+ \not\sim 
+\tau.\tau + \tau$}
+{\small%
+\begin{verbatim}
+?= forall x y, bisim (plus (match x y (taup (taup z))) (taup z)) (plus (taup (taup z)) (taup z)).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+\boxm{x=y}\tau.\tau + \tau
+\vDash
+\boxm{\tau}\boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y,
+   sat (plus (match x y (taup (taup z))) (taup z)) (boxAct tau (boxAct tau (diaMatch x y tt))).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\tau.\tau + \tau
+\not\vDash
+\boxm{\tau}\boxm{\tau}\diam{x=y}\ttt$}
+{\small%
+\begin{verbatim}
+?= forall x y, 
+   sat (plus (taup (taup z)) (taup z)) (boxAct tau (boxAct tau (diaMatch x y tt))).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+\boxm{x=y}\tau.\tau + \tau
+\vDash
+\mathopen{\boxm{\tau}}\big( \boxm{\tau}\fff \vee \diam{x=y}\ttt \big)
+$}
+{\small%
+\begin{verbatim}
+?= forall x y,
+   sat (plus (match x y (taup (taup z))) (taup z)) (boxAct tau (disj (boxAct tau ff) 
+                                                                     (diaMatch x y tt))).
+Found a solution.
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+\tau.\tau + \tau
+\not\vDash
+\mathopen{\boxm{\tau}}\big( \boxm{\tau}\fff \vee \diam{x=y}\ttt \big)
+$}
+{\small%
+\begin{verbatim}
+?= forall x y,
+   sat (plus (taup (taup z)) (taup z)) (boxAct tau (disj (boxAct tau ff)
+                                                         (diaMatch x y tt))).
+No solution.
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{$
+Q \triangleq \mathopen{\tau.}\big(\tau + \tau.\tau +  \tau.[x=y][w=z]\tau\big) 
+~\not\sim~
+\mathopen{\tau.}\big(\tau + \tau.\tau + \tau.[x=y]\tau\big) + Q \triangleq P
+$} 
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v, bisim (P x y u v) (Q x y u v).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+P \vDash
+\mathopen{\diam{\tau}\boxm{\tau}}\big(\boxm{\tau}\fff \vee \boxm{x=y}\diam{\tau}\ttt\big)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v,
+   sat (P x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff)
+                                                 (boxMatch x y (diaAct tau tt))))).
+Found a solution:
+ P = x1\x2\x3\x4\
+     plus
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (taup z)))))
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z))))))
+ Q = x1\x2\x3\x4\
+     taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+Q \not\vDash
+\mathopen{\diam{\tau}\boxm{\tau}}\big(\boxm{\tau}\fff \vee \boxm{x=y}\diam{\tau}\ttt\big)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\ 
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v,
+   sat (Q x y u v) (diaAct tau (boxAct tau (disj (boxAct tau ff)
+                               (boxMatch x y (diaAct tau tt))))).
+No solution.
+\end{verbatim}
+%
+\fbox{$
+Q \vDash
+\mathopen{\boxm{\tau}\diam{\tau}}\left(\boxm{\tau}\diam{w=z}\ttt \wedge \boxm{x=y}\boxm{w=z}\diam{\tau}\ttt\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\ 
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v,
+   sat (Q x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt))
+                                                 (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
+Found a solution:
+ P = x1\x2\x3\x4\
+     plus
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (taup z)))))
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z))))))
+ Q = x1\x2\x3\x4\
+     taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}
+%
+\fbox{$
+P \not\vDash
+\mathopen{\boxm{\tau}\diam{\tau}}\left(\boxm{\tau}\diam{w=z}\ttt \wedge \boxm{x=y}\boxm{w=z}\diam{\tau}\ttt\right)
+$}
+{\small%
+\begin{verbatim}
+
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v,
+   sat (P x y u v) (boxAct tau (diaAct tau (conj (boxAct tau (diaMatch u v tt))
+                                                 (boxMatch x y (boxMatch u v (diaAct tau tt)))))).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+P \vDash
+\mathopen{\diam{\tau}\diam{\tau}}\big(\boxm{x=y}\diam{\tau}\ttt \wedge \boxm{\tau}\diam{x=y}\ttt\big)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v,
+   sat (P x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) 
+                                                 (boxAct tau (diaMatch x y tt))))).
+Found a solution:
+ P = x1\x2\x3\x4\
+     plus
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (taup z)))))
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z))))))
+ Q = x1\x2\x3\x4\
+     taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+Q \not\vDash
+\mathopen{\diam{\tau}\diam{\tau}}\big(\boxm{x=y}\diam{\tau}\ttt \wedge \boxm{\tau}\diam{x=y}\ttt\big)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\ 
+   forall x y u v,
+   sat (Q x y u v) (diaAct tau (diaAct tau (conj (boxMatch x y (diaAct tau tt)) 
+                                                 (boxAct tau (diaMatch x y tt))))).
+No solution.
+\end{verbatim}}
+%
+\fbox{$
+Q \vDash
+\boxm{\tau}\boxm{\tau}\left(\diam{\tau}\ttt \vee \boxm{\tau}\diam{w=z}\ttt\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v,
+   sat (Q x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt)
+                                                 (boxAct tau (diaMatch u v tt))))).
+Found a solution:
+ P = x1\x2\x3\x4\
+     plus
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (taup z)))))
+      (taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z))))))
+ Q = x1\x2\x3\x4\
+     taup (plus (plus (taup z) (taup (taup z))) (taup (match x1 x2 (match x3 x4 (taup z)))))
+ TT = taup (taup z)
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+%
+\fbox{$
+P \vDash
+\boxm{\tau}\boxm{\tau}\left(\diam{\tau}\ttt \vee \boxm{\tau}\diam{w=z}\ttt\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\ TT = taup T /\
+   Q = x\y\u\v\ taup (plus (plus T TT) (taup (match x y (match u v T)))) /\ 
+   P = x\y\u\v\ plus (taup (plus (plus T TT) (taup (match x y T)))) (Q x y u v) /\
+   forall x y u v,
+   sat (P x y u v) (boxAct tau (boxAct tau (disj (diaAct tau tt)
+                                                 (boxAct tau (diaMatch u v tt))))).
+No solution.
+\end{verbatim}}
+
+\newpage
+\section{}
+\fbox{
+$
+a(x).\tau + a(x) + a(x).[x=a]\tau
+\not\sim
+a(x).\tau + a(x)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   Q = a\x\ plus (in a x\T) (in a x\z) /\ 
+   P = a\x\ plus (Q a x) (in a x\match x a T) /\
+   forall a x, bisim (P a x) (Q a x).
+No solution.
+\end{verbatim}}
+%
+\fbox{
+$
+a(x).\tau + a(x) + a(x).[x=a]\tau
+\not \vDash  \boxm{a(x)}\left(\diam{\tau}\ttt \vee \boxm{\tau}\fff\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   Q = a\x\ plus (in a x\T) (in a x\z) /\ 
+   P = a\x\ plus (Q a x) (in a x\match x a T) /\
+   forall a x, sat (P a x) (boxIn a x\disj (diaAct tau tt) (boxAct tau ff)).
+No solution.
+\end{verbatim}}
+%
+\fbox{
+$
+a(x).\tau + a(x)  \vDash  \boxm{a(x)}\left(\diam{\tau}\ttt \vee \boxm{\tau}\fff\right)
+$}
+{\small%
+\begin{verbatim}
+?= T = taup z /\
+   Q = a\x\ plus (in a x\T) (in a x\z) /\ 
+   P = a\x\ plus (Q a x) (in a x\match x a T) /\
+   forall a x, sat (Q a x) (boxIn a x\disj (diaAct tau tt) (boxAct tau ff)).
+Found a solution:
+ P = x1\x2\
+     plus (plus (in x1 (x3\ taup z)) (in x1 (x3\ z)))
+      (in x1 (x3\ match x3 x1 (taup z)))
+ Q = x1\x2\ plus (in x1 (x3\ taup z)) (in x1 (x3\ z))
+ T = taup z
+More [y] ? 
+No more solutions (found 1).
+\end{verbatim}}
+
+\end{document}

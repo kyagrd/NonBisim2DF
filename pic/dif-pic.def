@@ -1,0 +1,138 @@
+% vim: sw=2: ts=2: expandtab: ai: syntax=bedwyr
+
+%% Simulation, bisimulation, and a modal logic for the pi-calculus
+
+
+Kind n, p, a  type.
+
+Type null  p.
+Type taup  p -> p.
+Type plus, par  p -> p -> p.
+Type match, diff, out  n -> n -> p -> p.
+Type in  n -> (n -> p) -> p.
+Type nu  (n -> p) -> p.
+
+Type tau  a.
+Type up, dn  n -> n -> a.
+
+
+Define one : p -> a -> p -> prop ,
+       oneb : p -> (n -> a) -> (n -> p) -> prop
+by
+oneb (in X M) (dn X) M ;     % bound input
+one  (out X Y P) (up X Y) P ; % bound output
+one  (taup P) tau P ;         % tau
+one  (match X X P) A Q := one P A Q ; % match prefix
+oneb (match X X P) A M := oneb P A M ;
+one  (diff X Y P) A Q := (X = Y -> false) /\ one P A Q ; % diff prefix
+oneb (diff X Y P) A M := (X = Y -> false) /\ oneb P A M ;
+one  (plus P Q) A R := one P A R ; % choice
+one  (plus P Q) A R := one Q A R ;
+oneb (plus P Q) A M := oneb P A M ;
+oneb (plus P Q) A M := oneb Q A M ;
+one  (par P Q) A (par P1 Q) := one P A P1 ; % par
+one  (par P Q) A (par P Q1) := one Q A Q1 ;
+oneb (par P Q) A (x\par (M x) Q) ;
+oneb (par P Q) A (x\par P (N x)) ;
+one  (nu x\P x) A (nu x\Q x) := nabla w, one (P w) A (Q w) ; % restriction
+oneb (nu P) A (y\nu x\Q x y) := nabla w, oneb (P w) A (y\Q w y) ;
+oneb (nu x\M x) (up X) N := nabla w, one (M w) (up X w) (N w) ; % open
+one  (par P Q) tau (nu y\ par (M y) (N y)) := exists X, oneb P (dn X) M /\ oneb Q (up X) N ; % close
+one  (par P Q) tau (nu y\ par (M y) (N y)) := exists X, oneb P (up X) M /\ oneb Q (dn X) N ;
+one  (par P Q) tau (par (M Y) Q1) := exists X, oneb P (dn X) M /\ one Q (up X Y) Q1 ; % comm
+one  (par P Q) tau (par P1 (N Y)) := exists X, one P (up X Y) P1 /\ oneb Q (dn X) N .
+
+
+% Simulation
+
+Define coinductive sim : p -> p -> prop by
+  sim P Q :=
+    (forall A P1, one P A P1 -> exists Q1, one Q A Q1 /\ sim P1 Q1) /\
+    (forall X M, oneb P (dn X) M -> exists N, oneb Q (dn X) N /\
+                                                forall W, sim (M W) (N W)) /\
+    (forall X M, oneb P (up X) M -> exists N, oneb Q (up X) N /\
+                                                nabla w, sim (M w) (N w)).
+
+
+% Bisimulation
+
+Define coinductive bisim : p -> p -> prop by
+  bisim P Q :=
+    (forall A P1, one P A P1 -> exists Q1, one Q A Q1 /\ bisim P1 Q1) /\
+    (forall X M, oneb P (dn X) M -> exists N, oneb Q (dn X) N /\
+                                                forall W, bisim (M W) (N W)) /\
+    (forall X M, oneb P (up X) M -> exists N, oneb Q (up X) N /\
+                                                nabla w, bisim (M w) (N w)) /\
+    (forall A Q1, one Q A Q1 -> exists P1, one P A P1 /\ bisim Q1 P1) /\
+    (forall X N, oneb Q (dn X) N -> exists M, oneb P (dn X) M /\
+                                                forall W, bisim (N W) (M W)) /\
+    (forall X N, oneb Q (up X) N -> exists M, oneb P (up X) M /\
+                                                nabla w, bisim (N w) (M w)).
+
+/*
+Theorem example_bisim_null_null : bisim null null.
+   
+Theorem example_bisim_tau_tau : bisim (taup null) (taup null).
+     
+Theorem example_bisim_match : forall X, bisim (match X X (taup null)) (taup null).      
+     
+Theorem example_bisim_diff : forall X Y, bisim (diff X Y (taup null)) (taup null).      
+*/
+
+Kind o'                  type.
+Type tt, ff              o'.
+Type conj, disj          o' -> o' -> o'.
+Type boxMatch, diaMatch,
+     boxDiff, diaDiff    n -> n -> o' -> o'.
+Type boxAct, diaAct      a -> o' -> o'.
+Type boxOut, diaOut,
+     boxIn, diaIn      n -> (n -> o') -> o'.
+
+Define sat : p -> o' -> prop
+by sat P ff := false
+ ; sat P tt := true
+ ; sat P (conj A B) := sat P A /\ sat P B
+ ; sat P (disj A B) := sat P A \/ sat P B
+ ; sat P (boxMatch X Y A) := X = Y -> sat P A
+ ; sat P (diaMatch X Y A) := X = Y /\ sat P A
+ ; sat P (boxDiff X Y A) := (X = Y -> false) -> sat P A
+ ; sat P (diaDiff X Y A) := (X = Y -> false) /\ sat P A
+ ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
+ ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
+ ; sat P (boxOut X A) := forall Q, oneb P (up X) Q -> nabla w, sat (Q w) (A w)
+ ; sat P (diaOut X A) := exists Q, oneb P (up X) Q /\ nabla w, sat (Q w) (A w)
+ ; sat P (boxIn X A) := forall Q, oneb P (dn X) Q -> forall w, sat (Q w) (A w)
+ ; sat P (diaIn X A) := exists Q, oneb P (dn X) Q /\ forall w, sat (Q w) (A w)
+ .
+
+/*
+Theorem example1 : forall x y,
+  sat (match x y (taup null)) (conj (boxMatch x y (diaAct tau tt))
+                                    (boxAct tau (diaMatch x y tt))).
+% Proof.
+  intros. unfold.
+    unfold. intros. case H1. search.
+    unfold. intros. case H1. case H2. search.
+% Q.E.D.
+
+Theorem example1a : forall x y,
+  sat (plus (taup null) null) (conj (boxMatch x y (diaAct tau tt))
+                                    (boxAct tau (diaMatch x y tt))).
+  intros. unfold.
+    % Subgoal 1
+    search.
+    % Subgoal 2
+    unfold. intros. case H1.
+      % Subgoal 2.1
+      case H2. unfold.
+        % Subgoal 2.1.1
+        % % Variables: x y
+        % % ============================ cannot prove stuck here
+        % %  x = y
+        skip.
+        % Subgoal 2.1.2
+        search.
+      % Subgoal 2.2
+      case H2.
+*/
+
