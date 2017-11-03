@@ -10,7 +10,7 @@
 %% modal logic equivalence and demonstrate partially mechanized proof
 %% development for proving that logic equivalence implies bisimulation.
 
-%Set subgoals off.
+Set subgoals off.
 % Simulation defined
 
 Kind n, p, a  type.
@@ -25,6 +25,7 @@ Type nu  (n -> p) -> p.
 Type tau  a.
 Type up, dn  n -> n -> a.
 
+Close n.
 
 Define one : p -> a -> p -> prop ,
        oneb : p -> (n -> a) -> (n -> p) -> prop
@@ -170,6 +171,11 @@ Theorem nbisim_consistent : forall P Q, bisim P Q -> nbisim P Q -> false.
     apply H8 to H10. apply H11 to H12. apply IH to H13 H14.
 % Q.E.D.
 
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% bisimulation examples
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     
 Theorem example_bisim_null_null : bisim null null.
 unfold.
      intros. case H1.
@@ -188,8 +194,7 @@ unfold.
      intros. split. search. backchain example_bisim_null_null.
      intros. case H1.
      intros. case H1.
-     
-     
+
 Theorem example_bisim_match : forall X, bisim (match X X (taup null)) (taup null).      
 intros. unfold.
      intros. case H1. case H2. exists null. split. search. backchain example_bisim_null_null.
@@ -207,7 +212,71 @@ intros. unfold.
      intros. case H1. exists null. split. unfold.
      abort. % cannot prove (X = Y -> false)
 
+Theorem example_bisim_plusmatchdiff3var : forall X U V,
+  bisim (plus (match X U (taup null)) (diff X U (taup null))) 
+        (plus (match X V (taup null)) (diff X U (taup null))).
+intros. unfold.
+  intros. case H1. case H2. case H3. exists null. split.
+    unfold. abort. % cannot prove:  one (match U V (taup null)) tau null
 
+Query oneb (nu u\nu v\out n1 u (out n1 v (in n1
+               x\plus (match x v (taup null)) (diff x v (taup null)))))
+           (up n1) N.
+
+Query  oneb
+             (nu
+                (v\out n1 v
+                     (in n1
+                        (x\plus (match x v (taup null))
+                             (diff x v (taup null))))))
+             (up n1) N.  
+/*	       
+Theorem example_bisim_plusmatchdiff3var_with_prifix : nabla a,
+  bisim
+    (nu u\ nu v\ out a u (out a v (in a x\ plus (match x u (taup null)) (diff x u (taup null)))))
+    (nu u\ nu v\ out a u (out a v (in a x\ plus (match x v (taup null)) (diff x v (taup null))))).
+intros. unfold.
+  % Subgoal 1
+  intros. case H1. case H2. case H3.
+  % Subgoal 2
+  intros. case H1. case H2. case H3.
+  % Subgoal 3
+  intros. case H1.
+    % Subgoal 3.1
+    case H2. case H3. case H3.
+    % Subgoal 3.2
+    case H2. case H3.
+       exists u\nu v\out n1 v (in n1 x\plus (match x v (taup null)) (diff x v (taup null))).
+       split. search. intros. unfold.
+         intros. case H4. case H5.
+         intros. case H4. case H5. intros. case H4. case H5. case H5.
+           exists v\in n1 x\plus (match x v (taup null)) (diff x v (taup null)).
+           split. search. intros. unfold.
+           intros. case H6. intros. case H6.
+             exists x\plus (match x n3 (taup null)) (diff x n3 (taup null)).
+             split. search. intros. unfold. intros. case H7. case H8. case H9.
+               exists null. split. search. backchain example_bisim_null_null.
+     case H8. case H10. exists null. split. unfold 4. 
+unfold.
+
+     skip. backchain example_bisim_null_null.
+            intros. case H7. case H8. case H9. case H8. case H10. intros. case H7. case H8. case H9.
+            case H8. case H10. intros. case H7. case H8. case H9. exists null. split. skip. backchain example_bisim_null_null.
+     case H8. case H10. exists null. split. skip. backchain example_bisim_null_null.
+     intros. case H7. case H8. case H9. case H8. case H10. intros. case H7. case H8. case H9. case H8. case H10. intros. case H6. intros. case H6. intros. case H6. exists x\plus (match x n2 (taup null)) (diff x n2 (taup null)). split. search. intros. skip. intros. case H6. intros. case H4. case H5. intros. case H4. case H5. intros. case H4. case H5. case H5. exists 
+   
+  intros. case H1. case H2. case H3.
+  intros. case H1. case H2. case H3.
+  intros. case H1.
+     case H2. case H3. case H3.
+     case H2. case H3. skip.
+*/
+
+     
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% modal logic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     
 Kind o'                  type.
 Type tt, ff              o'.
 Type conj, disj          o' -> o' -> o'.
