@@ -1,0 +1,1794 @@
+% Specification of the (finite) pi-calculus with mismatch.
+
+% Extended from the specification of pi-calculus cong proof on sim
+% in the Abella repository examples directory.
+
+% Ki Yung Ahn. Dec 2017
+
+% [AT] Modified version of Ki Yung's quasi open bisim. Push the 'quasi excluded middle'
+% to the axiom level.
+
+Specification "pisyntax".
+
+Define name : A -> prop  by  nabla x, name x.
+
+Type nm2o  nm -> o.
+
+Define occurs : nm -> pr -> prop
+by occurs X (taup P) := occurs X P
+ ; occurs X (inp X P)
+ ; occurs X (inp Y P) := nabla w, occurs X (P w)
+ ; occurs X (oup X Y P)
+ ; occurs Y (oup X Y P)
+ ; occurs Z (oup X Y P) := occurs Z P 
+ ; occurs X (plus P Q) := occurs X P
+ ; occurs X (plus P Q) := occurs X Q
+ ; occurs X (par P Q) := occurs X P
+ ; occurs X (par P Q) := occurs X Q
+ ; occurs X (nu P) := nabla w, occurs X (P w)
+ ; occurs X (match X Y P)
+ ; occurs Y (match X Y P)
+ ; occurs Z (match X Y P) := occurs Z P 
+ ; occurs X (mismatch X Y P)
+ ; occurs Y (mismatch X Y P)
+ ; occurs Z (mismatch X Y P) := occurs Z P 
+.
+
+Define supp : olist -> pr -> prop
+by supp S null
+ ; supp S (taup P) := supp S P
+ ; supp S (inp X P) := member (nm2o X) S /\ nabla w, supp S (P w)
+ ; supp S (oup X Y P) := member (nm2o X) S /\ member (nm2o Y) S /\ supp S P
+ ; supp S (plus P Q) := supp S P /\ supp S Q
+ ; supp S (par P Q) := supp S P /\ supp S Q
+ ; supp S (nu P) := nabla w, supp S (P w)
+ ; supp S (match X Y P) := member (nm2o X) S /\ member (nm2o Y) S /\ supp S P
+ ; supp S (mismatch X Y P) := member (nm2o X) S /\ member (nm2o Y) S /\ supp S P
+.
+
+Define fresh : A -> B -> prop  by  nabla x, fresh x E.
+ 
+Theorem fresh_occurs_false : forall X P, fresh X P -> occurs X P -> false.
+Set subgoals off.
+induction on 2. intros. case H2.
+apply IH to _ H3. case H1. search.
+case H1.
+apply IH to _ H3. case H1. search.
+case H1.
+case H1.
+apply IH to _ H3. case H1. search.
+apply IH to _ H3. case H1. search.
+apply IH to _ H3. case H1. search.
+apply IH to _ H3. case H1. search.
+apply IH to _ H3. case H1. search.
+apply IH to _ H3. case H1. search.
+case H1.
+case H1.
+case H1.
+apply IH to _ H3.
+case H1.
+case H1.
+apply IH to _ H3. case H1. search.
+Set subgoals on.
+%QED
+
+% Axiom of quasi excluded middle on names
+% Since there's no keyward for axioms, we use theorem with skip. %% KYA: this is in fact a theorem
+%% [AT] you're right! 
+%%Theorem quasi-em: forall (x : nm), nabla y, (x = y) \/ (x = y -> false).
+%%intros. right. search.
+%QED
+
+%% KYA: this one cannot be proven (I mean should not be able to prove in non-broken Abella)
+Theorem quasi-em: nabla y, forall (x : nm), (x = y) \/ (x = y -> false).
+skip.
+
+Define % free and bound steps of the LTS
+   one  : pr -> lb -> pr -> prop
+ , oneb : pr -> (nm -> lb) -> (nm -> pr) -> prop
+by
+;  one (taup P) tau P           % internal step
+;  one (inp X P) (dn X Y) (P Y) % free input
+;  one (oup X Y P) (up X Y) P   % free output
+ %% core process algebra for free steps
+;  one (plus P Q) L R := one P L R
+;  one (plus P Q) L R := one Q L R
+;  one (par P Q) L (par R Q) := one P L R
+;  one (par P Q) L (par P R) := one Q L R
+;  one (nu P) L (nu Q) := nabla x, one (P x) L (Q x)
+;  one (match X X P) L Q := one P L Q
+;  one (mismatch X Y P) L Q :=
+     (name X \/ name Y) /\ (X = Y -> false) /\ one P L Q
+
+;  one (par P Q) tau (par PP QQ) :=              % closed communication
+      (exists X Y, one P (dn X Y) PP /\ one Q (up X Y) QQ)
+   \/ (exists X Y, one P (up X Y) PP /\ one Q (dn X Y) QQ)
+;  one (par P Q) tau (nu y\ par (PP y) (QQ y)) := % bound communication 
+      (exists X, oneb Q (up X) QQ /\ nabla y, one P (dn X y) (PP y))
+   \/ (exists X, oneb P (up X) PP /\ nabla y, one Q (dn X y) (QQ y))
+
+   % bound output (causing scope extrusion)
+;  oneb (nu P) (up X) R := nabla y, one (P y) (up X y) (R y)
+ %% core process algebra for bound steps
+;  oneb (plus P Q) L R := oneb P L R
+;  oneb (plus P Q) L R := oneb Q L R
+;  oneb (par P Q) L (x\ par (R x) Q) := oneb P L R
+;  oneb (par P Q) L (x\ par P (R x)) := oneb Q L R
+;  oneb (match X X P) L Q := oneb P L Q
+;  oneb (mismatch X Y P) L Q :=
+     (name X \/ name Y) /\ (X = Y -> false) /\ oneb P L Q
+;  oneb (nu P) L (y\ nu x\ R x y) := nabla x, oneb (P x) L (R x)
+.
+
+
+% quasi (open) bisimulation has the same clauses as early bisimulation.
+% the only difference is in the quantification of free names     
+CoDefine qbisim : pr -> pr -> prop
+by
+; qbisim P Q := 
+     (forall L P1, one P L P1 ->
+        exists Q1, one Q L Q1 /\ qbisim P1 Q1)
+  /\ (forall X P1, oneb P (up X) P1 ->
+        exists Q1, oneb Q (up X) Q1 /\ nabla z, qbisim (P1 z) (Q1 z))
+  /\ (forall L Q1, one Q L Q1 ->
+        exists P1, one P L P1 /\ qbisim P1 Q1)
+  /\ (forall X Q1, oneb Q (up X) Q1 ->
+        exists P1, oneb P (up X) P1 /\ nabla z, qbisim (P1 z) (Q1 z))
+.
+
+%%% qsim is preorder and qbisim is equivalence
+
+Theorem qbisim-refl : forall P, qbisim P P.
+coinduction. intros. unfold.
+  intros. exists P1. split. search. backchain CH.
+  intros. exists P1. split. search. intros. backchain CH.
+  intros. exists Q1. split. search. backchain CH.
+  intros. exists Q1. split. search. intros. backchain CH.
+%QED
+
+Theorem qbisim-sym : forall P Q, qbisim P Q -> qbisim Q P.
+coinduction. intros. case H1. unfold.
+  intros. apply H4 to H6. exists P2. split. search. backchain CH.
+  intros. apply H5 to H6. exists P2. split. search. intros. backchain CH.
+  intros. apply H2 to H6. exists Q2. split. search. backchain CH.
+  intros. apply H3 to H6. exists Q2. split. search.  apply CH to H8. search. 
+%QED
+
+Theorem qbisim-trans : forall P Q R, qbisim P Q -> qbisim Q R -> qbisim P R.
+coinduction. intros. case H1. case H2. unfold.
+  intros. apply H3 to H11. apply H7 to H12. apply CH to H13 H15. search.
+  intros. apply H4 to H11. apply H8 to H12. exists Q1. split. search. intros. apply H10 to H14. 
+  backchain CH.        
+  intros. apply H9 to H11. apply H5 to H12. apply CH to H15 H13. search.
+  intros. apply H10 to H11. apply H6 to H12. exists P1.  split.  search.  intros.  
+ backchain CH. 
+%QED
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem qbisim_cong_taup :
+forall P Q, qbisim P Q -> qbisim (taup P) (taup Q).
+coinduction. intros. apply CH to H1. unfold.
+intros. case H3. exists Q. search.
+intros. case H3.
+intros. case H3. exists P. search.
+intros. case H3.
+%QED
+
+Theorem qbisim_cong_taup_inverse :
+forall P Q, qbisim (taup P) (taup Q) -> qbisim P Q.
+coinduction. intros. apply CH to H1. unfold.
+case H1. intros. apply H3 to _. case H8. case H9. apply H10 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H11 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H12 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H13 to H7. search.
+%QED
+      
+Theorem qbisim_cong_plus :
+forall P Q R S, qbisim P Q -> qbisim R S -> qbisim (plus P R) (plus Q S).
+coinduction. intros. apply CH to H1 H2. unfold.
+intros. case H4.
+      case H1. apply H6 to H5. exists Q2. search.
+      case H2. apply H6 to H5. exists Q2. search.
+intros. case H4.
+      case H1. apply H7 to H5. search.
+      case H2. apply H7 to H5. search.
+intros. case H4.
+      case H1. apply H8 to H5. exists P2. search.
+      case H2. apply H8 to H5. exists P2. search.
+intros. case H4.
+      case H1. apply H9 to H5. search.
+      case H2. apply H9 to H5. search.
+%QED
+
+
+Theorem qbisim_cong_oup : forall P Q X Y, qbisim P Q -> qbisim (oup X Y P) (oup X Y Q).
+coinduction. intros. apply CH to H1 with X = X, Y = Y. unfold.
+intros. case H3. search.
+intros. case H3.
+intros. case H3. search.
+intros. case H3.
+%QED
+
+Theorem qbisim_cong_oup_inverse : forall P Q X Y, qbisim (oup X Y P) (oup X Y Q) ->  qbisim P Q.
+coinduction. intros. apply CH to H1 with X = X, Y = Y. unfold.
+case H1. intros. apply H3 to _. case H8. case H9. apply H10 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H11 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H12 to H7. search.
+case H1. intros. apply H3 to _. case H8. case H9. apply H13 to H7. search.
+%QED
+    
+Theorem qbisim_cong_inp : forall P Q X, (forall Y, qbisim (P Y) (Q Y)) -> qbisim (inp X P) (inp X Q).
+coinduction. intros. unfold.
+intros. case H2. exists Q Y. apply H1 with Y = Y. search.
+intros. case H2.
+intros. case H2. exists P Y. apply H1 with Y = Y. search.
+intros. case H2.
+%QED    
+
+Theorem qbisim_cong_inp_inverse : forall P Q X Y, qbisim (inp X P) (inp X Q) -> qbisim (P Y) (Q Y).
+coinduction. intros. apply CH to H1 with X = X, Y = Y. unfold.
+case H1. intros. apply H3 to _ with L = dn X Y. case H8. case H9. apply H10 to H7. search.
+case H1. intros. apply H3 to _ with L = dn X Y. case H8. case H9. apply H11 to H7. search.
+case H1. intros. apply H3 to _ with L = dn X Y. case H8. case H9. apply H12 to H7. search.
+case H1. intros. apply H3 to _ with L = dn X Y. case H8. case H9. apply H13 to H7. search.    
+%QED    
+
+      
+Theorem qbisim_cong_match :
+forall P Q X Y, qbisim P Q -> qbisim (match X Y P) (match X Y Q).
+coinduction. intros. apply CH to H1 with X = X, Y = Y. case H1. unfold.
+intros. case H7. apply H3 to H8. exists Q2. search.
+intros. case H7. apply H4 to H8. exists Q2. search.
+intros. case H7. apply H5 to H8. exists P2. search.
+intros. case H7. apply H6 to H8. exists P2. search.
+%QED
+
+Theorem qbisim_cong_mismatch :
+forall P Q X Y, qbisim P Q -> qbisim (mismatch X Y P) (mismatch X Y Q).
+coinduction. intros. apply CH to H1 with X = X, Y = Y. case H1. unfold.
+intros. case H7. apply H3 to H10. exists Q2. search.
+intros. case H7. apply H4 to H10. exists Q2. search.
+intros. case H7. apply H5 to H10. exists P2. search.
+intros. case H7. apply H6 to H10. exists P2. search.
+%QED
+    
+Theorem qbisim_cong_nu : forall P Q, nabla x, qbisim (P x) (Q x) -> qbisim (nu P) (nu Q). 
+coinduction. intros. apply CH to H1. unfold.
+intros. case H3. case H1. apply H5 to H4. exists nu Q2. split.
+      search.
+      backchain CH with x = n1.
+intros. case H3.
+  case H1. apply H5 to H4. search.
+  case H1. apply H6 to H4. exists y\nu x\Q2 x y. split.
+      search.
+      intros. backchain CH with x = n2. 
+intros. case H3. case H1. apply H7 to H4. exists nu P2. split.
+      search.
+      backchain CH with x = n1.
+intros. case H3.
+  case H1. apply H7 to H4. search.
+  case H1. apply H8 to H4. exists y\nu x\P2 x y. split.
+      search.
+      intros. backchain CH with x = n2.
+%QED
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5      
+
+Define inv : (pr -> pr -> prop) -> pr -> pr -> prop by
+  inv Rel P Q := Rel P Q ;
+  inv Rel (par P1 P2) (par Q1 Q2) := inv Rel P1 Q1 /\ inv Rel P2 Q2 ;
+  inv Rel (nu P) (nu Q) := nabla x, inv Rel (P x) (Q x).
+
+Define qbisiminv : pr -> pr -> prop
+by
+  qbisiminv P Q :=
+     (forall L P1, one P L P1 ->
+        exists Q1, one Q L Q1 /\ inv qbisim P1 Q1)
+  /\ (forall X P1, oneb P (up X) P1 ->
+        exists Q1, oneb Q (up X) Q1 /\ nabla y, inv qbisim (P1 y) (Q1 y))
+  /\ (forall L Q1, one Q L Q1 ->
+        exists P1, one P L P1 /\ inv qbisim P1 Q1)
+  /\ (forall X Q1, oneb Q (up X) Q1 ->
+        exists P1, oneb P (up X) P1 /\ nabla y, inv qbisim (P1 y) (Q1 y))
+.
+
+
+
+Theorem inv_qbisiminv : forall P Q, inv qbisim P Q -> qbisiminv P Q.
+induction on 1. intros. case H1.
+case H2. unfold.
+  intros. apply H3 to H7. search.
+  intros. apply H4 to H7. exists Q2.  split. search. intros.  search.
+  intros. apply H5 to H7. search.
+  intros. apply H6 to H7. exists P2. split.  search. intros.  search.
+apply IH to H2. apply IH to H3. case H4. case H5. unfold.    
+  intros. case H14.
+    apply H6 to H15. search.
+    apply H10 to H15. search.
+    case H15.
+      apply H6 to H16. apply H10 to H17. search.
+      apply H6 to H16. apply H10 to H17. search.
+    case H15.
+      apply H11 to H16.  apply H6 to H17. exists (nu y\ par (Q4 y) (Q3 y)). split. search. search.
+      apply H7 to H16. apply H10 to H17. exists (nu y\ par (Q3 y) (Q4 y)). split. search. search.
+  intros. case H14. 
+    apply H7 to H15. exists (x\ par (Q3 x) Q2). split. search.  search. 
+    apply H11 to H15. exists (x\ par Q1 (Q3 x)). split.  search. search. 
+  intros. case H14.
+    apply H8 to H15. search.
+    apply H12 to H15. search.
+    case H15.
+      apply H8 to H16. apply H12 to H17. search.
+      apply H8 to H16. apply H12 to H17. search.
+    case H15.
+      apply H13 to H16. apply H8 to H17. exists (nu y\ par (P4 y) (P3 y)). split. search. search.
+      apply H9 to H16. apply H12 to H17. exists (nu y\ par (P3 y) (P4 y)).  split. search. search.
+  intros. case H14. 
+    apply H9 to H15. exists (y\ par (P3 y) P2). split. search. intros.  search. 
+      apply H13 to H15. exists (y\ par P1 (P3 y)). split. search. search.
+apply IH to H2. case H3. unfold.
+  intros. case H8. apply H4 to H9. search.
+  intros. case H8.
+      apply H4 to H9. search.
+      apply H5 to H9. search.
+  intros. case H8. apply H6 to H9. search.
+  intros. case H8.
+      apply H6 to H9. search.
+      apply H7 to H9. search.
+%QED
+
+Theorem inv_qbisim : forall P Q, inv qbisim P Q -> qbisim P Q.
+coinduction. intros. apply inv_qbisiminv to H1. case H2. unfold.
+      intros. apply H3 to H7. apply CH to H9. search.
+      intros. apply H4 to H7. apply CH to H9. search.
+      intros. apply H5 to H7. apply CH to H9. search.
+      intros. apply H6 to H7. apply CH to H9. search.
+%QED.      
+
+Theorem qbisim_cong_par : forall P Q R S, qbisim P Q -> qbisim R S -> qbisim (par P R) (par Q S).     
+intros. backchain inv_qbisim. %QED
+      
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% modal logic for qbisim
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+   
+Kind o'                  type.
+Type tt, ff              o'.
+Type conj, disj          o' -> o' -> o'.
+Type boxMat, diaMat,
+     boxDif, diaDif      nm -> nm  -> o' -> o'.
+Type boxAct, diaAct      lb -> o' -> o'.
+Type boxOut, diaOut      nm -> (nm -> o') -> o'.
+
+Define sat : pr -> o' -> prop
+by sat P ff := false
+ ; sat P tt := true
+ ; sat P (conj A B) := sat P A /\ sat P B
+ ; sat P (disj A B) := sat P A \/ sat P B
+ ; sat P (boxMat X Y A) := X = Y -> sat P A
+ ; sat P (diaMat X Y A) := X = Y /\ sat P A
+ ; sat P (boxDif X Y A) := (name X \/ name Y) -> (X = Y -> false) -> sat P A
+ ; sat P (diaDif X Y A) := (name X \/ name Y) /\ (X = Y -> false) /\ sat P A
+ ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
+ ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
+ ; sat P (boxOut X A) := forall Q, oneb P (up X) Q -> nabla w, sat (Q w) (A w)
+ ; sat P (diaOut X A) := exists Q, oneb P (up X) Q /\ nabla w, sat (Q w) (A w)
+ .
+
+Theorem dist_form0 : forall P Q,
+  ((forall F, sat P F -> sat Q F) -> false) \/
+  ((forall F, sat Q F -> sat P F) -> false) ->
+  ((forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> false).
+% Proof.
+   intros. case H1.
+   backchain H3. intros. apply H2 with F = F. backchain H5.
+   backchain H3. intros. apply H2 with F = F. backchain H6.
+% Q.E.D.
+
+Theorem dist_form_both0: forall P Q, 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  ((forall F, sat P F -> sat Q F) -> false) ->
+  ((forall F, sat Q F -> sat P F) -> false).
+% Proof.
+  intros. backchain H2. intros. apply H1 with F = F. backchain H5.
+% Q.E.D.
+
+Theorem dist_form_both0: forall P Q, 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  ((forall F, sat P F -> sat Q F) -> false) ->
+  ((forall F, sat Q F -> sat P F) -> false).
+% Proof.
+  intros. backchain H2. intros. apply H1 with F = F. backchain H5.
+% Q.E.D.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% Soundness (bisim implies logical equivalaence) proof  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Set subgoals off.
+   
+Theorem qbisim_sat_L : forall P Q F, qbisim P Q -> sat P F -> sat Q F.
+% Proof.
+  induction on 2.
+  intros. case H2.
+  % Subgoal 1
+  search.
+  % Subgoal 2
+  unfold.  backchain IH.  backchain IH.
+  % Subgoal 3
+  unfold. case H3.  left. backchain IH.  right. backchain IH.
+  % Subgoal 4
+  unfold.  intros.  backchain IH. backchain H3.
+  % Subgoal 5
+  unfold. search. backchain IH.				 
+  % Subgoal 6
+  unfold. intros. apply H3 to _ _. backchain IH.
+  % Subgoal 7
+  unfold. search. search. backchain IH. 
+  % Subgoal 8.
+  unfold. intros. case H1.
+  apply H7 to H4.
+  apply H3 to H9.
+  backchain IH.
+  % Subgoal 9
+  unfold. case H1. apply H5 to H3.
+  exists Q2. split. search.
+  backchain IH.
+  % Subgoal 10
+  unfold. intros. case H1.
+  apply H8 to H4.
+  apply H3 to H9.
+  backchain IH.
+  % Subgoal 11
+  unfold. case H1. apply H6 to H3.
+  exists Q2. split. search.
+  intros. backchain IH.
+% Q.E.D.
+
+Theorem qbisim_sat_R : forall P Q F, qbisim P Q -> sat Q F -> sat P F.
+% Proof.
+  intros.
+  apply qbisim-sym to H1.
+  backchain qbisim_sat_L.
+% Q.E.D.
+
+Theorem qbisim_sat : forall P Q F,
+  qbisim P Q -> ((sat P F -> sat Q F) /\ (sat Q F -> sat P F)).
+% Proof.
+intros. split.
+  intros. backchain qbisim_sat_L.
+  intros. backchain qbisim_sat_R.
+% Q.E.D.
+
+/* using the lemma below, qbisim_sat can be lifted for abtitrary free vars
+   For instance, consider processes with just one free variable Y:
+   (forall Y, qbisim (P Y) (Q Y)) implies
+   qbisim (inp a Y P) (inp a Y Q) where a is global ground channel name.
+   We can apply qbisim_sat and then in turn apply the lemma below to obtain
+   the logical equivalence for one free variable. For more free variables,
+   we only need to nest more input prefixes for each free variable.
+*/
+Theorem sateq_inp_forall : forall P Q X, 
+  (forall F, (sat (inp X P) F -> sat (inp X Q) F)
+          /\ (sat (inp X Q) F -> sat (inp X P) F))
+  ->
+  (forall F Y, (sat (P Y) F -> sat (Q Y) F)
+            /\ (sat (Q Y) F -> sat (P Y) F)).
+intros. apply H1 with F = diaAct (dn X Y) F. split.
+intros. assert sat (inp X P) (diaAct (dn X Y) F). apply H2 to H5. case H6. case H7. search.
+intros. assert sat (inp X Q) (diaAct (dn X Y) F). apply H3 to H5. case H6. case H7. search.
+%QED
+
+Theorem satimp_forall_inp : forall P Q X,
+  (forall F Y, sat (P Y) F -> sat (Q Y) F) ->
+  (forall F, sat (inp X P) F -> sat (inp X Q) F).
+induction on 2. intros. apply IH to H1 with X = X. case H2.
+   search.
+   apply H3 to H4. apply H3 to H5. search.
+   case H4. apply H3 to H5. search. apply H3 to H5. search.
+   unfold. intros. apply H4 to H5. backchain H3.
+   unfold. search. backchain H3.
+   unfold. intros. apply H4 to _ _. backchain H3.
+   unfold. search. search. backchain H3.
+   unfold. intros. case H5. apply H4 to _. apply H1 to H6. search.
+   unfold. case H4. apply H1 to H5. search.
+   unfold. intros. case H5.
+   case H4. 
+%QED
+
+% Similarly, using the lemma below sat_qbisim can be lifted to arbitrary free vars
+% (however, remember that sat_qbisim has not been completely mechanized in Abella)
+Theorem sateq_forall_inp : forall P Q X, 
+  (forall F Y, (sat (P Y) F -> sat (Q Y) F)
+            /\ (sat (Q Y) F -> sat (P Y) F))
+  ->
+  (forall F, (sat (inp X P) F -> sat (inp X Q) F)
+          /\ (sat (inp X Q) F -> sat (inp X P) F)).
+intros.
+assert forall F Y, (sat (P Y) F -> sat (Q Y) F).
+   intros. apply H1 with F = F1, Y = Y. backchain H3.   
+assert forall F Y, (sat (Q Y) F -> sat (P Y) F).
+   intros. apply H1 with F = F1, Y = Y. backchain H5.
+split.
+apply satimp_forall_inp to H2 with X = X. intros. backchain H4.
+apply satimp_forall_inp to H3 with X = X. intros. backchain H4.
+%QED
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%% some parts of Completness (logical equivalence implies bisim) proof
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem sat_match1 : forall P F X, sat P F -> sat (match X X P) F.
+  induction on 1. intros. case H1.
+    search.
+    unfold. backchain IH. backchain IH.
+    unfold. case H2. left. backchain IH. right. backchain IH.
+    unfold. intros. backchain IH. backchain H2.
+    unfold. intros. search. backchain IH.
+    unfold. intros. apply H2 to _ _. backchain IH.
+    unfold. intros. search. search. backchain IH.  
+    unfold. intros. case H3. apply H2 to H4. search.
+    unfold. exists P2. split. search. search.
+    unfold. intros. case H3. apply H2 to H4. search.
+    unfold. exists Q. split. search. intros. search.
+% Q.E.D.
+   
+Theorem sat_match2 : forall P F X, sat (match X X P) F -> sat P F.
+% Proof.
+  induction on 1. intros. case H1.
+    search.
+    unfold. backchain IH. backchain IH.
+    unfold. case H2. left. backchain IH. right. backchain IH.
+    unfold. intros. apply H2 to H3. backchain IH. 
+    unfold. search. backchain IH.
+    unfold. intros. apply H2 to _ _. backchain IH.
+    unfold. intros. search. search. backchain IH.   
+    unfold. intros. assert one (match X X P) X1 P1. apply H2 to H4. search. 
+    unfold. exists P2. split. case H2. search. search.
+    unfold. intros. assert oneb (match X X P) (up X1) Q. apply H2 to H4. search.
+    unfold. exists Q. split. case H2. search. intros. search.
+% Q.E.D.
+
+Theorem sat_diff1 : forall X Y P F,
+   (name X \/ name Y) -> (X = Y -> false) -> sat P F -> sat (mismatch X Y P) F.
+% Proof.
+induction on 3. intros. case H3.
+    search.
+    apply IH to _ _ H4. apply IH to _ _ H5. search.
+    case H4. apply IH to _ _ H5. search. apply IH to _ _ H5. search.
+    unfold. intros. apply H4 to H5. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. apply H4 to _ _. backchain IH.
+    unfold. search. search. backchain IH.
+    unfold. intros. case H5. apply H4 to H8. apply IH to _ _ H9. search.
+    unfold. apply IH to _ _ H5. search.
+    unfold. intros. case H5. apply H4 to H8. apply IH to _ _ H9. search.
+    unfold. apply IH to _ _ H5. search.
+% Q.E.D.
+
+Theorem sat_diff2 : forall X Y P F,
+   (name X \/ name Y) -> (X = Y -> false) -> sat (mismatch X Y P) F -> sat P F.
+% Proof.
+induction on 3. intros. case H3.
+    search.
+    apply IH to _ _ H4. apply IH to _ _ H5. search.
+    case H4. apply IH to _ _ H5. search. apply IH to _ _ H5. search.
+    unfold. intros. apply H4 to H5. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. apply H4 to _ _. backchain IH.
+    unfold. search. search. backchain IH.
+    unfold. intros. assert one (mismatch X Y P) X1 P1. apply H4 to H6. search.    
+    unfold. exists P2. split. case H4. search. search.
+    unfold. intros. assert oneb (mismatch X Y P) (up X1) Q. apply H4 to H6. search.
+    unfold. exists Q. split. case H4. search. search.
+% Q.E.D.
+
+  
+Theorem sat_diaAct_plus1 : forall P Q A F,
+  sat P (diaAct A F) -> sat (plus P Q) (diaAct A F).
+% Proof.
+  intros. unfold. case H1. exists P2. split. search. search.
+% Q.E.D.
+
+Theorem sat_diaAct_plus2 : forall P Q A F,
+  sat Q (diaAct A F) -> sat (plus P Q) (diaAct A F).
+% Proof.
+  intros. unfold. case H1. exists P2. split. search. search.
+% Q.E.D.
+
+
+Theorem sateq_one_exists_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one P A P1 -> exists Q1, one Q A Q1.
+% Proof.
+  induction on 2. intros. case H2.
+  % Subgoal 1
+  assert forall F, sat P1 F -> sat Q (diaAct tau F).
+    intros. apply H1 with F = diaAct tau F. backchain H4.
+  assert sat P1 tt. apply H3 to H4. case H5. exists P2. search.
+  % Subgoal 2
+  assert forall F, sat P1 F -> sat Q (diaAct (dn X Y) F).
+    intros. apply H1 with F = diaAct (dn X Y) F. backchain H4.
+  assert sat P1 tt. apply H3 to H4. case H5. exists P3. search.
+  % Subgoal 3
+  assert forall F, sat P1 F -> sat Q (diaAct (up X Y) F).
+    intros. apply H1 with F = diaAct (up X Y) F. backchain H4.
+  assert sat P1 tt. apply H3 to H4. case H5. exists P2. search.
+  % Subgoal 4
+  assert forall F, sat P2 (diaAct A F) -> sat Q (diaAct A F).
+    intros. apply H1 with F = diaAct A F. backchain H5.
+    backchain sat_diaAct_plus1.
+  assert exists F, sat P2 (diaAct A F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 5
+  assert forall F, sat Q1 (diaAct A F) -> sat Q (diaAct A F).
+    intros. apply H1 with F = diaAct A F.
+    backchain H5. backchain sat_diaAct_plus2.
+  assert exists F, sat Q1 (diaAct A F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 6
+  assert exists F, sat (par P2 Q1) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H4. apply H1 with F = diaAct A F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search.
+  % Subgoal 7
+  assert exists F, sat (par P2 Q1) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H4. apply H1 with F = diaAct A F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search.
+  % Subgoal 8
+  assert exists F, sat (nu P2) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H4. apply H1 with F = diaAct A F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search.
+  % Subgoal 9
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H4. backchain sat_match1.
+    intros. apply H5 to H6. backchain sat_match2.
+  % Subgoal 10
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H6. backchain sat_diff1.
+    intros. apply H7 to H8. backchain sat_diff2.
+  % Subgoal 11
+  assert exists F, sat (par P2 Q1) (diaAct tau F).
+  assert exists F, sat Q (diaAct tau F).
+    case H4. apply H1 with F = diaAct tau F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search.
+  % Subgoal 12
+  assert exists F, sat (par P2 Q1) (diaAct tau F).
+  assert exists F, sat Q (diaAct tau F).
+    case H4. apply H1 with F = diaAct tau F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search. 
+% Q.E.D.
+
+Theorem sateq_one_exists_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one Q A Q1 -> exists P1, one P A P1.
+% Proof.
+  intros.
+  assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).
+    intros. apply H1 with F = F. split. search. search.
+  backchain sateq_one_exists_L.
+% Q.E.D.
+
+Theorem sateq_one_exists : forall P Q A P1 Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  (  ( one P A P1 -> exists Q1, one Q A Q1 )
+  /\ ( one Q A Q1 -> exists P2, one P A P2 ) ).
+% Proof.
+  intros. split.
+    intros. backchain sateq_one_exists_L.
+    intros. backchain sateq_one_exists_R.
+% Q.E.D.
+
+Theorem sateq_one_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one P A P1 -> exists Q1, one Q A Q1
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).
+% Proof.
+  skip.
+  /*
+  Because we assume finite panout for every state, we know that set of Qi is
+  finite. And we know that the set is non empty due to sateq_one_exists_L.
+  So, we can ennumerate all posiible such Qis and try proving 
+  (forall F, (sat P1 F -> sat Qi F) /\ (sat Qi F -> sat P1 F))
+  for one of the Qis. If you were able to find a proof for one such Qi
+  then we are done. But the question is whether there a possibility where
+  no proof exist for all Qi. That, is for each Qi there exists Fi such that
+  no proof exists for (sat P1 Fi -> sat Qi Fi) /\ (sat Qi Fi -> sat P1 Fi).
+  In other words, each Fi satisfy either (exclusive) one of the following:
+    1) No proof for (sat P1 Fi -> sat Qi Fi), that is,
+       there is a proof for "sat Qi F" but no proof for sat P1 Fi".
+    2) No proof for (sat Qi F -> sat P1 F):
+       there is a proof for "sat P1 F" but no proof for sat Qi Fi".
+  Another fortunate fact is that if we have an Fi that satisy one of above,
+  we can construct Fi' that satisfy the other related by "neg". So without
+  loss of generality, our assumption amounts to saying that every Qi has Fi
+  that satisfy 2). Consider a conjuction of all such Fis:
+    Fq = F1 /\ F2 /\ F3 /\ ...
+  We can prove "P1 |= Fq" but no proof exists for "Qi |= Fq" for any Qi.
+  Now, consider a formula <A>Fq. We know that "P |= <A>Fq" but clearly
+  there is no proof for "Q |= <A>Fq", which contradicts 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)).
+  Therefore, it is not possible to assume that all Qi fails to be logically
+  equivalent to P1. That is there must exist Q1 logically equivalent to P1.
+  */
+% Q.E.D.
+
+Theorem sateq_one_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one Q A Q1 -> exists P1, one P A P1
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D
+
+Theorem sat_diaOut_plus1 : forall P Q X F,
+  sat P (diaOut X F) -> sat (plus P Q) (diaOut X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+
+Theorem sat_diaOut_plus2 : forall P Q X F,
+  sat Q (diaOut X F) -> sat (plus P Q) (diaOut X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+
+
+Theorem sateq_oneb_up_exists_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb P (up X) P1 -> exists Q1, oneb Q (up X) Q1.
+% Proof.
+  induction on 2. intros. case H2.
+  % Subgoal 1
+  assert exists F, sat (nu P2) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H4. apply H1 with F = diaOut X F. apply H6 to H5. search.
+  case H5. case H6. search.
+  % Subgoal 2
+  assert forall F, sat P2 (diaOut X F) -> sat Q (diaOut X F).
+    intros. apply H1 with F = diaOut X F.
+    backchain H5. backchain sat_diaOut_plus1.
+  assert exists F, sat P2 (diaOut X F).
+  case H5. apply H4 to H6. case H7. search. 
+  % Subgoal 3
+  assert forall F, sat Q1 (diaOut X F) -> sat Q (diaOut X F).
+    intros. apply H1 with F = diaOut X F.
+    backchain H5. backchain sat_diaOut_plus2.
+  assert exists F, sat Q1 (diaOut X F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 4
+  assert exists F, sat P2 (diaOut X F).
+  assert exists F, sat (par P2 Q1) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H5. apply H1 with F = diaOut X F. apply H7 to H6. search.
+  case H6. case H7. exists Q2. search.
+  % Subgoal 5
+  assert exists F, sat Q1 (diaOut X F).
+  assert exists F, sat (par P2 Q1) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H5. apply H1 with F = diaOut X F. apply H7 to H6. search.
+  case H6. case H7. exists Q2. search.
+  % Subgoal 6
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H4. backchain sat_match1.
+    intros. apply H5 to H6. backchain sat_match2.
+  % Subgoal 7
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H6. backchain sat_diff1.
+    intros. apply H7 to H8. backchain sat_diff2.
+  % Subgoal 8
+  assert exists F, sat (nu P2) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H4. apply H1 with F = diaOut X F. apply H6 to H5. search.
+  case H5. case H6. search.   
+% Q.E.D.
+
+Theorem sateq_oneb_up_exists_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb Q (up X) Q1 -> exists P1, oneb P (up X) P1.
+% Proof.
+  intros.
+  assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).
+    intros. apply H1 with F = F. split. search. search.
+  backchain sateq_oneb_up_exists_L.
+% Q.E.D. 
+
+Theorem sateq_oneb_up_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb P (up X) P1 -> exists Q1, oneb Q (up X) Q1
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+Theorem sateq_oneb_up_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb Q (up X) Q1 -> exists P1, oneb P (up X) P1
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+Theorem sat_qbisim : forall P Q,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> qbisim P Q.
+% Proof.
+  coinduction. intros. unfold.
+    % Subgoal 1
+    intros. apply sateq_one_L to H1 H2.
+    exists Q1. split. search. backchain CH.
+    % Subgoal 2
+    intros. apply sateq_oneb_up_L to H1 H2. exists Q1. split. search.
+    intros. backchain CH.
+    % Subgoal 3
+    intros. apply sateq_one_R to H1 H2. exists P1. split. search.
+    assert forall F, (sat Q1 F -> sat P1 F) /\ (sat P1 F -> sat Q1 F).
+    intros. apply H4 with F = F. split. search. search. backchain CH.
+    % Subgoal 4
+    intros. apply sateq_oneb_up_R to H1 H2.
+    exists P1. split. search.
+    assert forall F, (sat (Q1 n1) F -> sat (P1 n1) F) /\ (sat (P1 n1) F -> sat (Q1 n1) F).
+      intros. apply H4 with F = F n1.
+      split. intros. backchain H6. intros. backchain H5.
+    intros. backchain CH.
+% Q.E.D.
+
+Set subgoals on.
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% trying the definition of open barbed bisimulation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/* KYA:
+open barbed bisimluation (bbisim) is definable but not easy
+to express the relation between bbisim and qbisim because they
+are both open relations assuming all free vars in processes
+are quantified by forall. So, it would be something like
+
+** qbisim => bbisim ** (for n free variables in P and Q) :
+(forall x1 ... xn, qbisim P Q) -> (forall x1 ... xn, bbisim P Q).
+
+** bbisim => qbisim ** (for n free variables in P and Q) :
+(forall x1 ... xn, bbisim P Q) -> (forall x1 ... xn, qbisim P Q).
+
+(qbisim => bbisim) is in principle quite obvious because of
+congruence of qbisim but acutially stating it in Abella is tricky,
+before even going to (bbisim => qbisim), which is our real interest
+for mechanizing.
+
+In case of modal-logic equivalence and qbisim, using the trick
+with closedness of bisimulation under input prefix helped.
+Hopefully some similar trick works out here. The situation is
+each side is missing someting here.
+
+It is quite straightforward to prove (qbisim => bbisim) without considering
+free vars but lifting it to arbitrary free vars has not yet been done.
+Whether there is an easy lifting trick is under investigation.
+
+On the other hand, (bbisim => qbisim) is expected be more difficlut to prove
+(not yet done). However, it is actually even more obvious to lift from 0 free vars
+to arbitrary free vars than modal logic case because the definition of bbisim has
+wired-in congruence property. See bbisim_inp_forall lemma right after the bbisim definition.
+*/
+
+Define insnm : nm -> olist -> olist -> prop
+by insnm X L L := {L |- of X}
+ ; insnm X L (var X :: L) := fresh X L
+ ; insnm X L (con X :: L) := fresh X L
+ .
+   
+
+Define ctxrel' : olist -> pr -> pr -> olist -> pr -> pr -> prop
+by ctxrel' L P Q L P Q
+ ; ctxrel' L P Q L (taup P) (taup Q)
+ ; ctxrel' L P Q L (inp X PP) (inp X QQ) := {L |- of X} /\ exists Y, P = PP Y /\ Q = QQ Y /\ fresh Y PP /\ fresh Y QQ
+ ; ctxrel' L P Q L1 (inp X PP) (inp X QQ) := insnm X L L1 /\ exists Y, P = PP Y /\ Q = QQ Y /\ fresh Y PP /\ fresh Y QQ
+ ; ctxrel' L P Q (con X :: L) (inp X PP) (inp X QQ) := fresh X L /\ exists Y, P = PP Y /\ Q = QQ Y /\ fresh Y PP /\ fresh Y QQ
+ ; ctxrel' L P Q L (oup X Y P) (oup X Y Q) := {L |- of X} /\ {L |- of Y}
+ ; ctxrel' L P Q L (oup X Y P) (oup X Y Q) := fresh X L /\ fresh Y L
+ ; ctxrel' L P Q L (plus P R) (plus Q R) 
+ ; ctxrel' L P Q L (plus R P) (plus R Q)
+ ; ctxrel' L P Q L (par P R) (par Q R) 
+ ; ctxrel' L P Q L (par R P) (par R Q)
+ ; ctxrel' L P Q L (nu PP) (nu QQ) := exists X, P = PP X /\ Q = QQ X /\ fresh X PP /\ fresh X QQ
+ ; ctxrel' L P Q L (match X Y P) (match X Y Q)
+ ; ctxrel' L P Q L (mismatch X Y P) (mismatch X Y Q).
+
+   
+Define ctxrel : pr -> pr -> pr -> pr -> prop
+by ctxrel P Q P Q
+ ; ctxrel P Q (taup P) (taup Q)
+ ; ctxrel P Q (inp X PP) (inp X QQ) :=  exists Y, P = PP Y /\ Q = QQ Y /\ fresh Y PP /\ fresh Y QQ
+ ; ctxrel P Q (oup X Y P) (oup X Y Q)
+ ; ctxrel P Q (plus P R) (plus Q R) 
+ ; ctxrel P Q (plus R P) (plus R Q)
+ ; ctxrel P Q (par P R) (par Q R) 
+ ; ctxrel P Q (par R P) (par R Q)
+ ; ctxrel P Q (nu PP) (nu QQ) := exists X, P = PP X /\ Q = QQ X /\ fresh X PP /\ fresh X QQ
+ ; ctxrel P Q (match X Y P) (match X Y Q)
+ ; ctxrel P Q (mismatch X Y P) (mismatch X Y Q).
+/*
+Note we need the freshness condition for inp as well as nu because
+what we do with contexts is encosing them and in case of inp and nu
+all the variables must be captured not some of them left alone.
+For example, when P = match y y (taup null) and you want to have a
+input context that binds y, then PP = y\match y y (taup null) is
+the only valid choice, whereas neither PP = x\match y x (taup null)
+nor PP = x\match x y (taup null). All three cases of PP do satisfy
+one (inp X PP) (up X Y) P, however the first is what we really want
+when we say we want to capture y, therefore, Y must not occur in PP
+for the purpose of a valid context. Otherwise, the following theorem
+won't hold, which is a property that any sane context should satisfy.
+*/
+   
+Theorem ctxrel_det : forall P Q CP CQ, ctxrel P Q CP CQ -> P = Q -> CP = CQ.
+induction on 1. intros. case H1.
+search.
+case H2. search.
+case H3. case H4. case H2. search.
+case H2. search.
+case H2. search.
+case H2. search.
+case H2. search.
+case H2. search.
+case H3. case H4. case H2. search.
+case H2. search.
+case H2. search.
+%QED
+
+Define barb : pr -> nm -> prop
+by barb P X := exists Y P1, one P (dn X Y) P1 
+ ; barb P X := exists Y P1, one P (up X Y) P1
+ ; barb P X := exists P1, oneb P (up X) P1.
+
+CoDefine bbisim : pr -> pr -> prop
+by bbisim P Q
+   := (forall CP CQ, ctxrel P Q CP CQ -> bbisim CP CQ)
+   /\ (forall X, barb P X -> barb Q X)
+   /\ (forall P1, one P tau P1 -> exists Q1, one Q tau Q1 /\ bbisim P1 Q1)
+   /\ (forall X, barb Q X -> barb P X)
+   /\ (forall Q1, one Q tau Q1 -> exists P1, one P tau P1 /\ bbisim P1 Q1).
+
+   
+
+% because we use ctx for process contexts, different name than ctx
+Define env : olist -> prop
+by env nil 
+ ; nabla x, env (var x :: L) := env L
+ ; nabla x, env (con x :: L) := env L
+ .
+   
+Define close : (pr -> pr -> prop) -> olist -> pr -> pr -> prop
+by close Rel nil P Q := Rel P Q
+ ; nabla x, close Rel (var x :: L) (P x) (Q x) := forall x, close Rel L (P x) (Q x)
+ ; nabla x, close Rel (con x :: L) (P x) (Q x) := nabla x, close Rel L (P x) (Q x)
+ .
+ 
+Define qbisim' : olist -> pr -> pr -> prop
+by qbisim' L P Q := env L /\ {L |- closed P} /\ {L |- closed Q} /\ close qbisim L P Q.
+   
+CoDefine bbisim' : olist -> pr -> pr -> prop
+by bbisim' L P Q
+   := (env L /\ {L |- closed P} /\ {L |- closed Q}) 
+   /\ (forall CP CQ, ctxrel P Q CP CQ ->
+       exists L1, (forall A, {L |- A} -> {L1 |- A}) /\ bbisim' L1 CP CQ)
+   /\ (forall X, barb P X -> barb Q X)
+   /\ (forall P1, one P tau P1 -> exists Q1, one Q tau Q1 /\ bbisim' L P1 Q1)
+   /\ (forall X, barb Q X -> barb P X)
+   /\ (forall Q1, one Q tau Q1 -> exists P1, one P tau P1 /\ bbisim' L P1 Q1).
+
+  
+Theorem close_qbisim_cong_taup : forall L P Q,
+  close qbisim L P Q -> close qbisim L (taup P) (taup Q).
+induction on 1. intros. case H1.
+unfold. backchain qbisim_cong_taup.
+unfold. intros. apply H2 with x = x. backchain IH.
+unfold. intros. backchain IH.
+%QED
+
+Theorem qbisim'_cong_taup : forall L P Q, qbisim' L P Q -> qbisim' L (taup P) (taup Q).
+intros. case H1. unfold. search. search. search. backchain close_qbisim_cong_taup.
+%QED
+
+%% anything other than above contextualized congruence proofs for are not quite trivial
+   
+/* 
+Theorem env_for_2var_exists : forall X Y, exists L, env L /\ {L |- var X} /\ {L |- var Y}.
+skip.
+*/
+
+   /*
+Theorem close_qbisim_cong_oup : forall L P Q X Y,
+  env L -> {L |- closed P} -> {L |- closed Q}
+          -> close qbisim L P Q ->
+  exists L1, env L1 /\ {L1 |- closed (oup X Y P)} /\ {L1 |- closed (oup X Y Q)}
+          /\ close qbisim L1 (oup X Y P) (oup X Y Q).
+induction on 4. intros. case H4.
+ 
+   apply env_for_2var_exists with X = X, Y = Y. exists L1. split.
+   search. search. search. skip.
+   
+   case H1.
+   
+   exists con X :: con Y :: nil.
+   
+   coinduction. intros. apply CH to H1 with X = X, Y = Y. unfold.
+intros. case H3. search.
+intros. case H3.
+intros. case H3. search.
+intros. case H3.
+%QED
+*/
+
+/* 
+Theorem close_qbisim_cong_plus : forall L1 P Q L2 R S,
+  env L1 -> close qbisim L1 P Q -> env L2 -> close qbisim L2 R S ->
+  exists L, env L -> close qbisim L (plus P R) (plus Q S).
+induction on 1. induction on 3. intros. case H1.
+exists L2. case H2. case H3.
+   intros. case H4. unfold. backchain qbisim_cong_plus.
+   intros. case H4. case H7. unfold. intros. apply H8 with x = x. apply IH1 to _ H6.
+ 
+   
+%QED
+*/
+      
+   /*
+Theorem qbisim'_bbisim' : forall L P Q, qbisim' L P Q -> bbisim' L P Q.
+coinduction. intros. apply CH to H1. unfold.
+case H1. search. case H1. search. case H1. search.
+% Subgoal 4 (for contexts) 
+intros. case H3.
+   % hole 
+   search.
+   % taup 
+   exists L. split. search. backchain CH. case H1. unfold.
+   search. search. search. backchain close_qbisim_cong_taup.
+   skip.
+   exists var X :: var Y :: L. split. search. backchain CH. skip. % TODO by cong TODO case of X or Y already in L
+   skip.
+   skip.
+   skip.
+   skip.
+   exists con X :: L. case H4. case H5. skip. % TODO
+   exists var X :: var Y :: L. skip. % TODO
+   exists var X :: var Y :: L. skip. % TODO
+% Subgoal 5 (barb)
+intros. case H1. case H3.
+ case H7.
+   case H9. apply H10 to H8. search.
+   apply H9 with x = n1. case H10.
+     case H11. apply H12 to H8. search.
+     skip.
+     skip.
+   skip.
+ case H7.
+   case H9. apply H10 to H8. search.
+   skip.
+   skip.
+ case H7.
+   case H9. apply H11 to H8. search.
+   skip.
+   skip.
+% Subgoal 6 (tau step)
+intros. case H1. case H7.
+   case H8. apply H9 to H3. exists Q2. split. search. backchain CH. unfold. search. skip. skip. skip.
+   apply H8 with x = n1. case H9.
+     case H10. apply H11 to H3. exists Q2 n1. split. search. backchain CH. unfold. search. skip. skip. skip.
+     skip. skip.
+   skip.
+% Subgoal 7 (barb)
+intros. case H1. case H3.
+ case H7.
+   case H9. apply H12 to H8. search.
+   skip.
+   skip.
+ case H7.
+   case H9. apply H12 to H8. search.
+   skip.
+   skip.
+   case H7.
+   case H9. apply H13 to H8. search.
+   skip.
+   skip.
+% Subgoal 8 (tau step)
+intros. case H1. case H7.
+   case H8. apply H11 to H3. exists P2. split. search. backchain CH. unfold. search. skip. skip. skip.
+   skip. 
+   skip.
+%%%%%%%%%%% TODO 
+ */
+   
+/* definition of bbisim was wrong so this is not true ... actually 
+% Using lemma below, (bbisim => qbisim) can be lifted to arbitrary free vars
+% once we can prove (bbisim => qbisim) without considering any free vars.
+% ** (bbsim => qbisim) for 0 vars is not yet proven! **
+Theorem bbisim_forall_inp : forall P Q X, 
+  (forall Y, bbisim (P Y) (Q Y)) -> bbisim (inp X P) (inp X Q) .
+coinduction. intros. apply CH to H1 with X = X. unfold.
+intros. unfold.
+   intros. assert ctxrel (inp X P) (inp X Q) CP1 CQ1. skip. skip.
+ 
+   search.
+intros. case H3. case H4. search. case H4. case H4.
+intros. case H3.
+intros. case H3. case H4. search. case H4. case H4. 
+intros. case H3.
+%QED
+
+
+Theorem bbisim_inp_forall : forall P Q X, 
+  bbisim (inp X P) (inp X Q) -> (forall Y, bbisim (P Y) (Q Y)).
+coinduction. intros. apply CH to H1. unfold.
+intros. skip.
+intros. case H1. apply 
+   */
+   
+% qbisim => bbisim theorem for 0 free vars is in fact quite straightforward to prove
+% excpet for input context which essentially adds a free variable ... so somehow this should be restricted ??
+Theorem qbisim_bbisim_0 : forall P Q, qbisim P Q -> bbisim P Q.
+coinduction. intros. apply CH to H1. unfold.
+% closed under ctxrel
+intros. case H3.
+   search.
+   backchain CH. backchain qbisim_cong_taup.
+   backchain CH. backchain qbisim_cong_inp. case H4. case H5. intros. skip. % this is where context does not work
+   backchain CH. backchain qbisim_cong_oup.
+   backchain CH. backchain qbisim_cong_plus. backchain qbisim-refl.
+   backchain CH. backchain qbisim_cong_plus. backchain qbisim-refl.
+   backchain CH. backchain qbisim_cong_par. backchain qbisim-refl.
+   backchain CH. backchain qbisim_cong_par. backchain qbisim-refl.
+   backchain CH. case H4. case H5. backchain qbisim_cong_nu with x = n1.
+   backchain CH. backchain qbisim_cong_match. 
+   backchain CH. backchain qbisim_cong_mismatch.
+% barb P X -> barb Q X
+intros. case H1. case H3.
+   apply H4 to H8. search.
+   apply H4 to H8. search.
+   apply H5 to H8. search.
+% forall P1, P -tau-> P1 => exists Q1, Q -tau-> Q1 /\ ...
+intros. case H1. apply H4 to H3. exists Q2. split. search. backchain CH.
+% barb Q X -> barb P X 
+intros. case H1. case H3.
+   apply H6 to H8. search.
+   apply H6 to H8. search.
+   apply H7 to H8. search.
+% forall Q1, Q -tau-> Q1 => exists P1, P -tau-> P1 /\ ...
+intros. case H1. apply H6 to H3. exists P2. split. search. backchain CH.
+%QED
+
+/*
+Theorem bbisim_qbisim_0 : forall P Q, bbisim P Q -> qbisim P Q.
+coinduction. intros. apply CH to H1. unfold.
+intros. case H1. case H3. % Subgoal 1
+   % 1.1 
+   apply H6 to _. apply CH to H10. search.
+   % 1.2   
+   apply H5 to _. apply H4 to _ with CP = par (inp X P2) (oup X Y null), CQ = par Q (oup X Y null).
+   skip.   
+   % 1.3
+   skip.   
+   % 1.4
+   skip.   
+   % 1.5
+   skip.   
+   % 1.6
+   skip.   
+   % 1.7
+   skip.   
+   % 1.8
+   skip.
+   % 1.9
+   skip.
+   % 1.10
+   skip.
+   % 1.11
+   skip.
+   % 1.12
+   skip.
+intros. skip.
+intros. skip.
+intros. skip.
+   */
+
+
+%%%%% BEGIN examples in Section 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+%% first example on p2  
+Theorem mismatch_taup_qbisim_nontheorem :
+forall x y, qbisim (mismatch x y (taup null)) (taup null).
+coinduction. intros. unfold.
+intros. case H1. case H4. exists null. split. search. backchain qbisim-refl.
+intros. case H1. case H4.
+intros. case H1. exists null. split.
+      abort. % cannot decide a step from (mismatch x y (taup null))
+%QED
+
+ 
+% lemma for the next example    
+Theorem qbisim_match_null : 
+forall X Y P, (X = Y -> false) -> qbisim (match X Y P) null.
+intros. unfold.
+  intros. case H2. assert false. backchain H1. case H4.
+  intros. case H2. assert false. backchain H1. case H4.
+  intros. case H2.
+  intros. case H2.
+%QED
+      
+% second example on p2
+Theorem mismatch_followed_by_match_qbisim_mismatch : forall x y,
+qbisim (mismatch x y (taup (match x y (taup null))))
+       (mismatch x y (taup null)).
+intros. unfold.
+  intros. case H1. case H4. exists null.
+	split. search. backchain qbisim_match_null.
+  intros. case H1. case H4.
+  intros. case H1. case H4. exists (match x y (taup null)).
+	split. search. backchain qbisim_match_null.
+  intros. case H1. case H4.
+%QED
+
+      
+%% "Subtlties of mismatch" paragraph example
+      
+Theorem match_mismatch_exmid_qbisim_nontheorem : forall x y,
+qbisim (taup null) (plus (match x y (taup null)) (mismatch x y (taup null))).
+intros. unfold.
+  intros. case H1. exists null. split.
+	unfold. abort. % cannot continue because [x=y]tau ~/~ 0
+
+% right-biased disginguishing formula of above nonbisim example      
+Theorem dist_form_exmid_sat_right : forall x y,
+sat (plus (match x y (taup null)) (mismatch x y (taup null)))
+    (boxAct tau (disj (diaMat x y tt) (diaDif x y tt))).
+intros. unfold. intros. case H1.
+case H2. case H3. unfold. left. search.
+case H2. case H5. unfold. right. search.
+%QED
+     
+Theorem dist_form_exmid_unsat_left : forall x y,
+sat (taup null)
+    (boxAct tau (disj (diaMat x y tt) (diaDif x y tt))).
+intros. unfold. intros. case H1. unfold. abort. % niether left nor right will work
+     % left. unfold. abort. % x = y  is not provable
+     % right. unfold. abort. % (x = y) -> flase  is not probable
+
+   
+%% "Subtleties of quasi-open bisimilarity with mismatch" paragraph example
+
+% lemma for the next example
+Theorem eq-symm : forall (x y : nm), x = y -> y = x.
+search.
+%QED
+
+% lemma for the next example   
+Theorem nabla_taup_exmid : nabla x, forall y,
+qbisim (taup null)
+       (plus (match x y (taup null)) (mismatch x y (taup null))).
+intros. unfold.
+  intros. case H1. exists null. split.
+     apply quasi-em with y = n1, x = y n1. case H2.
+	search.
+	unfold 5. unfold.
+	  search.
+	  intros. apply eq-symm to H4. backchain H3.
+	search.
+    backchain qbisim-refl.      
+intros. case H1.
+intros. exists null. case H1.
+  case H2. case H3. exists null. split. search. backchain qbisim-refl.
+  case H2. case H5. exists null. split. search. backchain qbisim-refl.
+intros. case H1.
+  case H2. case H3.
+  case H2. case H5.
+%QED
+
+Theorem bound_output_exmid_example : forall z,
+qbisim (nu x\ oup z x (inp z y\ taup null))
+       (nu x\ oup z x (inp z y\ plus (match x y (taup null)) (mismatch x y (taup null)))).
+intros. unfold.
+Set subgoals off.
+intros. case H1. case H2.
+intros. case H1.
+  case H2. exists x\inp X y\plus (match x y (taup null)) (mismatch x y (taup null)).
+   split. search. intros. unfold.
+     intros. case H3. exists plus (match n1 (Y n1) (taup null)) (mismatch n1 (Y n1) (taup null)).     
+       split. search. backchain nabla_taup_exmid with x = n1, y = Y n1.      
+     intros. case H3.
+     intros. case H3. exists taup null.
+       split. search. backchain nabla_taup_exmid with x = n1, y = Y n1.      
+     intros. case H3.
+  case H2.      
+intros. case H1. case H2.
+intros. case H1.
+  case H2. exists x\inp X y\taup null. split. search. intros. unfold.
+    intros. case H3. exists plus (match n1 (Y n1) (taup null)) (mismatch n1 (Y n1) (taup null)).
+      split. search. backchain nabla_taup_exmid with x = n1, y = Y n1.
+    intros. case H3.
+    intros. case H3. exists taup null.
+      split. search. backchain nabla_taup_exmid with x = n1, y = Y n1.
+    intros. case H3.	
+  case H2.
+Set subgoals on.
+%QED	     
+
+%%%%% END examples in Section 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%% BEGIN examples in Section 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% lemma for the next example 
+Theorem nabla_mismatch_tau : forall x, nabla z,
+qbisim (mismatch x z (taup null)) (taup null).
+intros. unfold.
+intros. exists null. case H1. case H4. split. search. backchain qbisim-refl.
+intros. case H1. case H4.
+intros. case H1. exists null. split. search. backchain qbisim-refl.
+intros. case H1.
+%QED
+	
+%% "Examples of quasi-open bisimilar processes" paragraph example
+
+Theorem nu_oup_mismatch_example : forall x,
+qbisim (nu z\oup x z (mismatch x z (taup null)))
+       (nu z\oup x z (taup null)).
+intros. unfold.
+  intros. case H1. case H2.
+  intros. case H1.
+    case H2. exists z\taup null.
+	split. search. intros. backchain nabla_mismatch_tau.
+    case H2.
+  intros. case H1. case H2.
+  intros. case H1.
+    case H2. exists z\mismatch X z (taup null).
+	split. search. intros. backchain nabla_mismatch_tau.
+    case H2.
+%QED
+
+
+%% "Example particular to quasi-open bisimilarity" paragraph examples
+
+% first one is the same as the example in Section 1
+
+% second example is obvious from the first example,
+% sharing pretty much the same basic structure.
+
+% Further example 
+Theorem mismatch_constructive_example : forall x y z,
+  qbisim (mismatch y z (taup (taup null)))
+         (mismatch y z (taup (plus
+            (plus (match x y (taup null)) (mismatch x y (taup null)))
+            (plus (match x z (taup null)) (mismatch x z (taup null)))))).
+intros. unfold.
+Set subgoals off.
+intros. case H1. case H4.
+  exists (plus (plus (match x y (taup null)) (mismatch x y (taup null)))
+               (plus (match x z (taup null)) (mismatch x z (taup null)))). split.
+    search.
+    case H2.
+      case H5. apply quasi-em with y = n1, x = z n1. case H6.
+	assert false. backchain H3. case H7.
+	unfold.
+	  intros. case H8. exists null. apply quasi-em with y = n1, x = x n1. case H9.
+	    split. search. backchain qbisim-refl.
+	    split. search. backchain qbisim-refl.
+	  intros. case H8.
+	  intros. case H8.
+	    case H9.
+	      case H10. case H11. exists null. split. search. backchain qbisim-refl.
+	      case H10. case H13. exists null. split. search. backchain qbisim-refl.
+	    case H9.
+	      case H10. case H11. exists null. split. search. backchain qbisim-refl.
+	      case H10. case H13. exists null. split. search. backchain qbisim-refl.
+	  intros. case H8.
+	    case H9.
+	      case H10. case H11.
+	      case H10. case H13.
+	    case H9.
+	      case H10. case H11.
+	      case H10. case H13.
+      case H5. apply quasi-em with y = n1, x = x n1. case H6.
+	unfold.
+	  intros. case H7. exists null. split. search. backchain qbisim-refl.
+	  intros. case H7.
+	  intros. case H7.
+	    case H8.
+	      case H9. case H10. exists null. split. search. backchain qbisim-refl.
+	      case H9. case H12. exists null. split. search. backchain qbisim-refl.
+	    case H8.
+	      case H9. case H10. exists null. split. search. backchain qbisim-refl.
+	      case H9. case H12. exists null. split. search. backchain qbisim-refl.
+	  intros. case H7.
+	    case H8.
+	      case H9. case H10. 
+	      case H9. case H12.
+	    case H8.
+	      case H9. case H10. 
+	      case H9. case H12.
+	unfold.
+	  intros. case H8. exists null. split. search. backchain qbisim-refl.
+	  intros. case H8.
+	  intros. case H8.
+	    case H9.
+	      case H10. case H11. exists null. split. search. backchain qbisim-refl.
+	      case H10. case H13. exists null. split. search. backchain qbisim-refl.
+	    case H9.
+	      case H10. case H11. exists null. split. search. backchain qbisim-refl.
+	      case H10. case H13. exists null. split. search. backchain qbisim-refl.
+	  intros. case H8.
+	    case H9. case H10. case H11. case H10. case H13. 
+	    case H9. case H10. case H11. case H10. case H13. 
+intros. case H1. case H4.
+intros. case H1. case H4. exists taup null. split. search. unfold.
+  intros. case H5. exists null. case H2.
+    case H6. apply quasi-em with y = n1, x = x n1. case H7.
+      split. search. backchain qbisim-refl.
+      split. search. backchain qbisim-refl.
+    case H6. apply quasi-em with y = n1, x = x n1. case H7.
+      split. search. backchain qbisim-refl.
+      split. search. backchain qbisim-refl.
+  intros. case H5.
+  intros. case H5.
+    case H6.
+      case H7. case H8. exists null. split. search. backchain qbisim-refl.
+      case H7. case H10. exists null. split. search. backchain qbisim-refl.
+    case H6.
+      case H7. case H8. exists null. split. search. backchain qbisim-refl.
+      case H7. case H10. exists null. split. search. backchain qbisim-refl.
+  intros. case H5.
+    case H6. case H7. case H8. case H7. case H10.
+    case H6. case H7. case H8. case H7. case H10.
+intros. case H1. case H4.
+Set subgoals on.
+%QED      
+
+%%%%% END examples in Section 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	    
+	    
+%%%%% Begin examples in Section 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem null_sat_box_tau_ff :
+    sat null (boxAct tau ff).
+unfold. intros. case H1.
+%QED
+
+Theorem mismatch_unsat_box_tau_ff : % non theorem
+forall x y, sat (mismatch x y (taup null)) (boxAct tau ff).
+intros. unfold. intros. case H1. case H4. abort. % cannot continue
+/*
+Variables: x y
+H2 : name x \/ name y
+H3 : x = y -> false
+============================
+ sat null ff
+
+sat P ff  cannot be satisfied for any P, including P = null.
+Therefore, the only way to prove this is to derive a contradiction
+from H2 and H3, that is, to show that H2 and H3 always fail for
+arbitrary x and y. However, this is clearly impossible because we
+can satisfy H3 by assinging distinct nominal constants to x and y.
+*/
+
+Theorem mismatch_sat_boxDif_dia_tau : % non theorem
+forall x y, sat (mismatch x y (taup null)) (boxDif x y (diaAct tau tt)).
+intros. unfold. intros. unfold. exists null. split.
+  unfold. search. search. search.
+  search.
+%QED
+	    
+%%% Section 3.3 examples    
+
+%% "Process distinguished by eary transition" paragraph example
+Theorem inp_mismatch_dist_form_sat : forall x z,
+    sat (inp x y\ mismatch z y (taup null)) (boxAct (dn x z) (boxAct tau ff)).	    
+intros. unfold. intros. case H1. unfold. intros. case H2. case H5.
+assert false. backchain H4. case H6.
+%QED
+
+Theorem inp_mismatch_dist_form_unsat : forall x z, % nontheorem
+    sat (inp x y\ mismatch z y (taup null)) (diaAct (dn x z) (diaAct tau tt)).
+intros. unfold. exists mismatch z z (taup null). split. search.
+unfold. exists null. split. unfold. abort. % cannot proceed
+ 
+Theorem inp_tau_dist_form_sat : forall x z,
+    sat (inp x y\ taup null) (diaAct (dn x z) (diaAct tau tt)).
+intros. unfold. exists taup null. split. search. search.
+%QED
+
+Theorem inp_tau_dist_form_unsat : forall x z, %nontheorem
+    sat (inp x y\ taup null) (boxAct (dn x z) (boxAct tau ff)).
+intros. unfold. intros. case H1. unfold. intros. case H2. abort. % sat null ff  is unsatisfialbe
+	    
+%% "Process distinguished by a specific world" paragraph example
+
+Theorem mismatch_xy_tau_plusmm_yz_tau_dist_form_sat : forall x y z,
+sat (mismatch x y (taup (plus (match y z (taup null)) (mismatch y z (taup null)))))
+    (boxAct tau (boxAct tau (disj (diaMat y z tt) (diaDif y z tt)))).
+intros. unfold. intros. case H1. case H4. unfold. intros. case H5.
+  case H6. case H7. search.
+  case H6. case H9. search.
+%QED   
+     
+Theorem mismatch_xy_tau_plusmm_yz_tau_dist_form_unsat : forall x y z, % nontheroem
+sat (mismatch x y (taup (plus (match y z (taup null)) (mismatch y z (taup null)))))
+    (boxDif x y (diaAct tau (boxDif x z (diaAct tau tt)))).
+intros. unfold. intros. unfold.
+exists plus (match y z (taup null)) (mismatch y z (taup null)). split. 
+  search.
+  unfold. intros. unfold. exists null. split.
+     abort. % cannot proceed - neither y=z nor y/=z can be decicded
+            % in case of both left (name x) of H1 and H3
+/*
+Subgoal 2.1:
+
+Variables: x y z
+H1 : name x \/ name y
+H2 : x = y -> false
+H3 : name x \/ name z
+H4 : x = z -> false
+============================
+ one (plus (match y z (taup null)) (mismatch y z (taup null))) tau null
+*/
+   
+   
+Theorem mismatch_xy_tau_plusmm_xz_tau_dist_form_sat : forall x y z,
+sat (mismatch x y (taup (plus (match x z (taup null)) (mismatch x z (taup null)))))
+    (boxDif x y (diaAct tau (boxDif x z (diaAct tau tt)))).
+intros. unfold. intros. unfold. search.
+%QED
+ 
+Theorem mismatch_xy_tau_plusmm_xz_tau_dist_form_unsat : forall x y z, % nontheroem ???? error in paper?
+sat (mismatch x y (taup (plus (match x z (taup null)) (mismatch x z (taup null)))))
+    (boxAct tau (boxAct tau (disj (diaMat y z tt) (diaDif y z tt)))).
+intros. unfold. intros. case H1. case H4. unfold. intros. case H5.
+  case H6. case H7. unfold. right. unfold.
+     case H2. search. search.
+     intros. apply eq-symm to H8. backchain H3.
+     search.     
+  case H6. case H9. unfold.
+     abort. % cannot proceed -- neither y=z nor y/=z can be decided
+            % in case of both left (name x) of H2 and H7
+/*
+Variables: x y z
+H2 : name x \/ name y
+H3 : x = y -> false
+H7 : name x \/ name z
+H8 : x = z -> false
+============================
+ sat null (diaMat y z tt) \/ sat null (diaDif y z tt)
+*/
+
+%% "Famous example demanding intuitionistic assumptions" paragraph example
+
+Theorem plus_tau_tautau_dist_form_sat :
+ sat (plus (taup null) (taup (taup null)))
+     (boxAct tau (disj (boxAct tau ff) (diaAct tau tt))).   
+intros. unfold. intros. case H1.
+  case H2. unfold. left. unfold. intros. case H3.
+  case H2. search.
+%QED
+
+Theorem plus_tau_tautau_dist_form_unsat : forall x y, % nontheorem
+ sat (plus (taup null) (taup (taup null)))
+     (diaAct tau (conj (boxDif x y (diaAct tau tt)) (boxAct tau (diaDif x y tt)))).
+skip.
+    
+Theorem plus_tau_tautau_mismatch_dist_form_sat : forall x y,
+ sat (plus (plus (taup null) (taup (taup null))) (taup (mismatch x y (taup null))))
+     (diaAct tau (conj (boxDif x y (diaAct tau tt)) (boxAct tau (diaDif x y tt)))).
+intros. unfold. exists  mismatch x y (taup null). split.
+   search.
+   unfold.
+      unfold. intros. case H1. search. search.
+      unfold. intros. case H1. case H4. search.
+%QED
+    
+Theorem plus_tau_tautau_mismatch_dist_form_unsat : forall x y, % nontheorem
+ sat (plus (plus (taup null) (taup (taup null))) (taup (mismatch x y (taup null))))
+     (boxAct tau (disj (boxAct tau ff) (diaAct tau tt))).   
+intros. unfold. intros. case H1.
+  case H2.
+    case H3. unfold. left. unfold. intros. case H4.
+    case H3. search.
+    case H2. unfold. abort. % cannot proceed - neither x=y always hold
+                            % nor there exists constructive evidence of x/=y      
+
+%%%%% END examples in Section 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+		
+Theorem nu_exmid_nontheorem : forall x,
+  one (nu k\ plus (match x k (taup null)) (mismatch x k (taup null))) tau null. 
+intros. abort. % unfold. %% Error: No matching clauses
+
+
+    
+%% Example that should hold for early bisimulation (and early congruence),
+%% but not quasi bisimulation, late or open bisimulation. 
+/*
+Early bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Early congruence:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, forall x, member x (a :: nil) -> bisim_e (x :: nil) (P x) (Q x).
+
+Quasi bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/
+
+Theorem qbisim_non_example_1 : forall a,
+qbisim (plus (inp a x\null) (inp a x\taup null))
+       (plus (inp a x\null) (plus (inp a x\taup null) (inp a x\match x a (taup null)))).
+intros.
+backchain qbisim_cong_plus.
+backchain qbisim_cong_inp.
+intros.
+backchain qbisim-refl.
+unfold.
+intros. case H1. exists taup null. split. search. backchain qbisim-refl.
+intros. case H1.
+intros. case H1.
+  case H2. exists taup null. split. search. backchain qbisim-refl.
+  case H2. exists taup null. split. search. abort. % forall Y a, tau ~/~ [Y=a]tau 
+
+      
+%% Example that should hold for early and quasi bisimulation, but not late or open bisimulation.
+/*
+Early bisimulation:
+ P = a\ nu k\ out a k (plus (in a x\ z) (in a x\ taup z)) /\
+ Q = a\ nu k\ out a k (plus (in a x\ z) (plus (in a x\ taup z) (in a x\ (match x k (taup z))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Quasi bisimulation:
+ P = a\ nu k\ out a k (plus (in a x\ z) (in a x\ taup z)) /\
+ Q = a\ nu k\ out a k (plus (in a x\ z) (plus (in a x\ taup z) (in a x\ (match x k (taup z))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/
+
+% lemma for the next example    
+Theorem qbisim_null_match : 
+forall X Y P, (X = Y -> false) -> qbisim null (match X Y P).
+intros. unfold.
+  intros. case H2.
+  intros. case H2.
+  intros. case H2. assert false. backchain H1. case H4.
+  intros. case H2. assert false. backchain H1. case H4.
+%QED
+   
+% lemma for the next example
+Theorem qbisim_tau_match_tau : forall X, qbisim (taup null) (match X X (taup null)).
+intros. unfold.
+  intros. case H1. exists null. split. search. backchain qbisim-refl.
+  intros. case H1.
+  intros. case H1. case H2. exists null. split. search. backchain qbisim-refl.
+  intros. case H1. case H2.
+%QED
+
+Theorem nu_mismatch_taup_qbisim :
+forall x, qbisim (nu u\ mismatch x u (taup null)) (nu u\taup null).
+intros. unfold.
+intros. case H1. case H2.
+      exists (nu Q). split. search. backchain qbisim-refl.
+intros. case H1. case H2. case H5. case H2. case H5.
+intros. case H1. case H2. exists nu u\null. split.
+      unfold. intros. search. backchain qbisim-refl.    
+intros. case H1. case H2. case H2.
+%QED
+      
+Theorem nu_match_taup_qbisim :
+forall x, qbisim (nu u\ match x u (taup null)) (nu u\null).
+intros. unfold.
+intros. case H1. case H2.
+intros. case H1. case H2. case H2.
+intros. case H1. case H2.    
+intros. case H1. case H2. case H2.
+%QED
+      
+Theorem qbisim_example_2 : forall a,
+qbisim
+  (nu k\ oup a k (plus (inp a x\null) (inp a x\taup null)))
+  (nu k\ oup a k (plus (inp a x\null) (plus (inp a x\taup null) (inp a x\match x k (taup null))))).
+intros. unfold.
+Set subgoals off.
+intros. case H1. case H2.
+intros. case H1.
+  case H2. exists k\ plus (inp X x\null) (plus (inp X x\taup null) (inp X x\match x k (taup null))).
+   split. search. intros. unfold.
+     intros. case H3.
+       case H4. exists null. split. search. backchain qbisim-refl.
+       case H4. exists taup null. split. search. backchain qbisim-refl.
+     intros. case H3. case H4. case H4.
+     intros. case H3.
+       case H4. exists null. split. search. backchain qbisim-refl.
+       case H4.
+         case H5. exists taup null. split. search. backchain qbisim-refl.
+         case H5. apply quasi-em with y = n1, x = Y n1. case H6.
+           exists taup null. split. search. backchain qbisim_tau_match_tau.
+           exists null. split. search. backchain qbisim_null_match.
+     intros. case H3. case H4. case H4. case H5. case H5.
+   intros. case H2. 
+intros. case H1. case H2.
+intros. case H1.
+   case H2. exists k\ plus (inp X x\null) (inp X x\taup null). split. search. intros. unfold.
+     intros. case H3.
+       case H4. exists null. split. search. backchain qbisim-refl.
+       case H4. exists taup null. split. search. backchain qbisim-refl.
+     intros. case H3. case H4. case H4.
+     intros. case H3.
+       case H4. exists null. split. search. backchain qbisim-refl.
+       case H4.
+         case H5. exists taup null. split. search. backchain qbisim-refl.
+         case H5. apply quasi-em with y = n1, x = Y n1. case H6.
+           exists taup null. split. search. backchain qbisim_tau_match_tau.
+           exists null. split. search. backchain qbisim_null_match.
+     intros. case H3. case H4. case H4. case H5. case H5.
+   case H2.
+Set subgoals on. 
+%QED
+	
+   
+%% Example that holds for neither quasi bisimilarity nor open bisimilarity, but holds for late and early bisimilarity.
+/*
+Early bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ nabla x y, bisim_e nil (P x y) (Q x y).
+
+Quasi bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ forall x y w, bisim_e (w :: nil) (P x y) (Q x y).
+*/
+
+
+%% example that needs constructive inequality
+Theorem mismatch_constructive_example_1 : forall x y z,
+  qbisim (mismatch y z (taup null))
+         (mismatch y z (plus
+            (plus (match x y (taup null)) (mismatch x y (taup null)))
+            (plus (match x z (taup null)) (mismatch x z (taup null))))).
+intros. unfold.
+Set subgoals off.
+intros. case H1. case H4. exists null. split.
+  case H2.
+    case H5. unfold. search. search. unfold.
+      apply quasi-em with y = n1, x = x n1. case H6. search. unfold 5. search.
+    case H5. unfold. search. search. unfold 5.
+      apply quasi-em with y = n1, x = x n1. case H6. search. unfold 5. search.
+  backchain qbisim-refl.
+intros. case H1. case H4.
+intros. case H1. case H4.
+  case H5.
+    case H6. case H7. exists null. split. search. backchain qbisim-refl.
+    case H6. case H9. exists null. split. search. backchain qbisim-refl.     
+  case H5.
+    case H6. case H7. exists null. split. search. backchain qbisim-refl.
+    case H6. case H9. exists null. split. search. backchain qbisim-refl.
+intros. case H1. case H4.
+  case H5. case H6. case H7. case H6. case H9.
+  case H5. case H6. case H7. case H6. case H9.
+Set subgoals on.
+%QED	     
+   
