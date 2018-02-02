@@ -1,2 +1,2 @@
-# quasi TODO
+# Quasi-Open Bisimilarity with Mismatch is Intuitionistic
  
