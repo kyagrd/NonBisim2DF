@@ -5,10 +5,23 @@
 
 % Ki Yung Ahn. Dec 2017
 
-% [AT] Modified version of Ki Yung's quasi open bisim. Push the 'quasi excluded middle'
-% to the axiom level.
+% Alwen Tiu: Modified version of Ki Yung's quasi open bisim.
+% Push the 'quasi excluded middle' to the axiom level.
 
-Specification "pisyntax".
+Kind nm type. % names
+
+Kind pr type. % pi-calculus processes
+Type taup             pr -> pr.
+Type inp              nm -> (nm -> pr) -> pr.
+Type oup              nm -> nm -> pr -> pr.
+Type plus, par        pr -> pr -> pr.
+Type null             pr.
+Type nu               (nm -> pr) -> pr.
+Type match, mismatch  nm -> nm -> pr -> pr.
+
+Kind lb type. %% labels of the LTS
+Type tau       lb.
+Type up, dn    nm -> nm -> lb.
 
 Define name : A -> prop  by  nabla x, name x.
 
