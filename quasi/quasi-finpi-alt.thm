@@ -344,14 +344,6 @@ Theorem dist_form_both0: forall P Q,
   intros. backchain H2. intros. apply H1 with F = F. backchain H5.
 % Q.E.D.
 
-Theorem dist_form_both0: forall P Q, 
-  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
-  ((forall F, sat P F -> sat Q F) -> false) ->
-  ((forall F, sat Q F -> sat P F) -> false).
-% Proof.
-  intros. backchain H2. intros. apply H1 with F = F. backchain H5.
-% Q.E.D.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %% Soundness (bisim implies logical equivalaence) proof  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
