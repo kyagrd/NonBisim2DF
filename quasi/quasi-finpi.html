@@ -1,0 +1,1379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Abella: Specification of the (finite) pi-calculus with mismatch.</title>
+<link href="http://abella-prover.org/style.css" rel="stylesheet" type="text/css" />
+<link rel="icon" href="http://abella-prover.org/images/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="http://abella-prover.org/images/favicon.ico"
+        type="image/x-icon" />
+<script src="http://abella-prover.org/jquery.js"></script>
+<script type="text/javascript">
+$(function() {
+  $('.proof').hide();
+
+  $('<span> </span><a class="fold-link" href="#">[Show Proof]</a>')
+    .insertAfter($('.proof').prev())
+    .toggle(function() {
+      $(this).next().show('fast');
+      $(this).text('[Hide Proof]');
+    }, function() {
+      $(this).next().hide('slow');
+      $(this).text('[Show Proof]');
+    });
+
+  $('<span> </span><a class="fold-link" href="#">[Show All Proofs]</a>')
+    .insertBefore($('#reasoning #menubar'))
+    .click(function() {
+      $('.proof:hidden').prev().click();
+      return false;
+  });
+
+  $('<span> </span><a class="fold-link" href="#">[Hide All Proofs]</a>')
+    .insertBefore($('#reasoning #menubar'))
+    .click(function() {
+      $('.proof:visible').prev().click();
+      return false;
+  });
+});
+</script>
+</head>
+
+<body>
+
+<div id="logo-small">
+<a href="http://abella-prover.org/index.html">
+<img src="http://abella-prover.org/images/logo-small.png"/>
+</a>
+</div>
+
+<div class="section">
+<h1>Specification of the (finite) pi-calculus with mismatch.</h1>
+
+</div>
+
+
+
+<div class="section" id="reasoning">
+<h1>Reasoning</h1>
+<a class="view" href="quasi-finpi.thm">[View quasi-finpi.thm]</a>
+<span id="menubar" />
+<p class="body">
+Click on a command or tactic to see a detailed view of its use.
+</p>
+<pre>
+<span class="comment">% Extended from the specification of pi-calculus cong proof on sim</span>
+<span class="comment">% in the Abella repository examples directory.</span>
+
+<span class="comment">% Ki Yung Ahn. Dec 2017</span>
+
+<span class="comment">% Alwen Tiu: Modified version of Ki Yung's quasi open bisim.</span>
+<span class="comment">% Push the 'quasi excluded middle' to the axiom level.</span>
+
+<a href="quasi-finpi-details.html#1" class="command">Kind nm type.</a> <span class="comment">% names</span>
+
+<a href="quasi-finpi-details.html#2" class="command">Kind pr type.</a> <span class="comment">% pi-calculus processes</span>
+<a href="quasi-finpi-details.html#3" class="command">Type taup             pr -> pr.</a>
+<a href="quasi-finpi-details.html#4" class="command">Type inp              nm -> (nm -> pr) -> pr.</a>
+<a href="quasi-finpi-details.html#5" class="command">Type oup              nm -> nm -> pr -> pr.</a>
+<a href="quasi-finpi-details.html#6" class="command">Type plus, par        pr -> pr -> pr.</a>
+<a href="quasi-finpi-details.html#7" class="command">Type null             pr.</a>
+<a href="quasi-finpi-details.html#8" class="command">Type nu               (nm -> pr) -> pr.</a>
+<a href="quasi-finpi-details.html#9" class="command">Type match, mismatch  nm -> nm -> pr -> pr.</a>
+
+<a href="quasi-finpi-details.html#10" class="command">Kind lb type.</a> <span class="comment">%% labels of the LTS</span>
+<a href="quasi-finpi-details.html#11" class="command">Type tau       lb.</a>
+<a href="quasi-finpi-details.html#12" class="command">Type up, dn    nm -> nm -> lb.</a>
+
+<a href="quasi-finpi-details.html#13" class="command">Define name : A -> prop  by  nabla x, name x.</a>
+
+<a href="quasi-finpi-details.html#14" class="command">Define fresh : A -> B -> prop  by  nabla x, fresh x E.</a>
+
+<span class="comment">% Axiom of quasi excluded middle on names</span>
+<span class="comment">% (this one cannot be proved in Abella)</span>
+<a href="quasi-finpi-details.html#15" class="command">Theorem quasi-em: nabla y, forall (x : nm), (x = y) \/ (x = y -> false).</a>
+<div class="proof"><a href="quasi-finpi-details.html#16" class="tactic">skip.</a></div>
+<a href="quasi-finpi-details.html#17" class="command">Define <span class="comment">% free and bound steps of the LTS</span>
+   one  : pr -> lb -> pr -> prop
+ , oneb : pr -> (nm -> lb) -> (nm -> pr) -> prop
+by
+;  one (taup P) tau P           <span class="comment">% internal step</span>
+;  one (inp X P) (dn X Y) (P Y) <span class="comment">% free input</span>
+;  one (oup X Y P) (up X Y) P   <span class="comment">% free output</span>
+ <span class="comment">%% core process algebra for free steps</span>
+;  one (plus P Q) L R := one P L R
+;  one (plus P Q) L R := one Q L R
+;  one (par P Q) L (par R Q) := one P L R
+;  one (par P Q) L (par P R) := one Q L R
+;  one (nu P) L (nu Q) := nabla x, one (P x) L (Q x)
+;  one (match X X P) L Q := one P L Q
+;  one (mismatch X Y P) L Q :=
+     (name X \/ name Y) /\ (X = Y -> false) /\ one P L Q
+
+;  one (par P Q) tau (par PP QQ) :=              <span class="comment">% closed communication</span>
+      (exists X Y, one P (dn X Y) PP /\ one Q (up X Y) QQ)
+   \/ (exists X Y, one P (up X Y) PP /\ one Q (dn X Y) QQ)
+;  one (par P Q) tau (nu y\ par (PP y) (QQ y)) := <span class="comment">% bound communication </span>
+      (exists X, oneb Q (up X) QQ /\ nabla y, one P (dn X y) (PP y))
+   \/ (exists X, oneb P (up X) PP /\ nabla y, one Q (dn X y) (QQ y))
+
+   <span class="comment">% bound output (causing scope extrusion)</span>
+;  oneb (nu P) (up X) R := nabla y, one (P y) (up X y) (R y)
+ <span class="comment">%% core process algebra for bound steps</span>
+;  oneb (plus P Q) L R := oneb P L R
+;  oneb (plus P Q) L R := oneb Q L R
+;  oneb (par P Q) L (x\ par (R x) Q) := oneb P L R
+;  oneb (par P Q) L (x\ par P (R x)) := oneb Q L R
+;  oneb (match X X P) L Q := oneb P L Q
+;  oneb (mismatch X Y P) L Q :=
+     (name X \/ name Y) /\ (X = Y -> false) /\ oneb P L Q
+;  oneb (nu P) L (y\ nu x\ R x y) := nabla x, oneb (P x) L (R x)
+.</a>
+
+
+<span class="comment">% quasi (open) bisimulation has the same clauses as early bisimulation.</span>
+<span class="comment">% the only difference is in the quantification of free names     </span>
+<a href="quasi-finpi-details.html#18" class="command">CoDefine qbisim : pr -> pr -> prop
+by
+; qbisim P Q := 
+     (forall L P1, one P L P1 ->
+        exists Q1, one Q L Q1 /\ qbisim P1 Q1)
+  /\ (forall X P1, oneb P (up X) P1 ->
+        exists Q1, oneb Q (up X) Q1 /\ nabla z, qbisim (P1 z) (Q1 z))
+  /\ (forall L Q1, one Q L Q1 ->
+        exists P1, one P L P1 /\ qbisim P1 Q1)
+  /\ (forall X Q1, oneb Q (up X) Q1 ->
+        exists P1, oneb P (up X) P1 /\ nabla z, qbisim (P1 z) (Q1 z))
+.</a>
+
+<span class="comment">%%% qsim is preorder and qbisim is equivalence</span>
+
+<a href="quasi-finpi-details.html#19" class="command">Theorem qbisim-refl : forall P, qbisim P P.</a>
+<div class="proof"><a href="quasi-finpi-details.html#20" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#21" class="tactic">intros.</a> <a href="quasi-finpi-details.html#22" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#23" class="tactic">intros.</a> <a href="quasi-finpi-details.html#24" class="tactic">exists P1.</a> <a href="quasi-finpi-details.html#25" class="tactic">split.</a> <a href="quasi-finpi-details.html#26" class="tactic">search.</a> <a href="quasi-finpi-details.html#27" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#28" class="tactic">intros.</a> <a href="quasi-finpi-details.html#29" class="tactic">exists P1.</a> <a href="quasi-finpi-details.html#30" class="tactic">split.</a> <a href="quasi-finpi-details.html#31" class="tactic">search.</a> <a href="quasi-finpi-details.html#32" class="tactic">intros.</a> <a href="quasi-finpi-details.html#33" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#34" class="tactic">intros.</a> <a href="quasi-finpi-details.html#35" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#36" class="tactic">split.</a> <a href="quasi-finpi-details.html#37" class="tactic">search.</a> <a href="quasi-finpi-details.html#38" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#39" class="tactic">intros.</a> <a href="quasi-finpi-details.html#40" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#41" class="tactic">split.</a> <a href="quasi-finpi-details.html#42" class="tactic">search.</a> <a href="quasi-finpi-details.html#43" class="tactic">intros.</a> <a href="quasi-finpi-details.html#44" class="tactic">backchain CH.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#45" class="command">Theorem qbisim-sym : forall P Q, qbisim P Q -> qbisim Q P.</a>
+<div class="proof"><a href="quasi-finpi-details.html#46" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#47" class="tactic">intros.</a> <a href="quasi-finpi-details.html#48" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#49" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#50" class="tactic">intros.</a> <a href="quasi-finpi-details.html#51" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#52" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#53" class="tactic">split.</a> <a href="quasi-finpi-details.html#54" class="tactic">search.</a> <a href="quasi-finpi-details.html#55" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#56" class="tactic">intros.</a> <a href="quasi-finpi-details.html#57" class="tactic">apply H5 to H6.</a> <a href="quasi-finpi-details.html#58" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#59" class="tactic">split.</a> <a href="quasi-finpi-details.html#60" class="tactic">search.</a> <a href="quasi-finpi-details.html#61" class="tactic">intros.</a> <a href="quasi-finpi-details.html#62" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#63" class="tactic">intros.</a> <a href="quasi-finpi-details.html#64" class="tactic">apply H2 to H6.</a> <a href="quasi-finpi-details.html#65" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#66" class="tactic">split.</a> <a href="quasi-finpi-details.html#67" class="tactic">search.</a> <a href="quasi-finpi-details.html#68" class="tactic">backchain CH.</a>
+  <a href="quasi-finpi-details.html#69" class="tactic">intros.</a> <a href="quasi-finpi-details.html#70" class="tactic">apply H3 to H6.</a> <a href="quasi-finpi-details.html#71" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#72" class="tactic">split.</a> <a href="quasi-finpi-details.html#73" class="tactic">search.</a>  <a href="quasi-finpi-details.html#74" class="tactic">apply CH to H8.</a> <a href="quasi-finpi-details.html#75" class="tactic">search.</a></div> 
+<span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#76" class="command">Theorem qbisim-trans : forall P Q R, qbisim P Q -> qbisim Q R -> qbisim P R.</a>
+<div class="proof"><a href="quasi-finpi-details.html#77" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#78" class="tactic">intros.</a> <a href="quasi-finpi-details.html#79" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#80" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#81" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#82" class="tactic">intros.</a> <a href="quasi-finpi-details.html#83" class="tactic">apply H3 to H11.</a> <a href="quasi-finpi-details.html#84" class="tactic">apply H7 to H12.</a> <a href="quasi-finpi-details.html#85" class="tactic">apply CH to H13 H15.</a> <a href="quasi-finpi-details.html#86" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#87" class="tactic">intros.</a> <a href="quasi-finpi-details.html#88" class="tactic">apply H4 to H11.</a> <a href="quasi-finpi-details.html#89" class="tactic">apply H8 to H12.</a> <a href="quasi-finpi-details.html#90" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#91" class="tactic">split.</a> <a href="quasi-finpi-details.html#92" class="tactic">search.</a> <a href="quasi-finpi-details.html#93" class="tactic">intros.</a> <a href="quasi-finpi-details.html#94" class="tactic">apply H10 to H14.</a> 
+  <a href="quasi-finpi-details.html#95" class="tactic">backchain CH.</a>        
+  <a href="quasi-finpi-details.html#96" class="tactic">intros.</a> <a href="quasi-finpi-details.html#97" class="tactic">apply H9 to H11.</a> <a href="quasi-finpi-details.html#98" class="tactic">apply H5 to H12.</a> <a href="quasi-finpi-details.html#99" class="tactic">apply CH to H15 H13.</a> <a href="quasi-finpi-details.html#100" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#101" class="tactic">intros.</a> <a href="quasi-finpi-details.html#102" class="tactic">apply H10 to H11.</a> <a href="quasi-finpi-details.html#103" class="tactic">apply H6 to H12.</a> <a href="quasi-finpi-details.html#104" class="tactic">exists P1.</a>  <a href="quasi-finpi-details.html#105" class="tactic">split.</a>  <a href="quasi-finpi-details.html#106" class="tactic">search.</a>  <a href="quasi-finpi-details.html#107" class="tactic">intros.</a>  
+ <a href="quasi-finpi-details.html#108" class="tactic">backchain CH.</a></div> 
+<span class="comment">%QED</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<a href="quasi-finpi-details.html#109" class="command">Theorem qbisim_cong_taup :
+forall P Q, qbisim P Q -> qbisim (taup P) (taup Q).</a>
+<div class="proof"><a href="quasi-finpi-details.html#110" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#111" class="tactic">intros.</a> <a href="quasi-finpi-details.html#112" class="tactic">apply CH to H1.</a> <a href="quasi-finpi-details.html#113" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#114" class="tactic">intros.</a> <a href="quasi-finpi-details.html#115" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#116" class="tactic">exists Q.</a> <a href="quasi-finpi-details.html#117" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#118" class="tactic">intros.</a> <a href="quasi-finpi-details.html#119" class="tactic">case H3.</a>
+<a href="quasi-finpi-details.html#120" class="tactic">intros.</a> <a href="quasi-finpi-details.html#121" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#122" class="tactic">exists P.</a> <a href="quasi-finpi-details.html#123" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#124" class="tactic">intros.</a> <a href="quasi-finpi-details.html#125" class="tactic">case H3.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#126" class="command">Theorem qbisim_cong_taup_inverse :
+forall P Q, qbisim (taup P) (taup Q) -> qbisim P Q.</a>
+<div class="proof"><a href="quasi-finpi-details.html#127" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#128" class="tactic">intros.</a> <a href="quasi-finpi-details.html#129" class="tactic">apply CH to H1.</a> <a href="quasi-finpi-details.html#130" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#131" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#132" class="tactic">intros.</a> <a href="quasi-finpi-details.html#133" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#134" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#135" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#136" class="tactic">apply H10 to H7.</a> <a href="quasi-finpi-details.html#137" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#138" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#139" class="tactic">intros.</a> <a href="quasi-finpi-details.html#140" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#141" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#142" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#143" class="tactic">apply H11 to H7.</a> <a href="quasi-finpi-details.html#144" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#145" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#146" class="tactic">intros.</a> <a href="quasi-finpi-details.html#147" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#148" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#149" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#150" class="tactic">apply H12 to H7.</a> <a href="quasi-finpi-details.html#151" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#152" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#153" class="tactic">intros.</a> <a href="quasi-finpi-details.html#154" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#155" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#156" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#157" class="tactic">apply H13 to H7.</a> <a href="quasi-finpi-details.html#158" class="tactic">search.</a></div><span class="comment">%QED</span>
+      
+<a href="quasi-finpi-details.html#159" class="command">Theorem qbisim_cong_plus :
+forall P Q R S, qbisim P Q -> qbisim R S -> qbisim (plus P R) (plus Q S).</a>
+<div class="proof"><a href="quasi-finpi-details.html#160" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#161" class="tactic">intros.</a> <a href="quasi-finpi-details.html#162" class="tactic">apply CH to H1 H2.</a> <a href="quasi-finpi-details.html#163" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#164" class="tactic">intros.</a> <a href="quasi-finpi-details.html#165" class="tactic">case H4.</a>
+      <a href="quasi-finpi-details.html#166" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#167" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#168" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#169" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#170" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#171" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#172" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#173" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#174" class="tactic">intros.</a> <a href="quasi-finpi-details.html#175" class="tactic">case H4.</a>
+      <a href="quasi-finpi-details.html#176" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#177" class="tactic">apply H7 to H5.</a> <a href="quasi-finpi-details.html#178" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#179" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#180" class="tactic">apply H7 to H5.</a> <a href="quasi-finpi-details.html#181" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#182" class="tactic">intros.</a> <a href="quasi-finpi-details.html#183" class="tactic">case H4.</a>
+      <a href="quasi-finpi-details.html#184" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#185" class="tactic">apply H8 to H5.</a> <a href="quasi-finpi-details.html#186" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#187" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#188" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#189" class="tactic">apply H8 to H5.</a> <a href="quasi-finpi-details.html#190" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#191" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#192" class="tactic">intros.</a> <a href="quasi-finpi-details.html#193" class="tactic">case H4.</a>
+      <a href="quasi-finpi-details.html#194" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#195" class="tactic">apply H9 to H5.</a> <a href="quasi-finpi-details.html#196" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#197" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#198" class="tactic">apply H9 to H5.</a> <a href="quasi-finpi-details.html#199" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+
+<a href="quasi-finpi-details.html#200" class="command">Theorem qbisim_cong_oup : forall P Q X Y, qbisim P Q -> qbisim (oup X Y P) (oup X Y Q).</a>
+<div class="proof"><a href="quasi-finpi-details.html#201" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#202" class="tactic">intros.</a> <a href="quasi-finpi-details.html#203" class="tactic">apply CH to H1 with X = X, Y = Y.</a> <a href="quasi-finpi-details.html#204" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#205" class="tactic">intros.</a> <a href="quasi-finpi-details.html#206" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#207" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#208" class="tactic">intros.</a> <a href="quasi-finpi-details.html#209" class="tactic">case H3.</a>
+<a href="quasi-finpi-details.html#210" class="tactic">intros.</a> <a href="quasi-finpi-details.html#211" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#212" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#213" class="tactic">intros.</a> <a href="quasi-finpi-details.html#214" class="tactic">case H3.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#215" class="command">Theorem qbisim_cong_oup_inverse : forall P Q X Y, qbisim (oup X Y P) (oup X Y Q) ->  qbisim P Q.</a>
+<div class="proof"><a href="quasi-finpi-details.html#216" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#217" class="tactic">intros.</a> <a href="quasi-finpi-details.html#218" class="tactic">apply CH to H1 with X = X, Y = Y.</a> <a href="quasi-finpi-details.html#219" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#220" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#221" class="tactic">intros.</a> <a href="quasi-finpi-details.html#222" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#223" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#224" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#225" class="tactic">apply H10 to H7.</a> <a href="quasi-finpi-details.html#226" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#227" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#228" class="tactic">intros.</a> <a href="quasi-finpi-details.html#229" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#230" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#231" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#232" class="tactic">apply H11 to H7.</a> <a href="quasi-finpi-details.html#233" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#234" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#235" class="tactic">intros.</a> <a href="quasi-finpi-details.html#236" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#237" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#238" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#239" class="tactic">apply H12 to H7.</a> <a href="quasi-finpi-details.html#240" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#241" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#242" class="tactic">intros.</a> <a href="quasi-finpi-details.html#243" class="tactic">apply H3 to _.</a> <a href="quasi-finpi-details.html#244" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#245" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#246" class="tactic">apply H13 to H7.</a> <a href="quasi-finpi-details.html#247" class="tactic">search.</a></div><span class="comment">%QED</span>
+    
+<a href="quasi-finpi-details.html#248" class="command">Theorem qbisim_cong_inp : forall P Q X, (forall Y, qbisim (P Y) (Q Y)) -> qbisim (inp X P) (inp X Q).</a>
+<div class="proof"><a href="quasi-finpi-details.html#249" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#250" class="tactic">intros.</a> <a href="quasi-finpi-details.html#251" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#252" class="tactic">intros.</a> <a href="quasi-finpi-details.html#253" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#254" class="tactic">exists Q Y.</a> <a href="quasi-finpi-details.html#255" class="tactic">apply H1 with Y = Y.</a> <a href="quasi-finpi-details.html#256" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#257" class="tactic">intros.</a> <a href="quasi-finpi-details.html#258" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#259" class="tactic">intros.</a> <a href="quasi-finpi-details.html#260" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#261" class="tactic">exists P Y.</a> <a href="quasi-finpi-details.html#262" class="tactic">apply H1 with Y = Y.</a> <a href="quasi-finpi-details.html#263" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#264" class="tactic">intros.</a> <a href="quasi-finpi-details.html#265" class="tactic">case H2.</a></div><span class="comment">%QED    </span>
+
+<a href="quasi-finpi-details.html#266" class="command">Theorem qbisim_cong_inp_inverse : forall P Q X Y, qbisim (inp X P) (inp X Q) -> qbisim (P Y) (Q Y).</a>
+<div class="proof"><a href="quasi-finpi-details.html#267" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#268" class="tactic">intros.</a> <a href="quasi-finpi-details.html#269" class="tactic">apply CH to H1 with X = X, Y = Y.</a> <a href="quasi-finpi-details.html#270" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#271" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#272" class="tactic">intros.</a> <a href="quasi-finpi-details.html#273" class="tactic">apply H3 to _ with L = dn X Y.</a> <a href="quasi-finpi-details.html#274" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#275" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#276" class="tactic">apply H10 to H7.</a> <a href="quasi-finpi-details.html#277" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#278" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#279" class="tactic">intros.</a> <a href="quasi-finpi-details.html#280" class="tactic">apply H3 to _ with L = dn X Y.</a> <a href="quasi-finpi-details.html#281" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#282" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#283" class="tactic">apply H11 to H7.</a> <a href="quasi-finpi-details.html#284" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#285" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#286" class="tactic">intros.</a> <a href="quasi-finpi-details.html#287" class="tactic">apply H3 to _ with L = dn X Y.</a> <a href="quasi-finpi-details.html#288" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#289" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#290" class="tactic">apply H12 to H7.</a> <a href="quasi-finpi-details.html#291" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#292" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#293" class="tactic">intros.</a> <a href="quasi-finpi-details.html#294" class="tactic">apply H3 to _ with L = dn X Y.</a> <a href="quasi-finpi-details.html#295" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#296" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#297" class="tactic">apply H13 to H7.</a> <a href="quasi-finpi-details.html#298" class="tactic">search.</a></div>    
+<span class="comment">%QED    </span>
+
+      
+<a href="quasi-finpi-details.html#299" class="command">Theorem qbisim_cong_match :
+forall P Q X Y, qbisim P Q -> qbisim (match X Y P) (match X Y Q).</a>
+<div class="proof"><a href="quasi-finpi-details.html#300" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#301" class="tactic">intros.</a> <a href="quasi-finpi-details.html#302" class="tactic">apply CH to H1 with X = X, Y = Y.</a> <a href="quasi-finpi-details.html#303" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#304" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#305" class="tactic">intros.</a> <a href="quasi-finpi-details.html#306" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#307" class="tactic">apply H3 to H8.</a> <a href="quasi-finpi-details.html#308" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#309" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#310" class="tactic">intros.</a> <a href="quasi-finpi-details.html#311" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#312" class="tactic">apply H4 to H8.</a> <a href="quasi-finpi-details.html#313" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#314" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#315" class="tactic">intros.</a> <a href="quasi-finpi-details.html#316" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#317" class="tactic">apply H5 to H8.</a> <a href="quasi-finpi-details.html#318" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#319" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#320" class="tactic">intros.</a> <a href="quasi-finpi-details.html#321" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#322" class="tactic">apply H6 to H8.</a> <a href="quasi-finpi-details.html#323" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#324" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#325" class="command">Theorem qbisim_cong_mismatch :
+forall P Q X Y, qbisim P Q -> qbisim (mismatch X Y P) (mismatch X Y Q).</a>
+<div class="proof"><a href="quasi-finpi-details.html#326" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#327" class="tactic">intros.</a> <a href="quasi-finpi-details.html#328" class="tactic">apply CH to H1 with X = X, Y = Y.</a> <a href="quasi-finpi-details.html#329" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#330" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#331" class="tactic">intros.</a> <a href="quasi-finpi-details.html#332" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#333" class="tactic">apply H3 to H10.</a> <a href="quasi-finpi-details.html#334" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#335" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#336" class="tactic">intros.</a> <a href="quasi-finpi-details.html#337" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#338" class="tactic">apply H4 to H10.</a> <a href="quasi-finpi-details.html#339" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#340" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#341" class="tactic">intros.</a> <a href="quasi-finpi-details.html#342" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#343" class="tactic">apply H5 to H10.</a> <a href="quasi-finpi-details.html#344" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#345" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#346" class="tactic">intros.</a> <a href="quasi-finpi-details.html#347" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#348" class="tactic">apply H6 to H10.</a> <a href="quasi-finpi-details.html#349" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#350" class="tactic">search.</a></div><span class="comment">%QED</span>
+    
+<a href="quasi-finpi-details.html#351" class="command">Theorem qbisim_cong_nu : forall P Q, nabla x, qbisim (P x) (Q x) -> qbisim (nu P) (nu Q).</a>
+<div class="proof"> 
+<a href="quasi-finpi-details.html#352" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#353" class="tactic">intros.</a> <a href="quasi-finpi-details.html#354" class="tactic">apply CH to H1.</a> <a href="quasi-finpi-details.html#355" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#356" class="tactic">intros.</a> <a href="quasi-finpi-details.html#357" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#358" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#359" class="tactic">apply H5 to H4.</a> <a href="quasi-finpi-details.html#360" class="tactic">exists nu Q2.</a> <a href="quasi-finpi-details.html#361" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#362" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#363" class="tactic">backchain CH with x = n1.</a>
+<a href="quasi-finpi-details.html#364" class="tactic">intros.</a> <a href="quasi-finpi-details.html#365" class="tactic">case H3.</a>
+  <a href="quasi-finpi-details.html#366" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#367" class="tactic">apply H5 to H4.</a> <a href="quasi-finpi-details.html#368" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#369" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#370" class="tactic">apply H6 to H4.</a> <a href="quasi-finpi-details.html#371" class="tactic">exists y\nu x\Q2 x y.</a> <a href="quasi-finpi-details.html#372" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#373" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#374" class="tactic">intros.</a> <a href="quasi-finpi-details.html#375" class="tactic">backchain CH with x = n2.</a> 
+<a href="quasi-finpi-details.html#376" class="tactic">intros.</a> <a href="quasi-finpi-details.html#377" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#378" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#379" class="tactic">apply H7 to H4.</a> <a href="quasi-finpi-details.html#380" class="tactic">exists nu P2.</a> <a href="quasi-finpi-details.html#381" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#382" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#383" class="tactic">backchain CH with x = n1.</a>
+<a href="quasi-finpi-details.html#384" class="tactic">intros.</a> <a href="quasi-finpi-details.html#385" class="tactic">case H3.</a>
+  <a href="quasi-finpi-details.html#386" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#387" class="tactic">apply H7 to H4.</a> <a href="quasi-finpi-details.html#388" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#389" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#390" class="tactic">apply H8 to H4.</a> <a href="quasi-finpi-details.html#391" class="tactic">exists y\nu x\P2 x y.</a> <a href="quasi-finpi-details.html#392" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#393" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#394" class="tactic">intros.</a> <a href="quasi-finpi-details.html#395" class="tactic">backchain CH with x = n2.</a></div><span class="comment">%QED</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5      </span>
+
+<a href="quasi-finpi-details.html#396" class="command">Define inv : (pr -> pr -> prop) -> pr -> pr -> prop by
+  inv Rel P Q := Rel P Q ;
+  inv Rel (par P1 P2) (par Q1 Q2) := inv Rel P1 Q1 /\ inv Rel P2 Q2 ;
+  inv Rel (nu P) (nu Q) := nabla x, inv Rel (P x) (Q x).</a>
+
+<a href="quasi-finpi-details.html#397" class="command">Define qbisiminv : pr -> pr -> prop
+by
+  qbisiminv P Q :=
+     (forall L P1, one P L P1 ->
+        exists Q1, one Q L Q1 /\ inv qbisim P1 Q1)
+  /\ (forall X P1, oneb P (up X) P1 ->
+        exists Q1, oneb Q (up X) Q1 /\ nabla y, inv qbisim (P1 y) (Q1 y))
+  /\ (forall L Q1, one Q L Q1 ->
+        exists P1, one P L P1 /\ inv qbisim P1 Q1)
+  /\ (forall X Q1, oneb Q (up X) Q1 ->
+        exists P1, oneb P (up X) P1 /\ nabla y, inv qbisim (P1 y) (Q1 y))
+.</a>
+
+
+
+<a href="quasi-finpi-details.html#398" class="command">Theorem inv_qbisiminv : forall P Q, inv qbisim P Q -> qbisiminv P Q.</a>
+<div class="proof"><a href="quasi-finpi-details.html#399" class="tactic">induction on 1.</a> <a href="quasi-finpi-details.html#400" class="tactic">intros.</a> <a href="quasi-finpi-details.html#401" class="tactic">case H1.</a>
+<a href="quasi-finpi-details.html#402" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#403" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#404" class="tactic">intros.</a> <a href="quasi-finpi-details.html#405" class="tactic">apply H3 to H7.</a> <a href="quasi-finpi-details.html#406" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#407" class="tactic">intros.</a> <a href="quasi-finpi-details.html#408" class="tactic">apply H4 to H7.</a> <a href="quasi-finpi-details.html#409" class="tactic">exists Q2.</a>  <a href="quasi-finpi-details.html#410" class="tactic">split.</a> <a href="quasi-finpi-details.html#411" class="tactic">search.</a> <a href="quasi-finpi-details.html#412" class="tactic">intros.</a>  <a href="quasi-finpi-details.html#413" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#414" class="tactic">intros.</a> <a href="quasi-finpi-details.html#415" class="tactic">apply H5 to H7.</a> <a href="quasi-finpi-details.html#416" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#417" class="tactic">intros.</a> <a href="quasi-finpi-details.html#418" class="tactic">apply H6 to H7.</a> <a href="quasi-finpi-details.html#419" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#420" class="tactic">split.</a>  <a href="quasi-finpi-details.html#421" class="tactic">search.</a> <a href="quasi-finpi-details.html#422" class="tactic">intros.</a>  <a href="quasi-finpi-details.html#423" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#424" class="tactic">apply IH to H2.</a> <a href="quasi-finpi-details.html#425" class="tactic">apply IH to H3.</a> <a href="quasi-finpi-details.html#426" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#427" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#428" class="tactic">unfold.</a>    
+  <a href="quasi-finpi-details.html#429" class="tactic">intros.</a> <a href="quasi-finpi-details.html#430" class="tactic">case H14.</a>
+    <a href="quasi-finpi-details.html#431" class="tactic">apply H6 to H15.</a> <a href="quasi-finpi-details.html#432" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#433" class="tactic">apply H10 to H15.</a> <a href="quasi-finpi-details.html#434" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#435" class="tactic">case H15.</a>
+      <a href="quasi-finpi-details.html#436" class="tactic">apply H6 to H16.</a> <a href="quasi-finpi-details.html#437" class="tactic">apply H10 to H17.</a> <a href="quasi-finpi-details.html#438" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#439" class="tactic">apply H6 to H16.</a> <a href="quasi-finpi-details.html#440" class="tactic">apply H10 to H17.</a> <a href="quasi-finpi-details.html#441" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#442" class="tactic">case H15.</a>
+      <a href="quasi-finpi-details.html#443" class="tactic">apply H11 to H16.</a>  <a href="quasi-finpi-details.html#444" class="tactic">apply H6 to H17.</a> <a href="quasi-finpi-details.html#445" class="tactic">exists (nu y\ par (Q4 y) (Q3 y)).</a> <a href="quasi-finpi-details.html#446" class="tactic">split.</a> <a href="quasi-finpi-details.html#447" class="tactic">search.</a> <a href="quasi-finpi-details.html#448" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#449" class="tactic">apply H7 to H16.</a> <a href="quasi-finpi-details.html#450" class="tactic">apply H10 to H17.</a> <a href="quasi-finpi-details.html#451" class="tactic">exists (nu y\ par (Q3 y) (Q4 y)).</a> <a href="quasi-finpi-details.html#452" class="tactic">split.</a> <a href="quasi-finpi-details.html#453" class="tactic">search.</a> <a href="quasi-finpi-details.html#454" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#455" class="tactic">intros.</a> <a href="quasi-finpi-details.html#456" class="tactic">case H14.</a> 
+    <a href="quasi-finpi-details.html#457" class="tactic">apply H7 to H15.</a> <a href="quasi-finpi-details.html#458" class="tactic">exists (x\ par (Q3 x) Q2).</a> <a href="quasi-finpi-details.html#459" class="tactic">split.</a> <a href="quasi-finpi-details.html#460" class="tactic">search.</a>  <a href="quasi-finpi-details.html#461" class="tactic">search.</a> 
+    <a href="quasi-finpi-details.html#462" class="tactic">apply H11 to H15.</a> <a href="quasi-finpi-details.html#463" class="tactic">exists (x\ par Q1 (Q3 x)).</a> <a href="quasi-finpi-details.html#464" class="tactic">split.</a>  <a href="quasi-finpi-details.html#465" class="tactic">search.</a> <a href="quasi-finpi-details.html#466" class="tactic">search.</a> 
+  <a href="quasi-finpi-details.html#467" class="tactic">intros.</a> <a href="quasi-finpi-details.html#468" class="tactic">case H14.</a>
+    <a href="quasi-finpi-details.html#469" class="tactic">apply H8 to H15.</a> <a href="quasi-finpi-details.html#470" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#471" class="tactic">apply H12 to H15.</a> <a href="quasi-finpi-details.html#472" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#473" class="tactic">case H15.</a>
+      <a href="quasi-finpi-details.html#474" class="tactic">apply H8 to H16.</a> <a href="quasi-finpi-details.html#475" class="tactic">apply H12 to H17.</a> <a href="quasi-finpi-details.html#476" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#477" class="tactic">apply H8 to H16.</a> <a href="quasi-finpi-details.html#478" class="tactic">apply H12 to H17.</a> <a href="quasi-finpi-details.html#479" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#480" class="tactic">case H15.</a>
+      <a href="quasi-finpi-details.html#481" class="tactic">apply H13 to H16.</a> <a href="quasi-finpi-details.html#482" class="tactic">apply H8 to H17.</a> <a href="quasi-finpi-details.html#483" class="tactic">exists (nu y\ par (P4 y) (P3 y)).</a> <a href="quasi-finpi-details.html#484" class="tactic">split.</a> <a href="quasi-finpi-details.html#485" class="tactic">search.</a> <a href="quasi-finpi-details.html#486" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#487" class="tactic">apply H9 to H16.</a> <a href="quasi-finpi-details.html#488" class="tactic">apply H12 to H17.</a> <a href="quasi-finpi-details.html#489" class="tactic">exists (nu y\ par (P3 y) (P4 y)).</a>  <a href="quasi-finpi-details.html#490" class="tactic">split.</a> <a href="quasi-finpi-details.html#491" class="tactic">search.</a> <a href="quasi-finpi-details.html#492" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#493" class="tactic">intros.</a> <a href="quasi-finpi-details.html#494" class="tactic">case H14.</a> 
+    <a href="quasi-finpi-details.html#495" class="tactic">apply H9 to H15.</a> <a href="quasi-finpi-details.html#496" class="tactic">exists (y\ par (P3 y) P2).</a> <a href="quasi-finpi-details.html#497" class="tactic">split.</a> <a href="quasi-finpi-details.html#498" class="tactic">search.</a> <a href="quasi-finpi-details.html#499" class="tactic">intros.</a>  <a href="quasi-finpi-details.html#500" class="tactic">search.</a> 
+      <a href="quasi-finpi-details.html#501" class="tactic">apply H13 to H15.</a> <a href="quasi-finpi-details.html#502" class="tactic">exists (y\ par P1 (P3 y)).</a> <a href="quasi-finpi-details.html#503" class="tactic">split.</a> <a href="quasi-finpi-details.html#504" class="tactic">search.</a> <a href="quasi-finpi-details.html#505" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#506" class="tactic">apply IH to H2.</a> <a href="quasi-finpi-details.html#507" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#508" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#509" class="tactic">intros.</a> <a href="quasi-finpi-details.html#510" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#511" class="tactic">apply H4 to H9.</a> <a href="quasi-finpi-details.html#512" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#513" class="tactic">intros.</a> <a href="quasi-finpi-details.html#514" class="tactic">case H8.</a>
+      <a href="quasi-finpi-details.html#515" class="tactic">apply H4 to H9.</a> <a href="quasi-finpi-details.html#516" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#517" class="tactic">apply H5 to H9.</a> <a href="quasi-finpi-details.html#518" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#519" class="tactic">intros.</a> <a href="quasi-finpi-details.html#520" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#521" class="tactic">apply H6 to H9.</a> <a href="quasi-finpi-details.html#522" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#523" class="tactic">intros.</a> <a href="quasi-finpi-details.html#524" class="tactic">case H8.</a>
+      <a href="quasi-finpi-details.html#525" class="tactic">apply H6 to H9.</a> <a href="quasi-finpi-details.html#526" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#527" class="tactic">apply H7 to H9.</a> <a href="quasi-finpi-details.html#528" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#529" class="command">Theorem inv_qbisim : forall P Q, inv qbisim P Q -> qbisim P Q.</a>
+<div class="proof"><a href="quasi-finpi-details.html#530" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#531" class="tactic">intros.</a> <a href="quasi-finpi-details.html#532" class="tactic">apply inv_qbisiminv to H1.</a> <a href="quasi-finpi-details.html#533" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#534" class="tactic">unfold.</a>
+      <a href="quasi-finpi-details.html#535" class="tactic">intros.</a> <a href="quasi-finpi-details.html#536" class="tactic">apply H3 to H7.</a> <a href="quasi-finpi-details.html#537" class="tactic">apply CH to H9.</a> <a href="quasi-finpi-details.html#538" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#539" class="tactic">intros.</a> <a href="quasi-finpi-details.html#540" class="tactic">apply H4 to H7.</a> <a href="quasi-finpi-details.html#541" class="tactic">apply CH to H9.</a> <a href="quasi-finpi-details.html#542" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#543" class="tactic">intros.</a> <a href="quasi-finpi-details.html#544" class="tactic">apply H5 to H7.</a> <a href="quasi-finpi-details.html#545" class="tactic">apply CH to H9.</a> <a href="quasi-finpi-details.html#546" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#547" class="tactic">intros.</a> <a href="quasi-finpi-details.html#548" class="tactic">apply H6 to H7.</a> <a href="quasi-finpi-details.html#549" class="tactic">apply CH to H9.</a> <a href="quasi-finpi-details.html#550" class="tactic">search.</a></div><span class="comment">%QED.      </span>
+
+<a href="quasi-finpi-details.html#551" class="command">Theorem qbisim_cong_par : forall P Q R S, qbisim P Q -> qbisim R S -> qbisim (par P R) (par Q S).</a>
+<div class="proof">     
+<a href="quasi-finpi-details.html#552" class="tactic">intros.</a> <a href="quasi-finpi-details.html#553" class="tactic">backchain inv_qbisim.</a> <span class="comment">%QED</span></div>      
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%% modal logic for qbisim</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% </span>
+   
+<a href="quasi-finpi-details.html#554" class="command">Kind o'                  type.</a>
+<a href="quasi-finpi-details.html#555" class="command">Type tt, ff              o'.</a>
+<a href="quasi-finpi-details.html#556" class="command">Type conj, disj          o' -> o' -> o'.</a>
+<a href="quasi-finpi-details.html#557" class="command">Type boxMat, diaMat,
+     boxDif, diaDif      nm -> nm  -> o' -> o'.</a>
+<a href="quasi-finpi-details.html#558" class="command">Type boxAct, diaAct      lb -> o' -> o'.</a>
+<a href="quasi-finpi-details.html#559" class="command">Type boxOut, diaOut      nm -> (nm -> o') -> o'.</a>
+
+<a href="quasi-finpi-details.html#560" class="command">Define sat : pr -> o' -> prop
+by sat P ff := false
+ ; sat P tt := true
+ ; sat P (conj A B) := sat P A /\ sat P B
+ ; sat P (disj A B) := sat P A \/ sat P B
+ ; sat P (boxMat X Y A) := X = Y -> sat P A
+ ; sat P (diaMat X Y A) := X = Y /\ sat P A
+ ; sat P (boxDif X Y A) := (name X \/ name Y) -> (X = Y -> false) -> sat P A
+ ; sat P (diaDif X Y A) := (name X \/ name Y) /\ (X = Y -> false) /\ sat P A
+ ; sat P (boxAct X A) := forall P1, one P X P1 -> sat P1 A
+ ; sat P (diaAct X A) := exists P1, one P X P1 /\ sat P1 A
+ ; sat P (boxOut X A) := forall Q, oneb P (up X) Q -> nabla w, sat (Q w) (A w)
+ ; sat P (diaOut X A) := exists Q, oneb P (up X) Q /\ nabla w, sat (Q w) (A w)
+ .</a>
+
+<a href="quasi-finpi-details.html#561" class="command">Theorem dist_form0 : forall P Q,
+  ((forall F, sat P F -> sat Q F) -> false) \/
+  ((forall F, sat Q F -> sat P F) -> false) ->
+  ((forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> false).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+   <a href="quasi-finpi-details.html#562" class="tactic">intros.</a> <a href="quasi-finpi-details.html#563" class="tactic">case H1.</a>
+   <a href="quasi-finpi-details.html#564" class="tactic">backchain H3.</a> <a href="quasi-finpi-details.html#565" class="tactic">intros.</a> <a href="quasi-finpi-details.html#566" class="tactic">apply H2 with F = F.</a> <a href="quasi-finpi-details.html#567" class="tactic">backchain H5.</a>
+   <a href="quasi-finpi-details.html#568" class="tactic">backchain H3.</a> <a href="quasi-finpi-details.html#569" class="tactic">intros.</a> <a href="quasi-finpi-details.html#570" class="tactic">apply H2 with F = F.</a> <a href="quasi-finpi-details.html#571" class="tactic">backchain H6.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#572" class="command">Theorem dist_form_both0: forall P Q, 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  ((forall F, sat P F -> sat Q F) -> false) ->
+  ((forall F, sat Q F -> sat P F) -> false).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#573" class="tactic">intros.</a> <a href="quasi-finpi-details.html#574" class="tactic">backchain H2.</a> <a href="quasi-finpi-details.html#575" class="tactic">intros.</a> <a href="quasi-finpi-details.html#576" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#577" class="tactic">backchain H5.</a></div><span class="comment">% Q.E.D.</span>
+
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% </span>
+<span class="comment">%% Soundness (bisim implies logical equivalaence) proof  </span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<a href="quasi-finpi-details.html#578" class="command">Set subgoals off.</a>
+   
+<a href="quasi-finpi-details.html#579" class="command">Theorem qbisim_sat_L : forall P Q F, qbisim P Q -> sat P F -> sat Q F.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#580" class="tactic">induction on 2.</a>
+  <a href="quasi-finpi-details.html#581" class="tactic">intros.</a> <a href="quasi-finpi-details.html#582" class="tactic">case H2.</a>
+  <span class="comment">% Subgoal 1</span>
+  <a href="quasi-finpi-details.html#583" class="tactic">search.</a>
+  <span class="comment">% Subgoal 2</span>
+  <a href="quasi-finpi-details.html#584" class="tactic">unfold.</a>  <a href="quasi-finpi-details.html#585" class="tactic">backchain IH.</a>  <a href="quasi-finpi-details.html#586" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 3</span>
+  <a href="quasi-finpi-details.html#587" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#588" class="tactic">case H3.</a><a href="quasi-finpi-details.html#589" class="tactic">  left. </a><a href="quasi-finpi-details.html#590" class="tactic">backchain IH.</a><a href="quasi-finpi-details.html#591" class="tactic">  right. </a><a href="quasi-finpi-details.html#592" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 4</span>
+  <a href="quasi-finpi-details.html#593" class="tactic">unfold.</a>  <a href="quasi-finpi-details.html#594" class="tactic">intros.</a>  <a href="quasi-finpi-details.html#595" class="tactic">backchain IH.</a> <a href="quasi-finpi-details.html#596" class="tactic">backchain H3.</a>
+  <span class="comment">% Subgoal 5</span>
+  <a href="quasi-finpi-details.html#597" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#598" class="tactic">search.</a> <a href="quasi-finpi-details.html#599" class="tactic">backchain IH.</a>				 
+  <span class="comment">% Subgoal 6</span>
+  <a href="quasi-finpi-details.html#600" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#601" class="tactic">intros.</a> <a href="quasi-finpi-details.html#602" class="tactic">apply H3 to _ _.</a> <a href="quasi-finpi-details.html#603" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 7</span>
+  <a href="quasi-finpi-details.html#604" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#605" class="tactic">search.</a> <a href="quasi-finpi-details.html#606" class="tactic">search.</a> <a href="quasi-finpi-details.html#607" class="tactic">backchain IH.</a> 
+  <span class="comment">% Subgoal 8.</span>
+  <a href="quasi-finpi-details.html#608" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#609" class="tactic">intros.</a> <a href="quasi-finpi-details.html#610" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#611" class="tactic">apply H7 to H4.</a>
+  <a href="quasi-finpi-details.html#612" class="tactic">apply H3 to H9.</a>
+  <a href="quasi-finpi-details.html#613" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 9</span>
+  <a href="quasi-finpi-details.html#614" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#615" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#616" class="tactic">apply H5 to H3.</a>
+  <a href="quasi-finpi-details.html#617" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#618" class="tactic">split.</a> <a href="quasi-finpi-details.html#619" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#620" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 10</span>
+  <a href="quasi-finpi-details.html#621" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#622" class="tactic">intros.</a> <a href="quasi-finpi-details.html#623" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#624" class="tactic">apply H8 to H4.</a>
+  <a href="quasi-finpi-details.html#625" class="tactic">apply H3 to H9.</a>
+  <a href="quasi-finpi-details.html#626" class="tactic">backchain IH.</a>
+  <span class="comment">% Subgoal 11</span>
+  <a href="quasi-finpi-details.html#627" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#628" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#629" class="tactic">apply H6 to H3.</a>
+  <a href="quasi-finpi-details.html#630" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#631" class="tactic">split.</a> <a href="quasi-finpi-details.html#632" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#633" class="tactic">intros.</a> <a href="quasi-finpi-details.html#634" class="tactic">backchain IH.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#635" class="command">Theorem qbisim_sat_R : forall P Q F, qbisim P Q -> sat Q F -> sat P F.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#636" class="tactic">intros.</a>
+  <a href="quasi-finpi-details.html#637" class="tactic">apply qbisim-sym to H1.</a>
+  <a href="quasi-finpi-details.html#638" class="tactic">backchain qbisim_sat_L.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#639" class="command">Theorem qbisim_sat : forall P Q F,
+  qbisim P Q -> ((sat P F -> sat Q F) /\ (sat Q F -> sat P F)).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+<a href="quasi-finpi-details.html#640" class="tactic">intros.</a> <a href="quasi-finpi-details.html#641" class="tactic">split.</a>
+  <a href="quasi-finpi-details.html#642" class="tactic">intros.</a> <a href="quasi-finpi-details.html#643" class="tactic">backchain qbisim_sat_L.</a>
+  <a href="quasi-finpi-details.html#644" class="tactic">intros.</a> <a href="quasi-finpi-details.html#645" class="tactic">backchain qbisim_sat_R.</a></div><span class="comment">% Q.E.D.</span>
+
+<span class="comment">/* using the lemma below, qbisim_sat can be lifted for abtitrary free vars
+   For instance, consider processes with just one free variable Y:
+   (forall Y, qbisim (P Y) (Q Y)) implies
+   qbisim (inp a Y P) (inp a Y Q) where a is global ground channel name.
+   We can apply qbisim_sat and then in turn apply the lemma below to obtain
+   the logical equivalence for one free variable. For more free variables,
+   we only need to nest more input prefixes for each free variable.
+*/</span>
+<a href="quasi-finpi-details.html#646" class="command">Theorem sateq_inp_forall : forall P Q X, 
+  (forall F, (sat (inp X P) F -> sat (inp X Q) F)
+          /\ (sat (inp X Q) F -> sat (inp X P) F))
+  ->
+  (forall F Y, (sat (P Y) F -> sat (Q Y) F)
+            /\ (sat (Q Y) F -> sat (P Y) F)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#647" class="tactic">intros.</a> <a href="quasi-finpi-details.html#648" class="tactic">apply H1 with F = diaAct (dn X Y) F.</a> <a href="quasi-finpi-details.html#649" class="tactic">split.</a>
+<a href="quasi-finpi-details.html#650" class="tactic">intros.</a> <a href="quasi-finpi-details.html#651" class="tactic">assert sat (inp X P) (diaAct (dn X Y) F).</a> <a href="quasi-finpi-details.html#652" class="tactic">apply H2 to H5.</a> <a href="quasi-finpi-details.html#653" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#654" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#655" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#656" class="tactic">intros.</a> <a href="quasi-finpi-details.html#657" class="tactic">assert sat (inp X Q) (diaAct (dn X Y) F).</a> <a href="quasi-finpi-details.html#658" class="tactic">apply H3 to H5.</a> <a href="quasi-finpi-details.html#659" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#660" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#661" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#662" class="command">Theorem satimp_forall_inp : forall P Q X,
+  (forall F Y, sat (P Y) F -> sat (Q Y) F) ->
+  (forall F, sat (inp X P) F -> sat (inp X Q) F).</a>
+<div class="proof"><a href="quasi-finpi-details.html#663" class="tactic">induction on 2.</a> <a href="quasi-finpi-details.html#664" class="tactic">intros.</a> <a href="quasi-finpi-details.html#665" class="tactic">apply IH to H1 with X = X.</a> <a href="quasi-finpi-details.html#666" class="tactic">case H2.</a>
+   <a href="quasi-finpi-details.html#667" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#668" class="tactic">apply H3 to H4.</a> <a href="quasi-finpi-details.html#669" class="tactic">apply H3 to H5.</a> <a href="quasi-finpi-details.html#670" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#671" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#672" class="tactic">apply H3 to H5.</a> <a href="quasi-finpi-details.html#673" class="tactic">search.</a> <a href="quasi-finpi-details.html#674" class="tactic">apply H3 to H5.</a> <a href="quasi-finpi-details.html#675" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#676" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#677" class="tactic">intros.</a> <a href="quasi-finpi-details.html#678" class="tactic">apply H4 to H5.</a> <a href="quasi-finpi-details.html#679" class="tactic">backchain H3.</a>
+   <a href="quasi-finpi-details.html#680" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#681" class="tactic">search.</a> <a href="quasi-finpi-details.html#682" class="tactic">backchain H3.</a>
+   <a href="quasi-finpi-details.html#683" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#684" class="tactic">intros.</a> <a href="quasi-finpi-details.html#685" class="tactic">apply H4 to _ _.</a> <a href="quasi-finpi-details.html#686" class="tactic">backchain H3.</a>
+   <a href="quasi-finpi-details.html#687" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#688" class="tactic">search.</a> <a href="quasi-finpi-details.html#689" class="tactic">search.</a> <a href="quasi-finpi-details.html#690" class="tactic">backchain H3.</a>
+   <a href="quasi-finpi-details.html#691" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#692" class="tactic">intros.</a> <a href="quasi-finpi-details.html#693" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#694" class="tactic">apply H4 to _.</a> <a href="quasi-finpi-details.html#695" class="tactic">apply H1 to H6.</a> <a href="quasi-finpi-details.html#696" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#697" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#698" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#699" class="tactic">apply H1 to H5.</a> <a href="quasi-finpi-details.html#700" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#701" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#702" class="tactic">intros.</a> <a href="quasi-finpi-details.html#703" class="tactic">case H5.</a>
+   <a href="quasi-finpi-details.html#704" class="tactic">case H4.</a></div> 
+<span class="comment">%QED</span>
+
+<span class="comment">% Similarly, using the lemma below sat_qbisim can be lifted to arbitrary free vars</span>
+<span class="comment">% (however, remember that sat_qbisim has not been completely mechanized in Abella)</span>
+<a href="quasi-finpi-details.html#705" class="command">Theorem sateq_forall_inp : forall P Q X, 
+  (forall F Y, (sat (P Y) F -> sat (Q Y) F)
+            /\ (sat (Q Y) F -> sat (P Y) F))
+  ->
+  (forall F, (sat (inp X P) F -> sat (inp X Q) F)
+          /\ (sat (inp X Q) F -> sat (inp X P) F)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#706" class="tactic">intros.</a>
+<a href="quasi-finpi-details.html#707" class="tactic">assert forall F Y, (sat (P Y) F -> sat (Q Y) F).</a>
+   <a href="quasi-finpi-details.html#708" class="tactic">intros.</a> <a href="quasi-finpi-details.html#709" class="tactic">apply H1 with F = F1, Y = Y.</a> <a href="quasi-finpi-details.html#710" class="tactic">backchain H3.</a>   
+<a href="quasi-finpi-details.html#711" class="tactic">assert forall F Y, (sat (Q Y) F -> sat (P Y) F).</a>
+   <a href="quasi-finpi-details.html#712" class="tactic">intros.</a> <a href="quasi-finpi-details.html#713" class="tactic">apply H1 with F = F1, Y = Y.</a> <a href="quasi-finpi-details.html#714" class="tactic">backchain H5.</a>
+<a href="quasi-finpi-details.html#715" class="tactic">split.</a>
+<a href="quasi-finpi-details.html#716" class="tactic">apply satimp_forall_inp to H2 with X = X.</a> <a href="quasi-finpi-details.html#717" class="tactic">intros.</a> <a href="quasi-finpi-details.html#718" class="tactic">backchain H4.</a>
+<a href="quasi-finpi-details.html#719" class="tactic">apply satimp_forall_inp to H3 with X = X.</a> <a href="quasi-finpi-details.html#720" class="tactic">intros.</a> <a href="quasi-finpi-details.html#721" class="tactic">backchain H4.</a></div><span class="comment">%QED</span>
+   
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% </span>
+<span class="comment">%% some parts of Completness (logical equivalence implies bisim) proof</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<a href="quasi-finpi-details.html#722" class="command">Theorem sat_match1 : forall P F X, sat P F -> sat (match X X P) F.</a>
+<div class="proof">  <a href="quasi-finpi-details.html#723" class="tactic">induction on 1.</a> <a href="quasi-finpi-details.html#724" class="tactic">intros.</a> <a href="quasi-finpi-details.html#725" class="tactic">case H1.</a>
+    <a href="quasi-finpi-details.html#726" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#727" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#728" class="tactic">backchain IH.</a> <a href="quasi-finpi-details.html#729" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#730" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#731" class="tactic">case H2.</a><a href="quasi-finpi-details.html#732" class="tactic"> left. </a><a href="quasi-finpi-details.html#733" class="tactic">backchain IH.</a><a href="quasi-finpi-details.html#734" class="tactic"> right. </a><a href="quasi-finpi-details.html#735" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#736" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#737" class="tactic">intros.</a> <a href="quasi-finpi-details.html#738" class="tactic">backchain IH.</a> <a href="quasi-finpi-details.html#739" class="tactic">backchain H2.</a>
+    <a href="quasi-finpi-details.html#740" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#741" class="tactic">intros.</a> <a href="quasi-finpi-details.html#742" class="tactic">search.</a> <a href="quasi-finpi-details.html#743" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#744" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#745" class="tactic">intros.</a> <a href="quasi-finpi-details.html#746" class="tactic">apply H2 to _ _.</a> <a href="quasi-finpi-details.html#747" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#748" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#749" class="tactic">intros.</a> <a href="quasi-finpi-details.html#750" class="tactic">search.</a> <a href="quasi-finpi-details.html#751" class="tactic">search.</a> <a href="quasi-finpi-details.html#752" class="tactic">backchain IH.</a>  
+    <a href="quasi-finpi-details.html#753" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#754" class="tactic">intros.</a> <a href="quasi-finpi-details.html#755" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#756" class="tactic">apply H2 to H4.</a> <a href="quasi-finpi-details.html#757" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#758" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#759" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#760" class="tactic">split.</a> <a href="quasi-finpi-details.html#761" class="tactic">search.</a> <a href="quasi-finpi-details.html#762" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#763" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#764" class="tactic">intros.</a> <a href="quasi-finpi-details.html#765" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#766" class="tactic">apply H2 to H4.</a> <a href="quasi-finpi-details.html#767" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#768" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#769" class="tactic">exists Q.</a> <a href="quasi-finpi-details.html#770" class="tactic">split.</a> <a href="quasi-finpi-details.html#771" class="tactic">search.</a> <a href="quasi-finpi-details.html#772" class="tactic">intros.</a> <a href="quasi-finpi-details.html#773" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+   
+<a href="quasi-finpi-details.html#774" class="command">Theorem sat_match2 : forall P F X, sat (match X X P) F -> sat P F.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#775" class="tactic">induction on 1.</a> <a href="quasi-finpi-details.html#776" class="tactic">intros.</a> <a href="quasi-finpi-details.html#777" class="tactic">case H1.</a>
+    <a href="quasi-finpi-details.html#778" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#779" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#780" class="tactic">backchain IH.</a> <a href="quasi-finpi-details.html#781" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#782" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#783" class="tactic">case H2.</a><a href="quasi-finpi-details.html#784" class="tactic"> left. </a><a href="quasi-finpi-details.html#785" class="tactic">backchain IH.</a><a href="quasi-finpi-details.html#786" class="tactic"> right. </a><a href="quasi-finpi-details.html#787" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#788" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#789" class="tactic">intros.</a> <a href="quasi-finpi-details.html#790" class="tactic">apply H2 to H3.</a> <a href="quasi-finpi-details.html#791" class="tactic">backchain IH.</a> 
+    <a href="quasi-finpi-details.html#792" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#793" class="tactic">search.</a> <a href="quasi-finpi-details.html#794" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#795" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#796" class="tactic">intros.</a> <a href="quasi-finpi-details.html#797" class="tactic">apply H2 to _ _.</a> <a href="quasi-finpi-details.html#798" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#799" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#800" class="tactic">intros.</a> <a href="quasi-finpi-details.html#801" class="tactic">search.</a> <a href="quasi-finpi-details.html#802" class="tactic">search.</a> <a href="quasi-finpi-details.html#803" class="tactic">backchain IH.</a>   
+    <a href="quasi-finpi-details.html#804" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#805" class="tactic">intros.</a> <a href="quasi-finpi-details.html#806" class="tactic">assert one (match X X P) X1 P1.</a> <a href="quasi-finpi-details.html#807" class="tactic">apply H2 to H4.</a> <a href="quasi-finpi-details.html#808" class="tactic">search.</a> 
+    <a href="quasi-finpi-details.html#809" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#810" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#811" class="tactic">split.</a> <a href="quasi-finpi-details.html#812" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#813" class="tactic">search.</a> <a href="quasi-finpi-details.html#814" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#815" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#816" class="tactic">intros.</a> <a href="quasi-finpi-details.html#817" class="tactic">assert oneb (match X X P) (up X1) Q.</a> <a href="quasi-finpi-details.html#818" class="tactic">apply H2 to H4.</a> <a href="quasi-finpi-details.html#819" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#820" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#821" class="tactic">exists Q.</a> <a href="quasi-finpi-details.html#822" class="tactic">split.</a> <a href="quasi-finpi-details.html#823" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#824" class="tactic">search.</a> <a href="quasi-finpi-details.html#825" class="tactic">intros.</a> <a href="quasi-finpi-details.html#826" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#827" class="command">Theorem sat_diff1 : forall X Y P F,
+   (name X \/ name Y) -> (X = Y -> false) -> sat P F -> sat (mismatch X Y P) F.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+<a href="quasi-finpi-details.html#828" class="tactic">induction on 3.</a> <a href="quasi-finpi-details.html#829" class="tactic">intros.</a> <a href="quasi-finpi-details.html#830" class="tactic">case H3.</a>
+    <a href="quasi-finpi-details.html#831" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#832" class="tactic">apply IH to _ _ H4.</a> <a href="quasi-finpi-details.html#833" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#834" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#835" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#836" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#837" class="tactic">search.</a> <a href="quasi-finpi-details.html#838" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#839" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#840" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#841" class="tactic">intros.</a> <a href="quasi-finpi-details.html#842" class="tactic">apply H4 to H5.</a> <a href="quasi-finpi-details.html#843" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#844" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#845" class="tactic">search.</a> <a href="quasi-finpi-details.html#846" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#847" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#848" class="tactic">intros.</a> <a href="quasi-finpi-details.html#849" class="tactic">apply H4 to _ _.</a> <a href="quasi-finpi-details.html#850" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#851" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#852" class="tactic">search.</a> <a href="quasi-finpi-details.html#853" class="tactic">search.</a> <a href="quasi-finpi-details.html#854" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#855" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#856" class="tactic">intros.</a> <a href="quasi-finpi-details.html#857" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#858" class="tactic">apply H4 to H8.</a> <a href="quasi-finpi-details.html#859" class="tactic">apply IH to _ _ H9.</a> <a href="quasi-finpi-details.html#860" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#861" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#862" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#863" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#864" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#865" class="tactic">intros.</a> <a href="quasi-finpi-details.html#866" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#867" class="tactic">apply H4 to H8.</a> <a href="quasi-finpi-details.html#868" class="tactic">apply IH to _ _ H9.</a> <a href="quasi-finpi-details.html#869" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#870" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#871" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#872" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#873" class="command">Theorem sat_diff2 : forall X Y P F,
+   (name X \/ name Y) -> (X = Y -> false) -> sat (mismatch X Y P) F -> sat P F.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+<a href="quasi-finpi-details.html#874" class="tactic">induction on 3.</a> <a href="quasi-finpi-details.html#875" class="tactic">intros.</a> <a href="quasi-finpi-details.html#876" class="tactic">case H3.</a>
+    <a href="quasi-finpi-details.html#877" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#878" class="tactic">apply IH to _ _ H4.</a> <a href="quasi-finpi-details.html#879" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#880" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#881" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#882" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#883" class="tactic">search.</a> <a href="quasi-finpi-details.html#884" class="tactic">apply IH to _ _ H5.</a> <a href="quasi-finpi-details.html#885" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#886" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#887" class="tactic">intros.</a> <a href="quasi-finpi-details.html#888" class="tactic">apply H4 to H5.</a> <a href="quasi-finpi-details.html#889" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#890" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#891" class="tactic">search.</a> <a href="quasi-finpi-details.html#892" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#893" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#894" class="tactic">intros.</a> <a href="quasi-finpi-details.html#895" class="tactic">apply H4 to _ _.</a> <a href="quasi-finpi-details.html#896" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#897" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#898" class="tactic">search.</a> <a href="quasi-finpi-details.html#899" class="tactic">search.</a> <a href="quasi-finpi-details.html#900" class="tactic">backchain IH.</a>
+    <a href="quasi-finpi-details.html#901" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#902" class="tactic">intros.</a> <a href="quasi-finpi-details.html#903" class="tactic">assert one (mismatch X Y P) X1 P1.</a> <a href="quasi-finpi-details.html#904" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#905" class="tactic">search.</a>    
+    <a href="quasi-finpi-details.html#906" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#907" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#908" class="tactic">split.</a> <a href="quasi-finpi-details.html#909" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#910" class="tactic">search.</a> <a href="quasi-finpi-details.html#911" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#912" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#913" class="tactic">intros.</a> <a href="quasi-finpi-details.html#914" class="tactic">assert oneb (mismatch X Y P) (up X1) Q.</a> <a href="quasi-finpi-details.html#915" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#916" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#917" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#918" class="tactic">exists Q.</a> <a href="quasi-finpi-details.html#919" class="tactic">split.</a> <a href="quasi-finpi-details.html#920" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#921" class="tactic">search.</a> <a href="quasi-finpi-details.html#922" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+  
+<a href="quasi-finpi-details.html#923" class="command">Theorem sat_diaAct_plus1 : forall P Q A F,
+  sat P (diaAct A F) -> sat (plus P Q) (diaAct A F).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#924" class="tactic">intros.</a> <a href="quasi-finpi-details.html#925" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#926" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#927" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#928" class="tactic">split.</a> <a href="quasi-finpi-details.html#929" class="tactic">search.</a> <a href="quasi-finpi-details.html#930" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#931" class="command">Theorem sat_diaAct_plus2 : forall P Q A F,
+  sat Q (diaAct A F) -> sat (plus P Q) (diaAct A F).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#932" class="tactic">intros.</a> <a href="quasi-finpi-details.html#933" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#934" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#935" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#936" class="tactic">split.</a> <a href="quasi-finpi-details.html#937" class="tactic">search.</a> <a href="quasi-finpi-details.html#938" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+
+<a href="quasi-finpi-details.html#939" class="command">Theorem sateq_one_exists_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one P A P1 -> exists Q1, one Q A Q1.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#940" class="tactic">induction on 2.</a> <a href="quasi-finpi-details.html#941" class="tactic">intros.</a> <a href="quasi-finpi-details.html#942" class="tactic">case H2.</a>
+  <span class="comment">% Subgoal 1</span>
+  <a href="quasi-finpi-details.html#943" class="tactic">assert forall F, sat P1 F -> sat Q (diaAct tau F).</a>
+    <a href="quasi-finpi-details.html#944" class="tactic">intros.</a> <a href="quasi-finpi-details.html#945" class="tactic">apply H1 with F = diaAct tau F.</a> <a href="quasi-finpi-details.html#946" class="tactic">backchain H4.</a>
+  <a href="quasi-finpi-details.html#947" class="tactic">assert sat P1 tt.</a> <a href="quasi-finpi-details.html#948" class="tactic">apply H3 to H4.</a> <a href="quasi-finpi-details.html#949" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#950" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#951" class="tactic">search.</a>
+  <span class="comment">% Subgoal 2</span>
+  <a href="quasi-finpi-details.html#952" class="tactic">assert forall F, sat P1 F -> sat Q (diaAct (dn X Y) F).</a>
+    <a href="quasi-finpi-details.html#953" class="tactic">intros.</a> <a href="quasi-finpi-details.html#954" class="tactic">apply H1 with F = diaAct (dn X Y) F.</a> <a href="quasi-finpi-details.html#955" class="tactic">backchain H4.</a>
+  <a href="quasi-finpi-details.html#956" class="tactic">assert sat P1 tt.</a> <a href="quasi-finpi-details.html#957" class="tactic">apply H3 to H4.</a> <a href="quasi-finpi-details.html#958" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#959" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#960" class="tactic">search.</a>
+  <span class="comment">% Subgoal 3</span>
+  <a href="quasi-finpi-details.html#961" class="tactic">assert forall F, sat P1 F -> sat Q (diaAct (up X Y) F).</a>
+    <a href="quasi-finpi-details.html#962" class="tactic">intros.</a> <a href="quasi-finpi-details.html#963" class="tactic">apply H1 with F = diaAct (up X Y) F.</a> <a href="quasi-finpi-details.html#964" class="tactic">backchain H4.</a>
+  <a href="quasi-finpi-details.html#965" class="tactic">assert sat P1 tt.</a> <a href="quasi-finpi-details.html#966" class="tactic">apply H3 to H4.</a> <a href="quasi-finpi-details.html#967" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#968" class="tactic">exists P2.</a> <a href="quasi-finpi-details.html#969" class="tactic">search.</a>
+  <span class="comment">% Subgoal 4</span>
+  <a href="quasi-finpi-details.html#970" class="tactic">assert forall F, sat P2 (diaAct A F) -> sat Q (diaAct A F).</a>
+    <a href="quasi-finpi-details.html#971" class="tactic">intros.</a> <a href="quasi-finpi-details.html#972" class="tactic">apply H1 with F = diaAct A F.</a> <a href="quasi-finpi-details.html#973" class="tactic">backchain H5.</a>
+    <a href="quasi-finpi-details.html#974" class="tactic">backchain sat_diaAct_plus1.</a>
+  <a href="quasi-finpi-details.html#975" class="tactic">assert exists F, sat P2 (diaAct A F).</a>
+  <a href="quasi-finpi-details.html#976" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#977" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#978" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#979" class="tactic">search.</a>
+  <span class="comment">% Subgoal 5</span>
+  <a href="quasi-finpi-details.html#980" class="tactic">assert forall F, sat Q1 (diaAct A F) -> sat Q (diaAct A F).</a>
+    <a href="quasi-finpi-details.html#981" class="tactic">intros.</a> <a href="quasi-finpi-details.html#982" class="tactic">apply H1 with F = diaAct A F.</a>
+    <a href="quasi-finpi-details.html#983" class="tactic">backchain H5.</a> <a href="quasi-finpi-details.html#984" class="tactic">backchain sat_diaAct_plus2.</a>
+  <a href="quasi-finpi-details.html#985" class="tactic">assert exists F, sat Q1 (diaAct A F).</a>
+  <a href="quasi-finpi-details.html#986" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#987" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#988" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#989" class="tactic">search.</a>
+  <span class="comment">% Subgoal 6</span>
+  <a href="quasi-finpi-details.html#990" class="tactic">assert exists F, sat (par P2 Q1) (diaAct A F).</a>
+  <a href="quasi-finpi-details.html#991" class="tactic">assert exists F, sat Q (diaAct A F).</a>
+    <a href="quasi-finpi-details.html#992" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#993" class="tactic">apply H1 with F = diaAct A F.</a> <a href="quasi-finpi-details.html#994" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#995" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#996" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#997" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#998" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#999" class="tactic">search.</a>
+  <span class="comment">% Subgoal 7</span>
+  <a href="quasi-finpi-details.html#1000" class="tactic">assert exists F, sat (par P2 Q1) (diaAct A F).</a>
+  <a href="quasi-finpi-details.html#1001" class="tactic">assert exists F, sat Q (diaAct A F).</a>
+    <a href="quasi-finpi-details.html#1002" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1003" class="tactic">apply H1 with F = diaAct A F.</a> <a href="quasi-finpi-details.html#1004" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1005" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1006" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1007" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1008" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#1009" class="tactic">search.</a>
+  <span class="comment">% Subgoal 8</span>
+  <a href="quasi-finpi-details.html#1010" class="tactic">assert exists F, sat (nu P2) (diaAct A F).</a>
+  <a href="quasi-finpi-details.html#1011" class="tactic">assert exists F, sat Q (diaAct A F).</a>
+    <a href="quasi-finpi-details.html#1012" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1013" class="tactic">apply H1 with F = diaAct A F.</a> <a href="quasi-finpi-details.html#1014" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1015" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1016" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1017" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1018" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#1019" class="tactic">search.</a>
+  <span class="comment">% Subgoal 9</span>
+  <a href="quasi-finpi-details.html#1020" class="tactic">backchain IH with P = P2.</a>
+  <a href="quasi-finpi-details.html#1021" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1022" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1023" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1024" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1025" class="tactic">backchain H4.</a> <a href="quasi-finpi-details.html#1026" class="tactic">backchain sat_match1.</a>
+    <a href="quasi-finpi-details.html#1027" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1028" class="tactic">apply H5 to H6.</a> <a href="quasi-finpi-details.html#1029" class="tactic">backchain sat_match2.</a>
+  <span class="comment">% Subgoal 10</span>
+  <a href="quasi-finpi-details.html#1030" class="tactic">backchain IH with P = P2.</a>
+  <a href="quasi-finpi-details.html#1031" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1032" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1033" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1034" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1035" class="tactic">backchain H6.</a> <a href="quasi-finpi-details.html#1036" class="tactic">backchain sat_diff1.</a>
+    <a href="quasi-finpi-details.html#1037" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1038" class="tactic">apply H7 to H8.</a> <a href="quasi-finpi-details.html#1039" class="tactic">backchain sat_diff2.</a>
+  <span class="comment">% Subgoal 11</span>
+  <a href="quasi-finpi-details.html#1040" class="tactic">assert exists F, sat (par P2 Q1) (diaAct tau F).</a>
+  <a href="quasi-finpi-details.html#1041" class="tactic">assert exists F, sat Q (diaAct tau F).</a>
+    <a href="quasi-finpi-details.html#1042" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1043" class="tactic">apply H1 with F = diaAct tau F.</a> <a href="quasi-finpi-details.html#1044" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1045" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1046" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1047" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1048" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#1049" class="tactic">search.</a>
+  <span class="comment">% Subgoal 12</span>
+  <a href="quasi-finpi-details.html#1050" class="tactic">assert exists F, sat (par P2 Q1) (diaAct tau F).</a>
+  <a href="quasi-finpi-details.html#1051" class="tactic">assert exists F, sat Q (diaAct tau F).</a>
+    <a href="quasi-finpi-details.html#1052" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1053" class="tactic">apply H1 with F = diaAct tau F.</a> <a href="quasi-finpi-details.html#1054" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1055" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1056" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1057" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1058" class="tactic">exists P3.</a> <a href="quasi-finpi-details.html#1059" class="tactic">search.</a></div> 
+<span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1060" class="command">Theorem sateq_one_exists_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one Q A Q1 -> exists P1, one P A P1.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1061" class="tactic">intros.</a>
+  <a href="quasi-finpi-details.html#1062" class="tactic">assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).</a>
+    <a href="quasi-finpi-details.html#1063" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1064" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1065" class="tactic">split.</a> <a href="quasi-finpi-details.html#1066" class="tactic">search.</a> <a href="quasi-finpi-details.html#1067" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1068" class="tactic">backchain sateq_one_exists_L.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1069" class="command">Theorem sateq_one_exists : forall P Q A P1 Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  (  ( one P A P1 -> exists Q1, one Q A Q1 )
+  /\ ( one Q A Q1 -> exists P2, one P A P2 ) ).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1070" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1071" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1072" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1073" class="tactic">backchain sateq_one_exists_L.</a>
+    <a href="quasi-finpi-details.html#1074" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1075" class="tactic">backchain sateq_one_exists_R.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1076" class="command">Theorem sateq_one_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one P A P1 -> exists Q1, one Q A Q1
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1077" class="tactic">skip.</a></div>  <span class="comment">/*
+  Because we assume finite panout for every state, we know that set of Qi is
+  finite. And we know that the set is non empty due to sateq_one_exists_L.
+  So, we can ennumerate all posiible such Qis and try proving 
+  (forall F, (sat P1 F -> sat Qi F) /\ (sat Qi F -> sat P1 F))
+  for one of the Qis. If you were able to find a proof for one such Qi
+  then we are done. But the question is whether there a possibility where
+  no proof exist for all Qi. That, is for each Qi there exists Fi such that
+  no proof exists for (sat P1 Fi -> sat Qi Fi) /\ (sat Qi Fi -> sat P1 Fi).
+  In other words, each Fi satisfy either (exclusive) one of the following:
+    1) No proof for (sat P1 Fi -> sat Qi Fi), that is,
+       there is a proof for "sat Qi F" but no proof for sat P1 Fi".
+    2) No proof for (sat Qi F -> sat P1 F):
+       there is a proof for "sat P1 F" but no proof for sat Qi Fi".
+  Another fortunate fact is that if we have an Fi that satisy one of above,
+  we can construct Fi' that satisfy the other related by "neg". So without
+  loss of generality, our assumption amounts to saying that every Qi has Fi
+  that satisfy 2). Consider a conjuction of all such Fis:
+    Fq = F1 /\ F2 /\ F3 /\ ...
+  We can prove "P1 |= Fq" but no proof exists for "Qi |= Fq" for any Qi.
+  Now, consider a formula <A>Fq. We know that "P |= <A>Fq" but clearly
+  there is no proof for "Q |= <A>Fq", which contradicts 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)).
+  Therefore, it is not possible to assume that all Qi fails to be logically
+  equivalent to P1. That is there must exist Q1 logically equivalent to P1.
+  */</span>
+<span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1078" class="command">Theorem sateq_one_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  one Q A Q1 -> exists P1, one P A P1
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1079" class="tactic">skip.</a></div>  <span class="comment">/*
+  Similar argument to sateq_one_L.
+  */</span>
+<span class="comment">% Q.E.D</span>
+
+<a href="quasi-finpi-details.html#1080" class="command">Theorem sat_diaOut_plus1 : forall P Q X F,
+  sat P (diaOut X F) -> sat (plus P Q) (diaOut X F).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1081" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1082" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1083" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1084" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#1085" class="tactic">split.</a> <a href="quasi-finpi-details.html#1086" class="tactic">search.</a> <a href="quasi-finpi-details.html#1087" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1088" class="command">Theorem sat_diaOut_plus2 : forall P Q X F,
+  sat Q (diaOut X F) -> sat (plus P Q) (diaOut X F).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1089" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1090" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1091" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1092" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#1093" class="tactic">split.</a> <a href="quasi-finpi-details.html#1094" class="tactic">search.</a> <a href="quasi-finpi-details.html#1095" class="tactic">search.</a></div><span class="comment">% Q.E.D.</span>
+
+
+<a href="quasi-finpi-details.html#1096" class="command">Theorem sateq_oneb_up_exists_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb P (up X) P1 -> exists Q1, oneb Q (up X) Q1.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1097" class="tactic">induction on 2.</a> <a href="quasi-finpi-details.html#1098" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1099" class="tactic">case H2.</a>
+  <span class="comment">% Subgoal 1</span>
+  <a href="quasi-finpi-details.html#1100" class="tactic">assert exists F, sat (nu P2) (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1101" class="tactic">assert exists F, sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1102" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1103" class="tactic">apply H1 with F = diaOut X F.</a> <a href="quasi-finpi-details.html#1104" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1105" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1106" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1107" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1108" class="tactic">search.</a>
+  <span class="comment">% Subgoal 2</span>
+  <a href="quasi-finpi-details.html#1109" class="tactic">assert forall F, sat P2 (diaOut X F) -> sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1110" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1111" class="tactic">apply H1 with F = diaOut X F.</a>
+    <a href="quasi-finpi-details.html#1112" class="tactic">backchain H5.</a> <a href="quasi-finpi-details.html#1113" class="tactic">backchain sat_diaOut_plus1.</a>
+  <a href="quasi-finpi-details.html#1114" class="tactic">assert exists F, sat P2 (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1115" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1116" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#1117" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1118" class="tactic">search.</a> 
+  <span class="comment">% Subgoal 3</span>
+  <a href="quasi-finpi-details.html#1119" class="tactic">assert forall F, sat Q1 (diaOut X F) -> sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1120" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1121" class="tactic">apply H1 with F = diaOut X F.</a>
+    <a href="quasi-finpi-details.html#1122" class="tactic">backchain H5.</a> <a href="quasi-finpi-details.html#1123" class="tactic">backchain sat_diaOut_plus2.</a>
+  <a href="quasi-finpi-details.html#1124" class="tactic">assert exists F, sat Q1 (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1125" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1126" class="tactic">apply H4 to H6.</a> <a href="quasi-finpi-details.html#1127" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1128" class="tactic">search.</a>
+  <span class="comment">% Subgoal 4</span>
+  <a href="quasi-finpi-details.html#1129" class="tactic">assert exists F, sat P2 (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1130" class="tactic">assert exists F, sat (par P2 Q1) (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1131" class="tactic">assert exists F, sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1132" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1133" class="tactic">apply H1 with F = diaOut X F.</a> <a href="quasi-finpi-details.html#1134" class="tactic">apply H7 to H6.</a> <a href="quasi-finpi-details.html#1135" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1136" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1137" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1138" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#1139" class="tactic">search.</a>
+  <span class="comment">% Subgoal 5</span>
+  <a href="quasi-finpi-details.html#1140" class="tactic">assert exists F, sat Q1 (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1141" class="tactic">assert exists F, sat (par P2 Q1) (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1142" class="tactic">assert exists F, sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1143" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1144" class="tactic">apply H1 with F = diaOut X F.</a> <a href="quasi-finpi-details.html#1145" class="tactic">apply H7 to H6.</a> <a href="quasi-finpi-details.html#1146" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1147" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1148" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1149" class="tactic">exists Q2.</a> <a href="quasi-finpi-details.html#1150" class="tactic">search.</a>
+  <span class="comment">% Subgoal 6</span>
+  <a href="quasi-finpi-details.html#1151" class="tactic">backchain IH with P = P2.</a>
+  <a href="quasi-finpi-details.html#1152" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1153" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1154" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1155" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1156" class="tactic">backchain H4.</a> <a href="quasi-finpi-details.html#1157" class="tactic">backchain sat_match1.</a>
+    <a href="quasi-finpi-details.html#1158" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1159" class="tactic">apply H5 to H6.</a> <a href="quasi-finpi-details.html#1160" class="tactic">backchain sat_match2.</a>
+  <span class="comment">% Subgoal 7</span>
+  <a href="quasi-finpi-details.html#1161" class="tactic">backchain IH with P = P2.</a>
+  <a href="quasi-finpi-details.html#1162" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1163" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1164" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1165" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1166" class="tactic">backchain H6.</a> <a href="quasi-finpi-details.html#1167" class="tactic">backchain sat_diff1.</a>
+    <a href="quasi-finpi-details.html#1168" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1169" class="tactic">apply H7 to H8.</a> <a href="quasi-finpi-details.html#1170" class="tactic">backchain sat_diff2.</a>
+  <span class="comment">% Subgoal 8</span>
+  <a href="quasi-finpi-details.html#1171" class="tactic">assert exists F, sat (nu P2) (diaOut X F).</a>
+  <a href="quasi-finpi-details.html#1172" class="tactic">assert exists F, sat Q (diaOut X F).</a>
+    <a href="quasi-finpi-details.html#1173" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1174" class="tactic">apply H1 with F = diaOut X F.</a> <a href="quasi-finpi-details.html#1175" class="tactic">apply H6 to H5.</a> <a href="quasi-finpi-details.html#1176" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1177" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1178" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1179" class="tactic">search.</a></div>   
+<span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1180" class="command">Theorem sateq_oneb_up_exists_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb Q (up X) Q1 -> exists P1, oneb P (up X) P1.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1181" class="tactic">intros.</a>
+  <a href="quasi-finpi-details.html#1182" class="tactic">assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).</a>
+    <a href="quasi-finpi-details.html#1183" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1184" class="tactic">apply H1 with F = F.</a> <a href="quasi-finpi-details.html#1185" class="tactic">split.</a> <a href="quasi-finpi-details.html#1186" class="tactic">search.</a> <a href="quasi-finpi-details.html#1187" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1188" class="tactic">backchain sateq_oneb_up_exists_L.</a></div><span class="comment">% Q.E.D. </span>
+
+<a href="quasi-finpi-details.html#1189" class="command">Theorem sateq_oneb_up_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb P (up X) P1 -> exists Q1, oneb Q (up X) Q1
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1190" class="tactic">skip.</a></div>  <span class="comment">/*
+  Similar argument to sateq_one_L.
+  */</span>
+<span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1191" class="command">Theorem sateq_oneb_up_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  oneb Q (up X) Q1 -> exists P1, oneb P (up X) P1
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1192" class="tactic">skip.</a></div>  <span class="comment">/*
+  Similar argument to sateq_one_L.
+  */</span>
+<span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1193" class="command">Theorem sat_qbisim : forall P Q,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> qbisim P Q.</a>
+<div class="proof"><span class="comment">% Proof.</span>
+  <a href="quasi-finpi-details.html#1194" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#1195" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1196" class="tactic">unfold.</a>
+    <span class="comment">% Subgoal 1</span>
+    <a href="quasi-finpi-details.html#1197" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1198" class="tactic">apply sateq_one_L to H1 H2.</a>
+    <a href="quasi-finpi-details.html#1199" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#1200" class="tactic">split.</a> <a href="quasi-finpi-details.html#1201" class="tactic">search.</a> <a href="quasi-finpi-details.html#1202" class="tactic">backchain CH.</a>
+    <span class="comment">% Subgoal 2</span>
+    <a href="quasi-finpi-details.html#1203" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1204" class="tactic">apply sateq_oneb_up_L to H1 H2.</a> <a href="quasi-finpi-details.html#1205" class="tactic">exists Q1.</a> <a href="quasi-finpi-details.html#1206" class="tactic">split.</a> <a href="quasi-finpi-details.html#1207" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1208" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1209" class="tactic">backchain CH.</a>
+    <span class="comment">% Subgoal 3</span>
+    <a href="quasi-finpi-details.html#1210" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1211" class="tactic">apply sateq_one_R to H1 H2.</a> <a href="quasi-finpi-details.html#1212" class="tactic">exists P1.</a> <a href="quasi-finpi-details.html#1213" class="tactic">split.</a> <a href="quasi-finpi-details.html#1214" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1215" class="tactic">assert forall F, (sat Q1 F -> sat P1 F) /\ (sat P1 F -> sat Q1 F).</a>
+    <a href="quasi-finpi-details.html#1216" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1217" class="tactic">apply H4 with F = F.</a> <a href="quasi-finpi-details.html#1218" class="tactic">split.</a> <a href="quasi-finpi-details.html#1219" class="tactic">search.</a> <a href="quasi-finpi-details.html#1220" class="tactic">search.</a> <a href="quasi-finpi-details.html#1221" class="tactic">backchain CH.</a>
+    <span class="comment">% Subgoal 4</span>
+    <a href="quasi-finpi-details.html#1222" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1223" class="tactic">apply sateq_oneb_up_R to H1 H2.</a>
+    <a href="quasi-finpi-details.html#1224" class="tactic">exists P1.</a> <a href="quasi-finpi-details.html#1225" class="tactic">split.</a> <a href="quasi-finpi-details.html#1226" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1227" class="tactic">assert forall F, (sat (Q1 n1) F -> sat (P1 n1) F) /\ (sat (P1 n1) F -> sat (Q1 n1) F).</a>
+      <a href="quasi-finpi-details.html#1228" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1229" class="tactic">apply H4 with F = F n1.</a>
+      <a href="quasi-finpi-details.html#1230" class="tactic">split.</a> <a href="quasi-finpi-details.html#1231" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1232" class="tactic">backchain H6.</a> <a href="quasi-finpi-details.html#1233" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1234" class="tactic">backchain H5.</a>
+    <a href="quasi-finpi-details.html#1235" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1236" class="tactic">backchain CH.</a></div><span class="comment">% Q.E.D.</span>
+
+<a href="quasi-finpi-details.html#1237" class="command">Set subgoals on.</a>
+
+
+<span class="comment">%%%%% BEGIN examples in Section 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+   
+<span class="comment">%% first example on p2  </span>
+<a href="quasi-finpi-details.html#1238" class="command">Theorem mismatch_taup_qbisim_nontheorem :
+forall x y, qbisim (mismatch x y (taup null)) (taup null).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1239" class="tactic">coinduction.</a> <a href="quasi-finpi-details.html#1240" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1241" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1242" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1243" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1244" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1245" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1246" class="tactic">split.</a> <a href="quasi-finpi-details.html#1247" class="tactic">search.</a> <a href="quasi-finpi-details.html#1248" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1249" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1250" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1251" class="tactic">case H4.</a>
+<a href="quasi-finpi-details.html#1252" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1253" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1254" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1255" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#1256" class="tactic">abort.</a> <span class="comment">% cannot decide a step from (mismatch x y (taup null))</span></div><span class="comment">%QED</span>
+
+ 
+<span class="comment">% lemma for the next example    </span>
+<a href="quasi-finpi-details.html#1257" class="command">Theorem qbisim_match_null : 
+forall X Y P, (X = Y -> false) -> qbisim (match X Y P) null.</a>
+<div class="proof"><a href="quasi-finpi-details.html#1258" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1259" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1260" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1261" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1262" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1263" class="tactic">backchain H1.</a> <a href="quasi-finpi-details.html#1264" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#1265" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1266" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1267" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1268" class="tactic">backchain H1.</a> <a href="quasi-finpi-details.html#1269" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#1270" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1271" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1272" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1273" class="tactic">case H2.</a></div><span class="comment">%QED</span>
+      
+<span class="comment">% second example on p2</span>
+<a href="quasi-finpi-details.html#1274" class="command">Theorem mismatch_followed_by_match_qbisim_mismatch : forall x y,
+qbisim (mismatch x y (taup (match x y (taup null))))
+       (mismatch x y (taup null)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1275" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1276" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1277" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1278" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1279" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1280" class="tactic">exists null.</a>
+	<a href="quasi-finpi-details.html#1281" class="tactic">split.</a> <a href="quasi-finpi-details.html#1282" class="tactic">search.</a> <a href="quasi-finpi-details.html#1283" class="tactic">backchain qbisim_match_null.</a>
+  <a href="quasi-finpi-details.html#1284" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1285" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1286" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#1287" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1288" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1289" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1290" class="tactic">exists (match x y (taup null)).</a>
+	<a href="quasi-finpi-details.html#1291" class="tactic">split.</a> <a href="quasi-finpi-details.html#1292" class="tactic">search.</a> <a href="quasi-finpi-details.html#1293" class="tactic">backchain qbisim_match_null.</a>
+  <a href="quasi-finpi-details.html#1294" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1295" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1296" class="tactic">case H4.</a></div><span class="comment">%QED</span>
+
+      
+<span class="comment">%% "Subtlties of mismatch" paragraph example</span>
+      
+<a href="quasi-finpi-details.html#1297" class="command">Theorem match_mismatch_exmid_qbisim_nontheorem : forall x y,
+qbisim (taup null) (plus (match x y (taup null)) (mismatch x y (taup null))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1298" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1299" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1300" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1301" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1302" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1303" class="tactic">split.</a>
+	<a href="quasi-finpi-details.html#1304" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1305" class="tactic">abort.</a> <span class="comment">% cannot continue because [x=y]tau ~/~ 0</span></div>
+<span class="comment">% right-biased disginguishing formula of above nonbisim example      </span>
+<a href="quasi-finpi-details.html#1306" class="command">Theorem dist_form_exmid_sat_right : forall x y,
+sat (plus (match x y (taup null)) (mismatch x y (taup null)))
+    (boxAct tau (disj (diaMat x y tt) (diaDif x y tt))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1307" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1308" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1309" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1310" class="tactic">case H1.</a>
+<a href="quasi-finpi-details.html#1311" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1312" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1313" class="tactic">unfold.</a><a href="quasi-finpi-details.html#1314" class="tactic"> left. </a><a href="quasi-finpi-details.html#1315" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#1316" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1317" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1318" class="tactic">unfold.</a><a href="quasi-finpi-details.html#1319" class="tactic"> right. </a><a href="quasi-finpi-details.html#1320" class="tactic">search.</a></div><span class="comment">%QED</span>
+     
+<a href="quasi-finpi-details.html#1321" class="command">Theorem dist_form_exmid_unsat_left : forall x y,
+sat (taup null)
+    (boxAct tau (disj (diaMat x y tt) (diaDif x y tt))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1322" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1323" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1324" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1325" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1326" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1327" class="tactic">abort.</a> <span class="comment">% niether left nor right will work</span></div>     <span class="comment">% left. unfold. abort. % x = y  is not provable</span>
+     <span class="comment">% right. unfold. abort. % (x = y) -> flase  is not probable</span>
+
+   
+<span class="comment">%% "Subtleties of quasi-open bisimilarity with mismatch" paragraph example</span>
+
+<span class="comment">% lemma for the next example</span>
+<a href="quasi-finpi-details.html#1328" class="command">Theorem eq-symm : forall (x y : nm), x = y -> y = x.</a>
+<div class="proof"><a href="quasi-finpi-details.html#1329" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<span class="comment">% lemma for the next example   </span>
+<a href="quasi-finpi-details.html#1330" class="command">Theorem nabla_taup_exmid : nabla x, forall y,
+qbisim (taup null)
+       (plus (match x y (taup null)) (mismatch x y (taup null))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1331" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1332" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1333" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1334" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1335" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1336" class="tactic">split.</a>
+     <a href="quasi-finpi-details.html#1337" class="tactic">apply quasi-em with y = n1, x = y n1.</a> <a href="quasi-finpi-details.html#1338" class="tactic">case H2.</a>
+	<a href="quasi-finpi-details.html#1339" class="tactic">search.</a>
+	<a href="quasi-finpi-details.html#1340" class="tactic">unfold 5.</a> <a href="quasi-finpi-details.html#1341" class="tactic">unfold.</a>
+	  <a href="quasi-finpi-details.html#1342" class="tactic">search.</a>
+	  <a href="quasi-finpi-details.html#1343" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1344" class="tactic">apply eq-symm to H4.</a> <a href="quasi-finpi-details.html#1345" class="tactic">backchain H3.</a>
+	<a href="quasi-finpi-details.html#1346" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1347" class="tactic">backchain qbisim-refl.</a>      
+<a href="quasi-finpi-details.html#1348" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1349" class="tactic">case H1.</a>
+<a href="quasi-finpi-details.html#1350" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1351" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1352" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1353" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1354" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1355" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1356" class="tactic">split.</a> <a href="quasi-finpi-details.html#1357" class="tactic">search.</a> <a href="quasi-finpi-details.html#1358" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1359" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1360" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1361" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1362" class="tactic">split.</a> <a href="quasi-finpi-details.html#1363" class="tactic">search.</a> <a href="quasi-finpi-details.html#1364" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1365" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1366" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1367" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1368" class="tactic">case H3.</a>
+  <a href="quasi-finpi-details.html#1369" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1370" class="tactic">case H5.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1371" class="command">Theorem bound_output_exmid_example : forall z,
+qbisim (nu x\ oup z x (inp z y\ taup null))
+       (nu x\ oup z x (inp z y\ plus (match x y (taup null)) (mismatch x y (taup null)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1372" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1373" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1374" class="command">Set subgoals off.</a>
+<a href="quasi-finpi-details.html#1375" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1376" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1377" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#1378" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1379" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1380" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1381" class="tactic">exists x\inp X y\plus (match x y (taup null)) (mismatch x y (taup null)).</a>
+   <a href="quasi-finpi-details.html#1382" class="tactic">split.</a> <a href="quasi-finpi-details.html#1383" class="tactic">search.</a> <a href="quasi-finpi-details.html#1384" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1385" class="tactic">unfold.</a>
+     <a href="quasi-finpi-details.html#1386" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1387" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1388" class="tactic">exists plus (match n1 (Y n1) (taup null)) (mismatch n1 (Y n1) (taup null)).</a>     
+       <a href="quasi-finpi-details.html#1389" class="tactic">split.</a> <a href="quasi-finpi-details.html#1390" class="tactic">search.</a> <a href="quasi-finpi-details.html#1391" class="tactic">backchain nabla_taup_exmid with x = n1, y = Y n1.</a>      
+     <a href="quasi-finpi-details.html#1392" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1393" class="tactic">case H3.</a>
+     <a href="quasi-finpi-details.html#1394" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1395" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1396" class="tactic">exists taup null.</a>
+       <a href="quasi-finpi-details.html#1397" class="tactic">split.</a> <a href="quasi-finpi-details.html#1398" class="tactic">search.</a> <a href="quasi-finpi-details.html#1399" class="tactic">backchain nabla_taup_exmid with x = n1, y = Y n1.</a>      
+     <a href="quasi-finpi-details.html#1400" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1401" class="tactic">case H3.</a>
+  <a href="quasi-finpi-details.html#1402" class="tactic">case H2.</a>      
+<a href="quasi-finpi-details.html#1403" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1404" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1405" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#1406" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1407" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1408" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1409" class="tactic">exists x\inp X y\taup null.</a> <a href="quasi-finpi-details.html#1410" class="tactic">split.</a> <a href="quasi-finpi-details.html#1411" class="tactic">search.</a> <a href="quasi-finpi-details.html#1412" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1413" class="tactic">unfold.</a>
+    <a href="quasi-finpi-details.html#1414" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1415" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1416" class="tactic">exists plus (match n1 (Y n1) (taup null)) (mismatch n1 (Y n1) (taup null)).</a>
+      <a href="quasi-finpi-details.html#1417" class="tactic">split.</a> <a href="quasi-finpi-details.html#1418" class="tactic">search.</a> <a href="quasi-finpi-details.html#1419" class="tactic">backchain nabla_taup_exmid with x = n1, y = Y n1.</a>
+    <a href="quasi-finpi-details.html#1420" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1421" class="tactic">case H3.</a>
+    <a href="quasi-finpi-details.html#1422" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1423" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1424" class="tactic">exists taup null.</a>
+      <a href="quasi-finpi-details.html#1425" class="tactic">split.</a> <a href="quasi-finpi-details.html#1426" class="tactic">search.</a> <a href="quasi-finpi-details.html#1427" class="tactic">backchain nabla_taup_exmid with x = n1, y = Y n1.</a>
+    <a href="quasi-finpi-details.html#1428" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1429" class="tactic">case H3.</a>	
+  <a href="quasi-finpi-details.html#1430" class="tactic">case H2.</a></div><a href="quasi-finpi-details.html#1431" class="command">Set subgoals on.</a>
+<span class="comment">%QED	     </span>
+
+<span class="comment">%%%%% END examples in Section 1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<span class="comment">%%%%% BEGIN examples in Section 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<span class="comment">% lemma for the next example </span>
+<a href="quasi-finpi-details.html#1432" class="command">Theorem nabla_mismatch_tau : forall x, nabla z,
+qbisim (mismatch x z (taup null)) (taup null).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1433" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1434" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1435" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1436" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1437" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1438" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1439" class="tactic">split.</a> <a href="quasi-finpi-details.html#1440" class="tactic">search.</a> <a href="quasi-finpi-details.html#1441" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1442" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1443" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1444" class="tactic">case H4.</a>
+<a href="quasi-finpi-details.html#1445" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1446" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1447" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1448" class="tactic">split.</a> <a href="quasi-finpi-details.html#1449" class="tactic">search.</a> <a href="quasi-finpi-details.html#1450" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1451" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1452" class="tactic">case H1.</a></div><span class="comment">%QED</span>
+	
+<span class="comment">%% "Examples of quasi-open bisimilar processes" paragraph example</span>
+
+<a href="quasi-finpi-details.html#1453" class="command">Theorem nu_oup_mismatch_example : forall x,
+qbisim (nu z\oup x z (mismatch x z (taup null)))
+       (nu z\oup x z (taup null)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1454" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1455" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1456" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1457" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1458" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1459" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1460" class="tactic">case H1.</a>
+    <a href="quasi-finpi-details.html#1461" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1462" class="tactic">exists z\taup null.</a>
+	<a href="quasi-finpi-details.html#1463" class="tactic">split.</a> <a href="quasi-finpi-details.html#1464" class="tactic">search.</a> <a href="quasi-finpi-details.html#1465" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1466" class="tactic">backchain nabla_mismatch_tau.</a>
+    <a href="quasi-finpi-details.html#1467" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1468" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1469" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1470" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1471" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1472" class="tactic">case H1.</a>
+    <a href="quasi-finpi-details.html#1473" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1474" class="tactic">exists z\mismatch X z (taup null).</a>
+	<a href="quasi-finpi-details.html#1475" class="tactic">split.</a> <a href="quasi-finpi-details.html#1476" class="tactic">search.</a> <a href="quasi-finpi-details.html#1477" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1478" class="tactic">backchain nabla_mismatch_tau.</a>
+    <a href="quasi-finpi-details.html#1479" class="tactic">case H2.</a></div><span class="comment">%QED</span>
+
+
+<span class="comment">%% "Example particular to quasi-open bisimilarity" paragraph examples</span>
+
+<span class="comment">% first one is the same as the example in Section 1</span>
+
+<span class="comment">% second example is obvious from the first example,</span>
+<span class="comment">% sharing pretty much the same basic structure.</span>
+
+<span class="comment">% Further example </span>
+<a href="quasi-finpi-details.html#1480" class="command">Theorem mismatch_constructive_example : forall x y z,
+  qbisim (mismatch y z (taup (taup null)))
+         (mismatch y z (taup (plus
+            (plus (match x y (taup null)) (mismatch x y (taup null)))
+            (plus (match x z (taup null)) (mismatch x z (taup null)))))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1481" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1482" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1483" class="command">Set subgoals off.</a>
+<a href="quasi-finpi-details.html#1484" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1485" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1486" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#1487" class="tactic">exists (plus (plus (match x y (taup null)) (mismatch x y (taup null)))
+               (plus (match x z (taup null)) (mismatch x z (taup null)))).</a> <a href="quasi-finpi-details.html#1488" class="tactic">split.</a>
+    <a href="quasi-finpi-details.html#1489" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1490" class="tactic">case H2.</a>
+      <a href="quasi-finpi-details.html#1491" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1492" class="tactic">apply quasi-em with y = n1, x = z n1.</a> <a href="quasi-finpi-details.html#1493" class="tactic">case H6.</a>
+	<a href="quasi-finpi-details.html#1494" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1495" class="tactic">backchain H3.</a> <a href="quasi-finpi-details.html#1496" class="tactic">case H7.</a>
+	<a href="quasi-finpi-details.html#1497" class="tactic">unfold.</a>
+	  <a href="quasi-finpi-details.html#1498" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1499" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1500" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1501" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#1502" class="tactic">case H9.</a>
+	    <a href="quasi-finpi-details.html#1503" class="tactic">split.</a> <a href="quasi-finpi-details.html#1504" class="tactic">search.</a> <a href="quasi-finpi-details.html#1505" class="tactic">backchain qbisim-refl.</a>
+	    <a href="quasi-finpi-details.html#1506" class="tactic">split.</a> <a href="quasi-finpi-details.html#1507" class="tactic">search.</a> <a href="quasi-finpi-details.html#1508" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1509" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1510" class="tactic">case H8.</a>
+	  <a href="quasi-finpi-details.html#1511" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1512" class="tactic">case H8.</a>
+	    <a href="quasi-finpi-details.html#1513" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1514" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1515" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1516" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1517" class="tactic">split.</a> <a href="quasi-finpi-details.html#1518" class="tactic">search.</a> <a href="quasi-finpi-details.html#1519" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1520" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1521" class="tactic">case H13.</a> <a href="quasi-finpi-details.html#1522" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1523" class="tactic">split.</a> <a href="quasi-finpi-details.html#1524" class="tactic">search.</a> <a href="quasi-finpi-details.html#1525" class="tactic">backchain qbisim-refl.</a>
+	    <a href="quasi-finpi-details.html#1526" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1527" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1528" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1529" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1530" class="tactic">split.</a> <a href="quasi-finpi-details.html#1531" class="tactic">search.</a> <a href="quasi-finpi-details.html#1532" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1533" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1534" class="tactic">case H13.</a> <a href="quasi-finpi-details.html#1535" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1536" class="tactic">split.</a> <a href="quasi-finpi-details.html#1537" class="tactic">search.</a> <a href="quasi-finpi-details.html#1538" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1539" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1540" class="tactic">case H8.</a>
+	    <a href="quasi-finpi-details.html#1541" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1542" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1543" class="tactic">case H11.</a>
+	      <a href="quasi-finpi-details.html#1544" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1545" class="tactic">case H13.</a>
+	    <a href="quasi-finpi-details.html#1546" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1547" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1548" class="tactic">case H11.</a>
+	      <a href="quasi-finpi-details.html#1549" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1550" class="tactic">case H13.</a>
+      <a href="quasi-finpi-details.html#1551" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1552" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#1553" class="tactic">case H6.</a>
+	<a href="quasi-finpi-details.html#1554" class="tactic">unfold.</a>
+	  <a href="quasi-finpi-details.html#1555" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1556" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1557" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1558" class="tactic">split.</a> <a href="quasi-finpi-details.html#1559" class="tactic">search.</a> <a href="quasi-finpi-details.html#1560" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1561" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1562" class="tactic">case H7.</a>
+	  <a href="quasi-finpi-details.html#1563" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1564" class="tactic">case H7.</a>
+	    <a href="quasi-finpi-details.html#1565" class="tactic">case H8.</a>
+	      <a href="quasi-finpi-details.html#1566" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1567" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1568" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1569" class="tactic">split.</a> <a href="quasi-finpi-details.html#1570" class="tactic">search.</a> <a href="quasi-finpi-details.html#1571" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1572" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1573" class="tactic">case H12.</a> <a href="quasi-finpi-details.html#1574" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1575" class="tactic">split.</a> <a href="quasi-finpi-details.html#1576" class="tactic">search.</a> <a href="quasi-finpi-details.html#1577" class="tactic">backchain qbisim-refl.</a>
+	    <a href="quasi-finpi-details.html#1578" class="tactic">case H8.</a>
+	      <a href="quasi-finpi-details.html#1579" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1580" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1581" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1582" class="tactic">split.</a> <a href="quasi-finpi-details.html#1583" class="tactic">search.</a> <a href="quasi-finpi-details.html#1584" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1585" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1586" class="tactic">case H12.</a> <a href="quasi-finpi-details.html#1587" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1588" class="tactic">split.</a> <a href="quasi-finpi-details.html#1589" class="tactic">search.</a> <a href="quasi-finpi-details.html#1590" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1591" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1592" class="tactic">case H7.</a>
+	    <a href="quasi-finpi-details.html#1593" class="tactic">case H8.</a>
+	      <a href="quasi-finpi-details.html#1594" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1595" class="tactic">case H10.</a> 
+	      <a href="quasi-finpi-details.html#1596" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1597" class="tactic">case H12.</a>
+	    <a href="quasi-finpi-details.html#1598" class="tactic">case H8.</a>
+	      <a href="quasi-finpi-details.html#1599" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1600" class="tactic">case H10.</a> 
+	      <a href="quasi-finpi-details.html#1601" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1602" class="tactic">case H12.</a>
+	<a href="quasi-finpi-details.html#1603" class="tactic">unfold.</a>
+	  <a href="quasi-finpi-details.html#1604" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1605" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1606" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1607" class="tactic">split.</a> <a href="quasi-finpi-details.html#1608" class="tactic">search.</a> <a href="quasi-finpi-details.html#1609" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1610" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1611" class="tactic">case H8.</a>
+	  <a href="quasi-finpi-details.html#1612" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1613" class="tactic">case H8.</a>
+	    <a href="quasi-finpi-details.html#1614" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1615" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1616" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1617" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1618" class="tactic">split.</a> <a href="quasi-finpi-details.html#1619" class="tactic">search.</a> <a href="quasi-finpi-details.html#1620" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1621" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1622" class="tactic">case H13.</a> <a href="quasi-finpi-details.html#1623" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1624" class="tactic">split.</a> <a href="quasi-finpi-details.html#1625" class="tactic">search.</a> <a href="quasi-finpi-details.html#1626" class="tactic">backchain qbisim-refl.</a>
+	    <a href="quasi-finpi-details.html#1627" class="tactic">case H9.</a>
+	      <a href="quasi-finpi-details.html#1628" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1629" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1630" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1631" class="tactic">split.</a> <a href="quasi-finpi-details.html#1632" class="tactic">search.</a> <a href="quasi-finpi-details.html#1633" class="tactic">backchain qbisim-refl.</a>
+	      <a href="quasi-finpi-details.html#1634" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1635" class="tactic">case H13.</a> <a href="quasi-finpi-details.html#1636" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1637" class="tactic">split.</a> <a href="quasi-finpi-details.html#1638" class="tactic">search.</a> <a href="quasi-finpi-details.html#1639" class="tactic">backchain qbisim-refl.</a>
+	  <a href="quasi-finpi-details.html#1640" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1641" class="tactic">case H8.</a>
+	    <a href="quasi-finpi-details.html#1642" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1643" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1644" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1645" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1646" class="tactic">case H13.</a> 
+	    <a href="quasi-finpi-details.html#1647" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1648" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1649" class="tactic">case H11.</a> <a href="quasi-finpi-details.html#1650" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1651" class="tactic">case H13.</a> 
+<a href="quasi-finpi-details.html#1652" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1653" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1654" class="tactic">case H4.</a>
+<a href="quasi-finpi-details.html#1655" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1656" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1657" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1658" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#1659" class="tactic">split.</a> <a href="quasi-finpi-details.html#1660" class="tactic">search.</a> <a href="quasi-finpi-details.html#1661" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1662" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1663" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1664" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1665" class="tactic">case H2.</a>
+    <a href="quasi-finpi-details.html#1666" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1667" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#1668" class="tactic">case H7.</a>
+      <a href="quasi-finpi-details.html#1669" class="tactic">split.</a> <a href="quasi-finpi-details.html#1670" class="tactic">search.</a> <a href="quasi-finpi-details.html#1671" class="tactic">backchain qbisim-refl.</a>
+      <a href="quasi-finpi-details.html#1672" class="tactic">split.</a> <a href="quasi-finpi-details.html#1673" class="tactic">search.</a> <a href="quasi-finpi-details.html#1674" class="tactic">backchain qbisim-refl.</a>
+    <a href="quasi-finpi-details.html#1675" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1676" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#1677" class="tactic">case H7.</a>
+      <a href="quasi-finpi-details.html#1678" class="tactic">split.</a> <a href="quasi-finpi-details.html#1679" class="tactic">search.</a> <a href="quasi-finpi-details.html#1680" class="tactic">backchain qbisim-refl.</a>
+      <a href="quasi-finpi-details.html#1681" class="tactic">split.</a> <a href="quasi-finpi-details.html#1682" class="tactic">search.</a> <a href="quasi-finpi-details.html#1683" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1684" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1685" class="tactic">case H5.</a>
+  <a href="quasi-finpi-details.html#1686" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1687" class="tactic">case H5.</a>
+    <a href="quasi-finpi-details.html#1688" class="tactic">case H6.</a>
+      <a href="quasi-finpi-details.html#1689" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1690" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1691" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1692" class="tactic">split.</a> <a href="quasi-finpi-details.html#1693" class="tactic">search.</a> <a href="quasi-finpi-details.html#1694" class="tactic">backchain qbisim-refl.</a>
+      <a href="quasi-finpi-details.html#1695" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1696" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1697" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1698" class="tactic">split.</a> <a href="quasi-finpi-details.html#1699" class="tactic">search.</a> <a href="quasi-finpi-details.html#1700" class="tactic">backchain qbisim-refl.</a>
+    <a href="quasi-finpi-details.html#1701" class="tactic">case H6.</a>
+      <a href="quasi-finpi-details.html#1702" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1703" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1704" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1705" class="tactic">split.</a> <a href="quasi-finpi-details.html#1706" class="tactic">search.</a> <a href="quasi-finpi-details.html#1707" class="tactic">backchain qbisim-refl.</a>
+      <a href="quasi-finpi-details.html#1708" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1709" class="tactic">case H10.</a> <a href="quasi-finpi-details.html#1710" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1711" class="tactic">split.</a> <a href="quasi-finpi-details.html#1712" class="tactic">search.</a> <a href="quasi-finpi-details.html#1713" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1714" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1715" class="tactic">case H5.</a>
+    <a href="quasi-finpi-details.html#1716" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1717" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1718" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1719" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1720" class="tactic">case H10.</a>
+    <a href="quasi-finpi-details.html#1721" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1722" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1723" class="tactic">case H8.</a> <a href="quasi-finpi-details.html#1724" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1725" class="tactic">case H10.</a>
+<a href="quasi-finpi-details.html#1726" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1727" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1728" class="tactic">case H4.</a></div><a href="quasi-finpi-details.html#1729" class="command">Set subgoals on.</a>
+<span class="comment">%QED      </span>
+
+<span class="comment">%%%%% END examples in Section 2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+	    
+	    
+<span class="comment">%%%%% Begin examples in Section 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+<a href="quasi-finpi-details.html#1730" class="command">Theorem null_sat_box_tau_ff :
+    sat null (boxAct tau ff).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1731" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1732" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1733" class="tactic">case H1.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1734" class="command">Theorem mismatch_unsat_box_tau_ff : <span class="comment">% non theorem</span>
+forall x y, sat (mismatch x y (taup null)) (boxAct tau ff).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1735" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1736" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1737" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1738" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1739" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1740" class="tactic">abort.</a> <span class="comment">% cannot continue</span></div><span class="comment">/*
+Variables: x y
+H2 : name x \/ name y
+H3 : x = y -> false
+============================
+ sat null ff
+
+sat P ff  cannot be satisfied for any P, including P = null.
+Therefore, the only way to prove this is to derive a contradiction
+from H2 and H3, that is, to show that H2 and H3 always fail for
+arbitrary x and y. However, this is clearly impossible because we
+can satisfy H3 by assinging distinct nominal constants to x and y.
+*/</span>
+
+<a href="quasi-finpi-details.html#1741" class="command">Theorem mismatch_sat_boxDif_dia_tau : <span class="comment">% non theorem</span>
+forall x y, sat (mismatch x y (taup null)) (boxDif x y (diaAct tau tt)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1742" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1743" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1744" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1745" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1746" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1747" class="tactic">split.</a>
+  <a href="quasi-finpi-details.html#1748" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1749" class="tactic">search.</a> <a href="quasi-finpi-details.html#1750" class="tactic">search.</a> <a href="quasi-finpi-details.html#1751" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1752" class="tactic">search.</a></div><span class="comment">%QED</span>
+	    
+<span class="comment">%%% Section 3.3 examples    </span>
+
+<span class="comment">%% "Process distinguished by eary transition" paragraph example</span>
+<a href="quasi-finpi-details.html#1753" class="command">Theorem inp_mismatch_dist_form_sat : forall x z,
+    sat (inp x y\ mismatch z y (taup null)) (boxAct (dn x z) (boxAct tau ff)).</a>
+<div class="proof">	    
+<a href="quasi-finpi-details.html#1754" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1755" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1756" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1757" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1758" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1759" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1760" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1761" class="tactic">case H5.</a>
+<a href="quasi-finpi-details.html#1762" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1763" class="tactic">backchain H4.</a> <a href="quasi-finpi-details.html#1764" class="tactic">case H6.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1765" class="command">Theorem inp_mismatch_dist_form_unsat : forall x z, <span class="comment">% nontheorem</span>
+    sat (inp x y\ mismatch z y (taup null)) (diaAct (dn x z) (diaAct tau tt)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1766" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1767" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1768" class="tactic">exists mismatch z z (taup null).</a> <a href="quasi-finpi-details.html#1769" class="tactic">split.</a> <a href="quasi-finpi-details.html#1770" class="tactic">search.</a>
+<a href="quasi-finpi-details.html#1771" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1772" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1773" class="tactic">split.</a> <a href="quasi-finpi-details.html#1774" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1775" class="tactic">abort.</a> <span class="comment">% cannot proceed</span></div> 
+<a href="quasi-finpi-details.html#1776" class="command">Theorem inp_tau_dist_form_sat : forall x z,
+    sat (inp x y\ taup null) (diaAct (dn x z) (diaAct tau tt)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1777" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1778" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1779" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#1780" class="tactic">split.</a> <a href="quasi-finpi-details.html#1781" class="tactic">search.</a> <a href="quasi-finpi-details.html#1782" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1783" class="command">Theorem inp_tau_dist_form_unsat : forall x z, <span class="comment">%nontheorem</span>
+    sat (inp x y\ taup null) (boxAct (dn x z) (boxAct tau ff)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1784" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1785" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1786" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1787" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1788" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1789" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1790" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1791" class="tactic">abort.</a> <span class="comment">% sat null ff  is unsatisfialbe</span></div>	    
+<span class="comment">%% "Process distinguished by a specific world" paragraph example</span>
+
+<a href="quasi-finpi-details.html#1792" class="command">Theorem mismatch_xy_tau_plusmm_yz_tau_dist_form_sat : forall x y z,
+sat (mismatch x y (taup (plus (match y z (taup null)) (mismatch y z (taup null)))))
+    (boxAct tau (boxAct tau (disj (diaMat y z tt) (diaDif y z tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1793" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1794" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1795" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1796" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1797" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1798" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1799" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1800" class="tactic">case H5.</a>
+  <a href="quasi-finpi-details.html#1801" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1802" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1803" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1804" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1805" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1806" class="tactic">search.</a></div><span class="comment">%QED   </span>
+     
+<a href="quasi-finpi-details.html#1807" class="command">Theorem mismatch_xy_tau_plusmm_yz_tau_dist_form_unsat : forall x y z, <span class="comment">% nontheroem</span>
+sat (mismatch x y (taup (plus (match y z (taup null)) (mismatch y z (taup null)))))
+    (boxDif x y (diaAct tau (boxDif x z (diaAct tau tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1808" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1809" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1810" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1811" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1812" class="tactic">exists plus (match y z (taup null)) (mismatch y z (taup null)).</a> <a href="quasi-finpi-details.html#1813" class="tactic">split.</a> 
+  <a href="quasi-finpi-details.html#1814" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#1815" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1816" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1817" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1818" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1819" class="tactic">split.</a>
+     <a href="quasi-finpi-details.html#1820" class="tactic">abort.</a> <span class="comment">% cannot proceed - neither y=z nor y/=z can be decicded</span></div>            <span class="comment">% in case of both left (name x) of H1 and H3</span>
+<span class="comment">/*
+Subgoal 2.1:
+
+Variables: x y z
+H1 : name x \/ name y
+H2 : x = y -> false
+H3 : name x \/ name z
+H4 : x = z -> false
+============================
+ one (plus (match y z (taup null)) (mismatch y z (taup null))) tau null
+*/</span>
+   
+   
+<a href="quasi-finpi-details.html#1821" class="command">Theorem mismatch_xy_tau_plusmm_xz_tau_dist_form_sat : forall x y z,
+sat (mismatch x y (taup (plus (match x z (taup null)) (mismatch x z (taup null)))))
+    (boxDif x y (diaAct tau (boxDif x z (diaAct tau tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1822" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1823" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1824" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1825" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1826" class="tactic">search.</a></div><span class="comment">%QED</span>
+ 
+<a href="quasi-finpi-details.html#1827" class="command">Theorem mismatch_xy_tau_plusmm_xz_tau_dist_form_unsat : forall x y z, <span class="comment">% nontheroem ???? error in paper?</span>
+sat (mismatch x y (taup (plus (match x z (taup null)) (mismatch x z (taup null)))))
+    (boxAct tau (boxAct tau (disj (diaMat y z tt) (diaDif y z tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1828" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1829" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1830" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1831" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1832" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1833" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1834" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1835" class="tactic">case H5.</a>
+  <a href="quasi-finpi-details.html#1836" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1837" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#1838" class="tactic">unfold.</a><a href="quasi-finpi-details.html#1839" class="tactic"> right. </a><a href="quasi-finpi-details.html#1840" class="tactic">unfold.</a>
+     <a href="quasi-finpi-details.html#1841" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1842" class="tactic">search.</a> <a href="quasi-finpi-details.html#1843" class="tactic">search.</a>
+     <a href="quasi-finpi-details.html#1844" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1845" class="tactic">apply eq-symm to H8.</a> <a href="quasi-finpi-details.html#1846" class="tactic">backchain H3.</a>
+     <a href="quasi-finpi-details.html#1847" class="tactic">search.</a>     
+  <a href="quasi-finpi-details.html#1848" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#1849" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#1850" class="tactic">unfold.</a>
+     <a href="quasi-finpi-details.html#1851" class="tactic">abort.</a> <span class="comment">% cannot proceed -- neither y=z nor y/=z can be decided</span></div>            <span class="comment">% in case of both left (name x) of H2 and H7</span>
+<span class="comment">/*
+Variables: x y z
+H2 : name x \/ name y
+H3 : x = y -> false
+H7 : name x \/ name z
+H8 : x = z -> false
+============================
+ sat null (diaMat y z tt) \/ sat null (diaDif y z tt)
+*/</span>
+
+<span class="comment">%% "Famous example demanding intuitionistic assumptions" paragraph example</span>
+
+<a href="quasi-finpi-details.html#1852" class="command">Theorem plus_tau_tautau_dist_form_sat :
+ sat (plus (taup null) (taup (taup null)))
+     (boxAct tau (disj (boxAct tau ff) (diaAct tau tt))).</a>
+<div class="proof">   
+<a href="quasi-finpi-details.html#1853" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1854" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1855" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1856" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1857" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1858" class="tactic">unfold.</a><a href="quasi-finpi-details.html#1859" class="tactic"> left. </a><a href="quasi-finpi-details.html#1860" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1861" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1862" class="tactic">case H3.</a>
+  <a href="quasi-finpi-details.html#1863" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1864" class="tactic">search.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1865" class="command">Theorem plus_tau_tautau_dist_form_unsat : forall x y, <span class="comment">% nontheorem</span>
+ sat (plus (taup null) (taup (taup null)))
+     (diaAct tau (conj (boxDif x y (diaAct tau tt)) (boxAct tau (diaDif x y tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1866" class="tactic">skip.</a></div>    
+<a href="quasi-finpi-details.html#1867" class="command">Theorem plus_tau_tautau_mismatch_dist_form_sat : forall x y,
+ sat (plus (plus (taup null) (taup (taup null))) (taup (mismatch x y (taup null))))
+     (diaAct tau (conj (boxDif x y (diaAct tau tt)) (boxAct tau (diaDif x y tt)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1868" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1869" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1870" class="tactic">exists  mismatch x y (taup null).</a> <a href="quasi-finpi-details.html#1871" class="tactic">split.</a>
+   <a href="quasi-finpi-details.html#1872" class="tactic">search.</a>
+   <a href="quasi-finpi-details.html#1873" class="tactic">unfold.</a>
+      <a href="quasi-finpi-details.html#1874" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1875" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1876" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1877" class="tactic">search.</a> <a href="quasi-finpi-details.html#1878" class="tactic">search.</a>
+      <a href="quasi-finpi-details.html#1879" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1880" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1881" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1882" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#1883" class="tactic">search.</a></div><span class="comment">%QED</span>
+    
+<a href="quasi-finpi-details.html#1884" class="command">Theorem plus_tau_tautau_mismatch_dist_form_unsat : forall x y, <span class="comment">% nontheorem</span>
+ sat (plus (plus (taup null) (taup (taup null))) (taup (mismatch x y (taup null))))
+     (boxAct tau (disj (boxAct tau ff) (diaAct tau tt))).</a>
+<div class="proof">   
+<a href="quasi-finpi-details.html#1885" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1886" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1887" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1888" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1889" class="tactic">case H2.</a>
+    <a href="quasi-finpi-details.html#1890" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1891" class="tactic">unfold.</a><a href="quasi-finpi-details.html#1892" class="tactic"> left. </a><a href="quasi-finpi-details.html#1893" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1894" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1895" class="tactic">case H4.</a>
+    <a href="quasi-finpi-details.html#1896" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#1897" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#1898" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1899" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1900" class="tactic">abort.</a> <span class="comment">% cannot proceed - neither x=y always hold</span></div>                            <span class="comment">% nor there exists constructive evidence of x/=y      </span>
+
+<span class="comment">%%%%% END examples in Section 3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+
+		
+<a href="quasi-finpi-details.html#1901" class="command">Theorem nu_exmid_nontheorem : forall x,
+  one (nu k\ plus (match x k (taup null)) (mismatch x k (taup null))) tau null.</a>
+<div class="proof"> 
+<a href="quasi-finpi-details.html#1902" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1903" class="tactic">abort.</a> <span class="comment">% unfold. %% Error: No matching clauses</span></div>
+
+    
+<span class="comment">%% Example that should hold for early bisimulation (and early congruence),</span>
+<span class="comment">%% but not quasi bisimulation, late or open bisimulation. </span>
+<span class="comment">/*
+Early bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Early congruence:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ nabla a, forall x, member x (a :: nil) -> bisim_e (x :: nil) (P x) (Q x).
+
+Quasi bisimulation:
+ P = a\ (plus (in a x\ z) (in a x\ (taup z))) /\
+ Q = a\ (plus (in a x\ z) (plus (in a x\ (taup z)) (in a x\ (match x a (taup z))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/</span>
+
+<a href="quasi-finpi-details.html#1904" class="command">Theorem qbisim_non_example_1 : forall a,
+qbisim (plus (inp a x\null) (inp a x\taup null))
+       (plus (inp a x\null) (plus (inp a x\taup null) (inp a x\match x a (taup null)))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1905" class="tactic">intros.</a>
+<a href="quasi-finpi-details.html#1906" class="tactic">backchain qbisim_cong_plus.</a>
+<a href="quasi-finpi-details.html#1907" class="tactic">backchain qbisim_cong_inp.</a>
+<a href="quasi-finpi-details.html#1908" class="tactic">intros.</a>
+<a href="quasi-finpi-details.html#1909" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1910" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1911" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1912" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1913" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#1914" class="tactic">split.</a> <a href="quasi-finpi-details.html#1915" class="tactic">search.</a> <a href="quasi-finpi-details.html#1916" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1917" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1918" class="tactic">case H1.</a>
+<a href="quasi-finpi-details.html#1919" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1920" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1921" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1922" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#1923" class="tactic">split.</a> <a href="quasi-finpi-details.html#1924" class="tactic">search.</a> <a href="quasi-finpi-details.html#1925" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1926" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1927" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#1928" class="tactic">split.</a> <a href="quasi-finpi-details.html#1929" class="tactic">search.</a> <a href="quasi-finpi-details.html#1930" class="tactic">abort.</a> <span class="comment">% forall Y a, tau ~/~ [Y=a]tau </span></div>
+      
+<span class="comment">%% Example that should hold for early and quasi bisimulation, but not late or open bisimulation.</span>
+<span class="comment">/*
+Early bisimulation:
+ P = a\ nu k\ out a k (plus (in a x\ z) (in a x\ taup z)) /\
+ Q = a\ nu k\ out a k (plus (in a x\ z) (plus (in a x\ taup z) (in a x\ (match x k (taup z))))) /\
+ nabla a, bisim_e (a :: nil) (P a) (Q a).
+
+Quasi bisimulation:
+ P = a\ nu k\ out a k (plus (in a x\ z) (in a x\ taup z)) /\
+ Q = a\ nu k\ out a k (plus (in a x\ z) (plus (in a x\ taup z) (in a x\ (match x k (taup z))))) /\
+ forall a x, bisim_e (x :: nil) (P a) (Q a).
+*/</span>
+
+<span class="comment">% lemma for the next example    </span>
+<a href="quasi-finpi-details.html#1931" class="command">Theorem qbisim_null_match : 
+forall X Y P, (X = Y -> false) -> qbisim null (match X Y P).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1932" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1933" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1934" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1935" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1936" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1937" class="tactic">case H2.</a>
+  <a href="quasi-finpi-details.html#1938" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1939" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1940" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1941" class="tactic">backchain H1.</a> <a href="quasi-finpi-details.html#1942" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#1943" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1944" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1945" class="tactic">assert false.</a> <a href="quasi-finpi-details.html#1946" class="tactic">backchain H1.</a> <a href="quasi-finpi-details.html#1947" class="tactic">case H4.</a></div><span class="comment">%QED</span>
+   
+<span class="comment">% lemma for the next example</span>
+<a href="quasi-finpi-details.html#1948" class="command">Theorem qbisim_tau_match_tau : forall X, qbisim (taup null) (match X X (taup null)).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1949" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1950" class="tactic">unfold.</a>
+  <a href="quasi-finpi-details.html#1951" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1952" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1953" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1954" class="tactic">split.</a> <a href="quasi-finpi-details.html#1955" class="tactic">search.</a> <a href="quasi-finpi-details.html#1956" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1957" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1958" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#1959" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1960" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1961" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1962" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#1963" class="tactic">split.</a> <a href="quasi-finpi-details.html#1964" class="tactic">search.</a> <a href="quasi-finpi-details.html#1965" class="tactic">backchain qbisim-refl.</a>
+  <a href="quasi-finpi-details.html#1966" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1967" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1968" class="tactic">case H2.</a></div><span class="comment">%QED</span>
+
+<a href="quasi-finpi-details.html#1969" class="command">Theorem nu_mismatch_taup_qbisim :
+forall x, qbisim (nu u\ mismatch x u (taup null)) (nu u\taup null).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1970" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1971" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#1972" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1973" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1974" class="tactic">case H2.</a>
+      <a href="quasi-finpi-details.html#1975" class="tactic">exists (nu Q).</a> <a href="quasi-finpi-details.html#1976" class="tactic">split.</a> <a href="quasi-finpi-details.html#1977" class="tactic">search.</a> <a href="quasi-finpi-details.html#1978" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#1979" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1980" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1981" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1982" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#1983" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1984" class="tactic">case H5.</a>
+<a href="quasi-finpi-details.html#1985" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1986" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1987" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1988" class="tactic">exists nu u\null.</a> <a href="quasi-finpi-details.html#1989" class="tactic">split.</a>
+      <a href="quasi-finpi-details.html#1990" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#1991" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1992" class="tactic">search.</a> <a href="quasi-finpi-details.html#1993" class="tactic">backchain qbisim-refl.</a>    
+<a href="quasi-finpi-details.html#1994" class="tactic">intros.</a> <a href="quasi-finpi-details.html#1995" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#1996" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#1997" class="tactic">case H2.</a></div><span class="comment">%QED</span>
+      
+<a href="quasi-finpi-details.html#1998" class="command">Theorem nu_match_taup_qbisim :
+forall x, qbisim (nu u\ match x u (taup null)) (nu u\null).</a>
+<div class="proof"><a href="quasi-finpi-details.html#1999" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2000" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#2001" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2002" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2003" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#2004" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2005" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2006" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#2007" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#2008" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2009" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2010" class="tactic">case H2.</a>    
+<a href="quasi-finpi-details.html#2011" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2012" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2013" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#2014" class="tactic">case H2.</a></div><span class="comment">%QED</span>
+      
+<a href="quasi-finpi-details.html#2015" class="command">Theorem qbisim_example_2 : forall a,
+qbisim
+  (nu k\ oup a k (plus (inp a x\null) (inp a x\taup null)))
+  (nu k\ oup a k (plus (inp a x\null) (plus (inp a x\taup null) (inp a x\match x k (taup null))))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#2016" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2017" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#2018" class="command">Set subgoals off.</a>
+<a href="quasi-finpi-details.html#2019" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2020" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2021" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#2022" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2023" class="tactic">case H1.</a>
+  <a href="quasi-finpi-details.html#2024" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#2025" class="tactic">exists k\ plus (inp X x\null) (plus (inp X x\taup null) (inp X x\match x k (taup null))).</a>
+   <a href="quasi-finpi-details.html#2026" class="tactic">split.</a> <a href="quasi-finpi-details.html#2027" class="tactic">search.</a> <a href="quasi-finpi-details.html#2028" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2029" class="tactic">unfold.</a>
+     <a href="quasi-finpi-details.html#2030" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2031" class="tactic">case H3.</a>
+       <a href="quasi-finpi-details.html#2032" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2033" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2034" class="tactic">split.</a> <a href="quasi-finpi-details.html#2035" class="tactic">search.</a> <a href="quasi-finpi-details.html#2036" class="tactic">backchain qbisim-refl.</a>
+       <a href="quasi-finpi-details.html#2037" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2038" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2039" class="tactic">split.</a> <a href="quasi-finpi-details.html#2040" class="tactic">search.</a> <a href="quasi-finpi-details.html#2041" class="tactic">backchain qbisim-refl.</a>
+     <a href="quasi-finpi-details.html#2042" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2043" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#2044" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2045" class="tactic">case H4.</a>
+     <a href="quasi-finpi-details.html#2046" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2047" class="tactic">case H3.</a>
+       <a href="quasi-finpi-details.html#2048" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2049" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2050" class="tactic">split.</a> <a href="quasi-finpi-details.html#2051" class="tactic">search.</a> <a href="quasi-finpi-details.html#2052" class="tactic">backchain qbisim-refl.</a>
+       <a href="quasi-finpi-details.html#2053" class="tactic">case H4.</a>
+         <a href="quasi-finpi-details.html#2054" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2055" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2056" class="tactic">split.</a> <a href="quasi-finpi-details.html#2057" class="tactic">search.</a> <a href="quasi-finpi-details.html#2058" class="tactic">backchain qbisim-refl.</a>
+         <a href="quasi-finpi-details.html#2059" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2060" class="tactic">apply quasi-em with y = n1, x = Y n1.</a> <a href="quasi-finpi-details.html#2061" class="tactic">case H6.</a>
+           <a href="quasi-finpi-details.html#2062" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2063" class="tactic">split.</a> <a href="quasi-finpi-details.html#2064" class="tactic">search.</a> <a href="quasi-finpi-details.html#2065" class="tactic">backchain qbisim_tau_match_tau.</a>
+           <a href="quasi-finpi-details.html#2066" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2067" class="tactic">split.</a> <a href="quasi-finpi-details.html#2068" class="tactic">search.</a> <a href="quasi-finpi-details.html#2069" class="tactic">backchain qbisim_null_match.</a>
+     <a href="quasi-finpi-details.html#2070" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2071" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#2072" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2073" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2074" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2075" class="tactic">case H5.</a>
+   <a href="quasi-finpi-details.html#2076" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2077" class="tactic">case H2.</a> 
+<a href="quasi-finpi-details.html#2078" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2079" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2080" class="tactic">case H2.</a>
+<a href="quasi-finpi-details.html#2081" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2082" class="tactic">case H1.</a>
+   <a href="quasi-finpi-details.html#2083" class="tactic">case H2.</a> <a href="quasi-finpi-details.html#2084" class="tactic">exists k\ plus (inp X x\null) (inp X x\taup null).</a> <a href="quasi-finpi-details.html#2085" class="tactic">split.</a> <a href="quasi-finpi-details.html#2086" class="tactic">search.</a> <a href="quasi-finpi-details.html#2087" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2088" class="tactic">unfold.</a>
+     <a href="quasi-finpi-details.html#2089" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2090" class="tactic">case H3.</a>
+       <a href="quasi-finpi-details.html#2091" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2092" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2093" class="tactic">split.</a> <a href="quasi-finpi-details.html#2094" class="tactic">search.</a> <a href="quasi-finpi-details.html#2095" class="tactic">backchain qbisim-refl.</a>
+       <a href="quasi-finpi-details.html#2096" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2097" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2098" class="tactic">split.</a> <a href="quasi-finpi-details.html#2099" class="tactic">search.</a> <a href="quasi-finpi-details.html#2100" class="tactic">backchain qbisim-refl.</a>
+     <a href="quasi-finpi-details.html#2101" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2102" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#2103" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2104" class="tactic">case H4.</a>
+     <a href="quasi-finpi-details.html#2105" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2106" class="tactic">case H3.</a>
+       <a href="quasi-finpi-details.html#2107" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2108" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2109" class="tactic">split.</a> <a href="quasi-finpi-details.html#2110" class="tactic">search.</a> <a href="quasi-finpi-details.html#2111" class="tactic">backchain qbisim-refl.</a>
+       <a href="quasi-finpi-details.html#2112" class="tactic">case H4.</a>
+         <a href="quasi-finpi-details.html#2113" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2114" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2115" class="tactic">split.</a> <a href="quasi-finpi-details.html#2116" class="tactic">search.</a> <a href="quasi-finpi-details.html#2117" class="tactic">backchain qbisim-refl.</a>
+         <a href="quasi-finpi-details.html#2118" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2119" class="tactic">apply quasi-em with y = n1, x = Y n1.</a> <a href="quasi-finpi-details.html#2120" class="tactic">case H6.</a>
+           <a href="quasi-finpi-details.html#2121" class="tactic">exists taup null.</a> <a href="quasi-finpi-details.html#2122" class="tactic">split.</a> <a href="quasi-finpi-details.html#2123" class="tactic">search.</a> <a href="quasi-finpi-details.html#2124" class="tactic">backchain qbisim_tau_match_tau.</a>
+           <a href="quasi-finpi-details.html#2125" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2126" class="tactic">split.</a> <a href="quasi-finpi-details.html#2127" class="tactic">search.</a> <a href="quasi-finpi-details.html#2128" class="tactic">backchain qbisim_null_match.</a>
+     <a href="quasi-finpi-details.html#2129" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2130" class="tactic">case H3.</a> <a href="quasi-finpi-details.html#2131" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2132" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2133" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2134" class="tactic">case H5.</a>
+   <a href="quasi-finpi-details.html#2135" class="tactic">case H2.</a></div><a href="quasi-finpi-details.html#2136" class="command">Set subgoals on.</a> 
+<span class="comment">%QED</span>
+	
+   
+<span class="comment">%% Example that holds for neither quasi bisimilarity nor open bisimilarity, but holds for late and early bisimilarity.</span>
+<span class="comment">/*
+Early bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ nabla x y, bisim_e nil (P x y) (Q x y).
+
+Quasi bisimulation:
+ P = x\ y\ (plus (taup (taup z)) (plus (taup z) (taup (match x y (taup z))))) /\
+ Q = x\ y\ (plus (taup (taup z)) (taup z)) /\
+ forall x y w, bisim_e (w :: nil) (P x y) (Q x y).
+*/</span>
+
+
+<span class="comment">%% example that needs constructive inequality</span>
+<a href="quasi-finpi-details.html#2137" class="command">Theorem mismatch_constructive_example_1 : forall x y z,
+  qbisim (mismatch y z (taup null))
+         (mismatch y z (plus
+            (plus (match x y (taup null)) (mismatch x y (taup null)))
+            (plus (match x z (taup null)) (mismatch x z (taup null))))).</a>
+<div class="proof"><a href="quasi-finpi-details.html#2138" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2139" class="tactic">unfold.</a>
+<a href="quasi-finpi-details.html#2140" class="command">Set subgoals off.</a>
+<a href="quasi-finpi-details.html#2141" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2142" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2143" class="tactic">case H4.</a> <a href="quasi-finpi-details.html#2144" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2145" class="tactic">split.</a>
+  <a href="quasi-finpi-details.html#2146" class="tactic">case H2.</a>
+    <a href="quasi-finpi-details.html#2147" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2148" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#2149" class="tactic">search.</a> <a href="quasi-finpi-details.html#2150" class="tactic">search.</a> <a href="quasi-finpi-details.html#2151" class="tactic">unfold.</a>
+      <a href="quasi-finpi-details.html#2152" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#2153" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2154" class="tactic">search.</a> <a href="quasi-finpi-details.html#2155" class="tactic">unfold 5.</a> <a href="quasi-finpi-details.html#2156" class="tactic">search.</a>
+    <a href="quasi-finpi-details.html#2157" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2158" class="tactic">unfold.</a> <a href="quasi-finpi-details.html#2159" class="tactic">search.</a> <a href="quasi-finpi-details.html#2160" class="tactic">search.</a> <a href="quasi-finpi-details.html#2161" class="tactic">unfold 5.</a>
+      <a href="quasi-finpi-details.html#2162" class="tactic">apply quasi-em with y = n1, x = x n1.</a> <a href="quasi-finpi-details.html#2163" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2164" class="tactic">search.</a> <a href="quasi-finpi-details.html#2165" class="tactic">unfold 5.</a> <a href="quasi-finpi-details.html#2166" class="tactic">search.</a>
+  <a href="quasi-finpi-details.html#2167" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#2168" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2169" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2170" class="tactic">case H4.</a>
+<a href="quasi-finpi-details.html#2171" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2172" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2173" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#2174" class="tactic">case H5.</a>
+    <a href="quasi-finpi-details.html#2175" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2176" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#2177" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2178" class="tactic">split.</a> <a href="quasi-finpi-details.html#2179" class="tactic">search.</a> <a href="quasi-finpi-details.html#2180" class="tactic">backchain qbisim-refl.</a>
+    <a href="quasi-finpi-details.html#2181" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2182" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#2183" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2184" class="tactic">split.</a> <a href="quasi-finpi-details.html#2185" class="tactic">search.</a> <a href="quasi-finpi-details.html#2186" class="tactic">backchain qbisim-refl.</a>     
+  <a href="quasi-finpi-details.html#2187" class="tactic">case H5.</a>
+    <a href="quasi-finpi-details.html#2188" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2189" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#2190" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2191" class="tactic">split.</a> <a href="quasi-finpi-details.html#2192" class="tactic">search.</a> <a href="quasi-finpi-details.html#2193" class="tactic">backchain qbisim-refl.</a>
+    <a href="quasi-finpi-details.html#2194" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2195" class="tactic">case H9.</a> <a href="quasi-finpi-details.html#2196" class="tactic">exists null.</a> <a href="quasi-finpi-details.html#2197" class="tactic">split.</a> <a href="quasi-finpi-details.html#2198" class="tactic">search.</a> <a href="quasi-finpi-details.html#2199" class="tactic">backchain qbisim-refl.</a>
+<a href="quasi-finpi-details.html#2200" class="tactic">intros.</a> <a href="quasi-finpi-details.html#2201" class="tactic">case H1.</a> <a href="quasi-finpi-details.html#2202" class="tactic">case H4.</a>
+  <a href="quasi-finpi-details.html#2203" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2204" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2205" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#2206" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2207" class="tactic">case H9.</a>
+  <a href="quasi-finpi-details.html#2208" class="tactic">case H5.</a> <a href="quasi-finpi-details.html#2209" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2210" class="tactic">case H7.</a> <a href="quasi-finpi-details.html#2211" class="tactic">case H6.</a> <a href="quasi-finpi-details.html#2212" class="tactic">case H9.</a></div><a href="quasi-finpi-details.html#2213" class="command">Set subgoals on.</a>
+<span class="comment">%QED	     </span>
+</pre>
+</div>
+
+</body>
+</html>
