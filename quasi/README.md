@@ -15,3 +15,6 @@
 * `quasi-finpi-details.html` : html output of the interactive output of the Abella proof state step-by-step after each proof tactic command.
 
 To see the rendered html files you need to download the two html files in a same directory (either by checking out this repository as a whole or by download the two raw contents of the html files separtely) and load it with your web browser.
+
+# External link to algorithm for automatically finding distinguishing formaule for non-bisimilar processes
+The suppliementary metarials here using Abella are proof guided by human. We have also implemented the distinguishing formula finding algorithm, which corresponds to the proof steps for the completenes of modal logic with respect to quasi-open bisimulation in our manuscript. See https://github.com/kyagrd/hs-picalc-unbound-example/tree/quasi
