@@ -1,0 +1,1167 @@
+ % vim: sw=2: ts=2: expandtab: ai: syntax=lprolog
+
+%% Simulation, bisimulation, and a modal logic for the pi-calculus
+%%
+%% Given that the meta-logic of Abella is intuitionistic, the
+%% specification of bisimulation here corresponds to open bisimulation.
+%%
+%% Here we prove here that simulation is preorder and bisimulation is an
+%% equivalence relation. We also establish that bisimulation implies
+%% modal logic equivalence and demonstrate partially mechanized proof
+%% development for proving that logic equivalence implies bisimulation.
+
+Specification "finite-pic".
+%Set subgoals off.
+% Simulation defined
+
+CoDefine sim : p -> p -> prop by
+  sim P Q :=
+    (forall A P1, {one P A P1} -> exists Q1, {one Q A Q1} /\ sim P1 Q1) /\
+    (forall X M, {oneb P (dn X) M} -> exists N, {oneb Q (dn X) N} /\
+                                                forall W, sim (M W) (N W)) /\
+    (forall X M, {oneb P (up X) M} -> exists N, {oneb Q (up X) N} /\
+                                                nabla w, sim (M w) (N w)).
+
+% Simulation is a preorder
+
+Theorem sim_refl : forall P, sim P P.
+coinduction. intros. unfold.
+  intros. apply CH with P = P1. search.
+  intros. exists M. split. search.
+    intros. apply CH with P = M W. search.
+  intros. exists M. split. search.
+    intros. apply CH with P = M n1. search.
+
+Theorem sim_trans : forall P Q R, sim P Q -> sim Q R -> sim P R.
+coinduction. intros. case H1. case H2. unfold.
+  intros. apply H3 to H9. apply H6 to H10. apply CH to H11 H13. search.
+  intros. apply H4 to H9. apply H7 to H10.
+  exists N1. split. search.
+    intros. apply H11 with W = W. apply H13 with W = W.
+    apply CH to H14 H15. search.
+  intros. apply H5 to H9. apply H8 to H10.
+  apply CH to H11 H13. search.
+
+% Bisimulation defined
+
+CoDefine bisim : p -> p -> prop by
+  bisim P Q :=
+    (forall A P1, {one P A P1} -> exists Q1, {one Q A Q1} /\ bisim P1 Q1) /\
+    (forall X M, {oneb P (dn X) M} -> exists N, {oneb Q (dn X) N} /\
+                                                forall W, bisim (M W) (N W)) /\
+    (forall X M, {oneb P (up X) M} -> exists N, {oneb Q (up X) N} /\
+                                                nabla w, bisim (M w) (N w)) /\
+    (forall A Q1, {one Q A Q1} -> exists P1, {one P A P1} /\ bisim Q1 P1) /\
+    (forall X N, {oneb Q (dn X) N} -> exists M, {oneb P (dn X) M} /\
+                                                forall W, bisim (N W) (M W)) /\
+    (forall X N, {oneb Q (up X) N} -> exists M, {oneb P (up X) M} /\
+                                                nabla w, bisim (N w) (M w)).
+
+Define nbisim : p -> p -> prop by
+  nbisim P Q :=
+    (exists A P1, {one P A P1} /\ forall Q1, {one Q A Q1} -> nbisim P1 Q1) \/
+    (exists X M, {oneb P (dn X) M} /\ forall N, {oneb Q (dn X) N} ->
+                                                exists W, nbisim (M W) (N W)) \/
+    (exists X M, {oneb P (up X) M} /\ forall N, {oneb Q (up X) N} ->
+                                                nabla w, nbisim (M w) (N w)) \/
+    (exists A Q1, {one Q A Q1} /\ forall P1, {one P A P1} -> nbisim Q1 P1) \/
+    (exists X N, {oneb Q (dn X) N} /\ forall M, {oneb P (dn X) M} ->
+                                                exists W, nbisim (N W) (M W)) \/
+    (exists X N, {oneb Q (up X) N} /\ forall M, {oneb P (up X) M} ->
+                                                nabla w, nbisim (N w) (M w)).
+
+
+
+
+
+% Bisimulation is an equivalence
+
+Theorem bisim_refl : forall P, bisim P P.
+coinduction. intros. unfold.
+  intros. apply CH with P = P1. search.
+  intros. exists M. split. search.
+    intros. apply CH with P = M W. search.
+  intros. exists M. split. search.
+    intros. apply CH with P = M n1. search.
+  intros. apply CH with P = Q1. search.
+  intros. exists N. split. search.
+    intros. apply CH with P = N W. search.
+  intros. exists N. split. search.
+    intros. apply CH with P = N n1. search.
+
+Theorem bisim_sym : forall P Q, bisim P Q -> bisim Q P.
+intros. case H1. unfold.
+  intros. apply H5 to H8. search.
+  intros. apply H6 to H8. search.
+  intros. apply H7 to H8. search.
+  intros. apply H2 to H8. search.
+  intros. apply H3 to H8. search.
+  intros. apply H4 to H8. search.
+
+Theorem bisim_trans : forall P Q R, bisim P Q -> bisim Q R -> bisim P R.
+coinduction. intros. case H1. case H2. unfold.
+  intros. apply H3 to H15. apply H9 to H16. apply CH to H17 H19. search.
+
+  intros. apply H4 to H15. apply H10 to H16.
+  exists N1. split. search.
+  intros. apply H17 with W = W. apply H19 with W = W.
+  apply CH to H20 H21. search.
+
+  intros. apply H5 to H15. apply H11 to H16.
+  apply CH to H17 H19. search.
+
+  intros. apply H12 to H15. apply H6 to H16. apply CH to H17 H19. search.
+
+  intros. apply H13 to H15. apply H7 to H16.
+  exists M1. split. search.
+  intros. apply H17 with W = W. apply H19 with W = W.
+  apply CH to H20 H21. search.
+
+  intros. apply H14 to H15. apply H8 to H16.
+  apply CH to H17 H19. search.
+
+Theorem nbisim_consistent : forall P Q, bisim P Q -> nbisim P Q -> false.
+% Proof.
+  induction on 2. intros. case H1. case H2. case H9.
+    apply H3 to H10. apply H11 to H12. backchain IH.
+    apply H4 to H10. apply H11 to H12. apply H13 with W = W. backchain IH.
+    apply H5 to H10. apply H11 to H12. apply IH to H13 H14.
+    apply H6 to H10. apply H11 to H12. backchain IH.
+    apply H7 to H10. apply H11 to H12. apply H13 with W = W. backchain IH.
+    apply H8 to H10. apply H11 to H12. apply IH to H13 H14.
+% Q.E.D.
+
+
+Kind o'                  type.
+Type tt, ff              o'.
+Type conj, disj          o' -> o' -> o'.
+Type boxMat  n -> n -> o' -> o'.
+Type mat     n -> n -> o'.
+Type boxAct, diaAct      a -> o' -> o'.
+Type boxOut, diaOut,
+     boxIn, diaIn      n -> (n -> o') -> o'.
+
+Define sat : p -> o' -> prop
+by sat P ff := false
+ ; sat P tt := true
+ ; sat P (conj A B) := sat P A /\ sat P B
+ ; sat P (disj A B) := sat P A \/ sat P B
+ ; sat P (boxMat X Y A) := X = Y -> sat P A
+ ; sat P (mat X Y) := X = Y
+ ; sat P (boxAct X A) := forall P1, {one P X P1} -> sat P1 A
+ ; sat P (diaAct X A) := exists P1, {one P X P1} /\ sat P1 A
+ ; sat P (boxOut X A) := forall Q, {oneb P (up X) Q} -> nabla w, sat (Q w) (A w)
+ ; sat P (diaOut X A) := exists Q, {oneb P (up X) Q} /\ nabla w, sat (Q w) (A w)
+ ; sat P (boxIn X A) := forall Q, {oneb P (dn X) Q} -> forall w, sat (Q w) (A w)
+ ; sat P (diaIn X A) := exists Q, {oneb P (dn X) Q} /\ forall w, sat (Q w) (A w)
+ .
+
+Theorem dist_form0 : forall P Q,
+  ((forall F, sat P F -> sat Q F) -> false) \/
+  ((forall F, sat Q F -> sat P F) -> false) ->
+  ((forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> false).
+% Proof.
+   intros. case H1.
+   backchain H3. intros. apply H2 with F = F. backchain H5.
+   backchain H3. intros. apply H2 with F = F. backchain H6.
+% Q.E.D.
+
+Theorem dist_form_both0: forall P Q, 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  ((forall F, sat P F -> sat Q F) -> false) ->
+  ((forall F, sat Q F -> sat P F) -> false).
+% Proof.
+  intros. backchain H2. intros. apply H1 with F = F. backchain H5.
+% Q.E.D.
+
+Theorem dist_form2 : forall (P : n -> n -> p) (Q : n -> n -> p),
+  ((forall F, (forall X Y, sat (P X Y) (F X Y) -> sat (Q X Y) (F X Y))) -> false) \/
+  ((forall F, (forall X Y, sat (Q X Y) (F X Y) -> sat (P X Y) (F X Y))) -> false) ->
+  ((forall F, (forall X Y, sat (P X Y) (F X Y) -> sat (Q X Y) (F X Y))
+           /\ (forall X Y, sat (Q X Y) (F X Y) -> sat (P X Y) (F X Y))) -> false).
+% Proof.
+  intros. case H1.
+  backchain H3. intros. apply H2 with F = F. backchain H5.
+  backchain H3. intros. apply H2 with F = F. backchain H6.
+% Q.E.D.
+
+Theorem dist_form_both2: forall (P : n -> n -> p) (Q : n -> n -> p),
+  (forall F, (forall X Y, sat (P X Y) (F X Y) -> sat (Q X Y) (F X Y))
+          /\ (forall X Y, sat (Q X Y) (F X Y) -> sat (P X Y) (F X Y))) ->
+  ((forall F, (forall X Y, sat (P X Y) (F X Y) -> sat (Q X Y) (F X Y))) -> false) ->
+  ((forall F, (forall X Y, sat (Q X Y) (F X Y) -> sat (P X Y) (F X Y))) -> false).
+% Proof.
+  intros. backchain H2. intros. apply H1 with F = F. backchain H5.
+% Q.E.D.
+
+Theorem example1 : forall x y,
+  sat (match x y (taup null)) (conj (boxMat x y (diaAct tau tt))
+                                    (boxAct tau (mat x y))).
+% Proof.
+  intros. unfold.
+    unfold. intros. case H1. search.
+    unfold. intros. case H1. case H2. search.
+% Q.E.D.
+
+Theorem example1a : forall x y,
+  sat (plus (taup null) null) (conj (boxMat x y (diaAct tau tt))
+                                    (boxAct tau (mat x y))).
+  intros. unfold.
+    % Subgoal 1
+    search.
+    % Subgoal 2
+    unfold. intros. case H1.
+      % Subgoal 2.1
+      case H2. unfold.
+        % Subgoal 2.1.1
+        % % Variables: x y
+        % % ============================ cannot prove stuck here
+        % %  x = y
+        skip.
+      % Subgoal 2.2
+      case H2.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From here, Soundness (bisim implies logical equivalaence) proof is
+% completely mechanized in Abella.				 
+%
+% In fact, bisim_sat0 is enough because bisimulation is closed under
+% input prefixes and to induct over the case of the input prefix,
+% it introduces more free variables in the inductive case. Thus,
+% in order to prove n free variable case you essentially need to
+% prove the case for n+1 free variables. We are showing bisim_sat2
+% just for the purpose of demonstration, not becuase it is really
+% necessary for generality of the proof.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				     
+Theorem bisim_sat0_L : forall P Q F, bisim P Q -> sat P F -> sat Q F.
+% Proof.
+  induction on 2.
+  intros. case H2.
+  % Subgoal 1
+  search.
+  % Subgoal 2
+  unfold. backchain IH.  backchain IH.
+  % Subgoal 3
+  unfold. case H3. left. backchain IH. right. backchain IH.
+  % Subgoal 4
+  unfold. intros. backchain IH. backchain H3.
+  % Subgoal 5
+  unfold. search. 
+  % Subgoal 6
+  unfold. intros. case H1. apply H8 to H4. apply H3 to H11.
+  backchain IH. apply bisim_sym. backchain H14.
+  % Subgoal 7
+  unfold. case H1. apply H5 to H3. exists Q2. split. search. backchain IH.
+  % Subgoal 8
+  unfold. intros. case H1. apply H10 to H4. apply H3 to H11.
+  apply bisim_sym to H12. backchain IH.
+  % Subgoal 9
+  unfold. case H1. apply H7 to H3. exists N. split. search. intros. backchain IH.
+  % Subgoal 10
+  unfold. intros. case H1. apply H9 to H4. apply H3 to H11. assert bisim (M w) (Q1 w).
+  backchain bisim_sym. backchain H12. backchain IH. backchain H13.
+  % Subgoal 11
+  unfold. case H1. apply H6 to H3. exists N. split. search. intros.
+  assert bisim (Q1 w) (N w). backchain H12. backchain IH. backchain H4.
+% Q.E.D.
+
+Theorem bisim_sat0_R : forall P Q F, bisim P Q -> sat Q F -> sat P F.
+% Proof.
+  intros.
+  apply bisim_sym to H1.
+  backchain bisim_sat0_L.
+% Q.E.D.
+
+Theorem bisim_sat0 : forall P Q F,
+  bisim P Q -> ((sat P F -> sat Q F) /\ (sat Q F -> sat P F)).
+% Proof.
+intros. split.
+  intros. backchain bisim_sat0_L.
+  intros. backchain bisim_sat0_R.
+% Q.E.D.
+
+Theorem bisim_sat2_L : forall P Q (F : n -> n -> o'),
+  (forall X Y, bisim (P X Y) (Q X Y)) ->
+  (forall X Y, sat (P X Y) (F X Y)) -> (forall X Y, sat (Q X Y) (F X Y)).
+% Proof.
+  intros.
+  assert bisim (P X Y) (Q X Y). backchain H1.
+  assert sat (P X Y) (F X Y). backchain H2.
+  backchain bisim_sat0_L.
+% Q.E.D.
+
+Theorem bisim_sat2_R : forall P Q (F : n -> n -> o'),
+  (forall X Y, bisim (P X Y) (Q X Y)) ->
+  (forall X Y, sat (Q X Y) (F X Y)) -> (forall X Y, sat (P X Y) (F X Y)).
+% Proof.
+  intros.
+  assert bisim (P X Y) (Q X Y). backchain H1.
+  assert sat (Q X Y) (F X Y). backchain H2.
+  backchain bisim_sat0_R.
+% Q.E.D.
+
+Theorem bisim_sat2 : forall P Q (F : n -> n -> o'),
+  (forall X Y, bisim (P X Y) (Q X Y)) ->
+  (  ((forall X Y, sat (P X Y) (F X Y)) -> (forall X Y, sat (Q X Y) (F X Y)))
+  /\ ((forall X Y, sat (Q X Y) (F X Y)) -> (forall X Y, sat (P X Y) (F X Y)))).
+% Proof.
+  intros. split.
+    %
+    intros.
+    assert bisim (P X Y) (Q X Y). backchain H1.
+    assert sat (P X Y) (F X Y). backchain H2.
+    backchain bisim_sat0_L.
+    %
+    intros.
+    assert bisim (P X Y) (Q X Y). backchain H1.
+    assert sat (Q X Y) (F X Y). backchain H2.
+    backchain bisim_sat0_R.
+% Q.E.D.
+
+Theorem bisim_sat2_L_ : forall P Q (F : n -> n -> o'),
+  (forall X, nabla y, bisim (P X y) (Q X y)) ->
+  (forall X, nabla y, sat (P X y) (F X y)) -> (forall X, nabla y, sat (Q X y) (F X y)).
+% Proof.
+  intros.
+  apply H1 with X = X. apply H2 with X = X.
+  backchain bisim_sat0_L.
+% Q.E.D.
+
+Theorem bisim_sat2_R_ : forall P Q (F : n -> n -> o'),
+  (forall X, nabla y, bisim (P X y) (Q X y)) ->
+  (forall X, nabla y, sat (Q X y) (F X y)) -> (forall X, nabla y, sat (P X y) (F X y)).
+% Proof.
+  intros.
+  apply H1 with X = X. apply H2 with X = X.
+  backchain bisim_sat0_R.
+% Q.E.D.
+
+Theorem bisim_sat2_ : forall P Q (F : n -> n -> o'),
+  (forall X, nabla y, bisim (P X y) (Q X y)) ->
+  (  ((forall X, nabla y, sat (P X y) (F X y)) -> (forall X, nabla y, sat (Q X y) (F X y)))
+  /\ ((forall X, nabla y, sat (Q X y) (F X y)) -> (forall X, nabla y, sat (P X y) (F X y)))).
+% Proof.
+  intros. split.
+    %
+    intros.
+    apply H1 with X = X. apply H2 with X = X.
+    backchain bisim_sat0_L.
+    %
+    intros.
+    apply H1 with X = X. apply H2 with X = X.
+    backchain bisim_sat0_R.
+% Q.E.D.
+
+%% End of soundness proofs %% 
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% From here, some parts of Completness (logical equivalence implies bisim)
+% proof is mechanized (so you can see several "skip"s). The formal proof
+% is incomplete and the missing gap is hand-proved in the paper on this logic.
+% The purpose of this incomplete proof is to show the overall proof sketch
+% exept the part of generating a pair of distinguishing formulae for a given
+% pair of non-bisimilar processes.
+% 
+% Completenes proof is harder than soundness proof because we need 
+% image finiteness, which is non-trivial to show that our current
+% specification of pi calculus is image finite within Abella.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   
+Theorem sat_match1 : forall P F X, sat P F -> sat (match X X P) F.
+  induction on 1. intros. case H1.
+    search.
+    unfold. backchain IH. backchain IH.
+    unfold. case H2. left. backchain IH. right. backchain IH.
+    unfold. intros. backchain IH. backchain H2.
+    unfold. intros. search. backchain IH.
+    unfold. intros. case H3. apply H2 to H4. search.
+    unfold. exists P2. split. search. search.
+    unfold. intros. case H3. apply H2 to H4. search.
+    unfold. exists Q. split. search. intros. search.
+    unfold. intros. case H3. apply H2 to H4. apply H5 with w = w.
+      apply IH to H6 with P = Q w, F = A w, X = X. search.
+    unfold. exists Q. split. search. search.
+% Q.E.D.
+   
+Theorem sat_match2 : forall P F X, sat (match X X P) F -> sat P F.
+% Proof.
+  induction on 1. intros. case H1.
+    search.
+    unfold. backchain IH. backchain IH.
+    unfold. case H2. left. backchain IH. right. backchain IH.
+    unfold. intros. apply H2 to H3. backchain IH.
+    unfold. search. backchain IH.
+    unfold. intros. assert {one (match X X P) X1 P1}. apply H2 to H4. search. 
+    unfold. exists P2. split. case H2. search. search.
+    unfold. intros. assert {oneb (match X X P) (up X1) Q}. apply H2 to H4. search.
+    unfold. exists Q. split. case H2. search. intros. search.
+ 
+    unfold. intros. assert {oneb (match X X P) (dn X1) Q}. apply H2 to H4.
+      backchain IH with P = Q w, F = A w, X = X. apply H5 with w = w. backchain sat_match1.
+
+   unfold. exists Q. split. case H2. search. search.
+% Q.E.D.
+
+Theorem sat_diaAct_plus1 : forall P Q A F,
+  sat P (diaAct A F) -> sat (plus P Q) (diaAct A F).
+% Proof.
+  intros. unfold. case H1. exists P2. split. search. search.
+% Q.E.D.
+
+Theorem sat_diaAct_plus2 : forall P Q A F,
+  sat Q (diaAct A F) -> sat (plus P Q) (diaAct A F).
+% Proof.
+  intros. unfold. case H1. exists P2. split. search. search.
+% Q.E.D.
+
+Theorem sateq_one_exists_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {one P A P1} -> exists Q1, {one Q A Q1}.
+% Proof.
+  induction on 2. intros. case H2.
+  % Subgoal 1
+  assert forall F, sat P1 F -> sat Q (diaAct (up X Y) F).
+    intros. apply H1 with F = diaAct (up X Y) F. backchain H4.
+  assert sat P1 tt. apply H3 to H4. case H5. exists P2. search.
+  % Subgoal 2
+  assert forall F, sat P1 F -> sat Q (diaAct tau F).
+    intros. apply H1 with F = diaAct tau F. backchain H4.
+  assert sat P1 tt. apply H3 to H4. case H5. exists P2. search.
+  % Subgoal 3.
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H4. backchain sat_match1.
+    intros. apply H5 to H6. backchain sat_match2.
+  % Subgoal 4
+  assert forall F, sat P2 (diaAct A F) -> sat Q (diaAct A F).
+    intros. apply H1 with F = diaAct A F. backchain H5.
+    backchain sat_diaAct_plus1.
+  assert exists F, sat P2 (diaAct A F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 5
+  assert forall F, sat Q1 (diaAct A F) -> sat Q (diaAct A F).
+    intros. apply H1 with F = diaAct A F.
+    backchain H5. backchain sat_diaAct_plus2.
+  assert exists F, sat Q1 (diaAct A F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 6
+  assert exists F, sat P3 (diaAct A F).
+  assert exists F, sat (par P3 Q1) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H5. apply H1 with F = diaAct A F. apply H7 to H6. search.
+  case H6. case H7. exists P4. search.
+  % Subgoal 7
+  assert exists F, sat Q2 (diaAct A F).
+  assert exists F, sat (par P2 Q2) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H5. apply H1 with F = diaAct A F. apply H7 to H6. search.
+  case H6. case H7. exists P3. search.
+  % Subgoal 8
+  assert exists F, sat (nu P2) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H4. apply H1 with F = diaAct A F. apply H6 to H5. search.
+  case H5. case H6. exists P3. search.
+  % Subgoal 9
+  assert exists F, sat (par P2 Q1) (diaAct A F).
+  assert exists F, sat Q (diaAct A F).
+    case H5. apply H1 with F = diaAct A F. apply H7 to H6. search.
+  case H6. case H7. exists P3. search.
+  % Subgoal 10
+  assert exists F, sat (par P2 Q1) (diaAct tau F).
+  assert exists F, sat Q (diaAct tau F).
+    case H5. apply H1 with F = diaAct tau F. apply H7 to H6. search.
+  case H6. case H7. exists P3. search.
+  % Subgoal 11
+  assert exists F, sat (par P2 Q1) (diaAct tau F).
+  assert exists F, sat Q (diaAct tau F).
+    case H5. apply H1 with F = diaAct tau F. apply H7 to H6. search.
+  case H6. case H7. exists P3. search.
+  % Subgoal 12
+  assert exists F, sat (par P2 Q1) (diaAct tau F).
+  assert exists F, sat Q (diaAct tau F).
+    case H5. apply H1 with F = diaAct tau F. apply H7 to H6. search.
+  case H6. case H7. exists P3. search.
+% Q.E.D.
+
+Theorem sateq_one_exists_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {one Q A Q1} -> exists P1, {one P A P1}.
+% Proof.
+  intros.
+  assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).
+    intros. apply H1 with F = F. split. search. search.
+  backchain sateq_one_exists_L.
+% Q.E.D.
+
+/*
+Theorem sateq_one_exists : forall P Q A P1 Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  (  ( {one P A P1} -> exists Q1, {one Q A Q1} )
+  /\ ( {one Q A Q1} -> exists P2, {one P A P2} ) ).
+% Proof.
+  intros. split.
+    intros. backchain sateq_one_exists_L.
+    intros. backchain sateq_one_exists_R.
+% Q.E.D.
+*/
+
+Theorem sateq_one_L : forall P Q A P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {one P A P1} -> exists Q1, {one Q A Q1}
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).
+% Proof.
+  skip.
+  /*
+  Because we assume finite panout for every state, we know that set of Qi is
+  finite. And we know that the set is non empty due to sateq_one_exists_L.
+  So, we can ennumerate all posiible such Qis and try proving 
+  (forall F, (sat P1 F -> sat Qi F) /\ (sat Qi F -> sat P1 F))
+  for one of the Qis. If you were able to find a proof for one such Qi
+  then we are done. But the question is whether there a possibility where
+  no proof exist for all Qi. That, is for each Qi there exists Fi such that
+  no proof exists for (sat P1 Fi -> sat Qi Fi) /\ (sat Qi Fi -> sat P1 Fi).
+  In other words, each Fi satisfy either (exclusive) one of the following:
+    1) No proof for (sat P1 Fi -> sat Qi Fi), that is,
+       there is a proof for "sat Qi F" but no proof for sat P1 Fi".
+    2) No proof for (sat Qi F -> sat P1 F):
+       there is a proof for "sat P1 F" but no proof for sat Qi Fi".
+  Another fortunate fact is that if we have an Fi that satisy one of above,
+  we can construct Fi' that satisfy the other related by "neg". So without
+  loss of generality, our assumption amounts to saying that every Qi has Fi
+  that satisfy 2). Consider a conjuction of all such Fis:
+    Fq = F1 /\ F2 /\ F3 /\ ...
+  We can prove "P1 |= Fq" but no proof exists for "Qi |= Fq" for any Qi.
+  Now, consider a formula <A>Fq. We know that "P |= <A>Fq" but clearly
+  there is no proof for "Q |= <A>Fq", which contradicts 
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)).
+  Therefore, it is not possible to assume that all Qi fails to be logically
+  equivalent to P1. That is there must exist Q1 logically equivalent to P1.
+  */
+% Q.E.D.
+
+Theorem sateq_one_R : forall P Q A Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {one Q A Q1} -> exists P1, {one P A P1}
+               /\ (forall F, (sat P1 F -> sat Q1 F) /\ (sat Q1 F -> sat P1 F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D
+
+Theorem sat_diaIn_plus1 : forall P Q X F,
+  sat P (diaIn X F) -> sat (plus P Q) (diaIn X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+
+Theorem sat_diaIn_plus2 : forall P Q X F,
+  sat Q (diaIn X F) -> sat (plus P Q) (diaIn X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+ 
+Theorem sateq_oneb_dn_exists_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb P (dn X) P1} -> exists Q1, {oneb Q (dn X) Q1}.
+% Proof.
+  intros. case H2.
+  % Subgoal 1  
+  apply H1 with F = diaIn X z\tt.
+  assert sat (in X P1) (diaIn X z\tt).
+  apply H3 to H5. case H6. exists Q1. search.
+  % Subgoal 2
+  apply H1 with F = diaIn X z\tt.
+  assert sat (match X1 X1 P2) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q1. search.
+  % Subgoal 3
+  apply H1 with F = diaIn X z\tt.
+  assert sat (plus P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
+  % Subgoal 4
+  apply H1 with F = diaIn X z\tt.
+  assert sat (plus P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
+  % Subgoal 5
+  apply H1 with F = diaIn X z\tt.
+  assert sat (par P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
+  % Subgoal 6
+  apply H1 with F = diaIn X z\tt.
+  assert sat (par P2 Q1) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
+  % Subgoal 7
+  apply H1 with F = diaIn X z\tt.
+  assert sat (nu P2) (diaIn X z\tt).
+  apply H4 to H6. case H7. exists Q2. search.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_exists_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb Q (dn X) Q1} -> exists P1, {oneb P (dn X) P1}.
+% Proof.
+  intros.
+  assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).
+    intros. apply H1 with F = F. split. search. search.
+  backchain sateq_oneb_dn_exists_L.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb P (dn X) P1} -> exists Q1, {oneb Q (dn X) Q1}
+                /\ (forall W F, (sat (P1 W) F -> sat (Q1 W) F)
+                             /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+Theorem sateq_oneb_dn_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb Q (dn X) Q1} -> exists P1, {oneb P (dn X) P1}
+                /\ (forall W F, (sat (P1 W) F -> sat (Q1 W) F)
+                             /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+
+
+Theorem sat_diaOut_plus1 : forall P Q X F,
+  sat P (diaOut X F) -> sat (plus P Q) (diaOut X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+
+Theorem sat_diaOut_plus2 : forall P Q X F,
+  sat Q (diaOut X F) -> sat (plus P Q) (diaOut X F).
+% Proof.
+  intros. unfold. case H1. exists Q1. split. search. search.
+% Q.E.D.
+
+Theorem sateq_oneb_up_exists_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb P (up X) P1} -> exists Q1, {oneb Q (up X) Q1}.
+% Proof.
+  induction on 2. intros. case H2.
+  % Subgoal 1
+  backchain IH with P = P2.
+  intros. apply H1 with F = F. split.
+    intros. backchain H4. backchain sat_match1.
+    intros. apply H5 to H6. backchain sat_match2.
+  % Subgoal 2
+  assert forall F, sat P2 (diaOut X F) -> sat Q (diaOut X F).
+    intros. apply H1 with F = diaOut X F.
+    backchain H5. backchain sat_diaOut_plus1.
+  assert exists F, sat P2 (diaOut X F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 3
+  assert forall F, sat Q1 (diaOut X F) -> sat Q (diaOut X F).
+    intros. apply H1 with F = diaOut X F.
+    backchain H5. backchain sat_diaOut_plus2.
+  assert exists F, sat Q1 (diaOut X F).
+  case H5. apply H4 to H6. case H7. search.
+  % Subgoal 4
+  assert exists F, sat P2 (diaOut X F).
+  assert exists F, sat (par P2 Q1) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H5. apply H1 with F = diaOut X F. apply H7 to H6. search.
+  case H6. case H7. exists Q2. search.
+  % Subgoal 5
+  assert exists F, sat Q1 (diaOut X F).
+  assert exists F, sat (par P2 Q1) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H5. apply H1 with F = diaOut X F. apply H7 to H6. search.
+  case H6. case H7. exists Q2. search.
+  % Subgoal 6
+  assert exists F, sat (nu P2) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H4. apply H1 with F = diaOut X F. apply H6 to H5. search.
+  case H5. case H6. search.
+  % Subgoal 7
+  assert exists F, sat (nu M) (diaOut X F).
+  assert exists F, sat Q (diaOut X F).
+    case H4. apply H1 with F = diaOut X F. apply H6 to H5. search.
+  case H5. case H6. search.
+% Q.E.D.
+
+Theorem sateq_oneb_up_exists_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb Q (up X) Q1} -> exists P1, {oneb P (up X) P1}.
+% Proof.
+  intros.
+  assert forall F, (sat Q F -> sat P F) /\ (sat P F -> sat Q F).
+    intros. apply H1 with F = F. split. search. search.
+  backchain sateq_oneb_up_exists_L.
+% Q.E.D. 
+
+Theorem sateq_oneb_up_L : forall P Q X P1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb P (up X) P1} -> exists Q1, {oneb Q (up X) Q1}
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+Theorem sateq_oneb_up_R : forall P Q X Q1,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) ->
+  {oneb Q (up X) Q1} -> exists P1, {oneb P (up X) P1}
+                /\ (nabla W, forall F, (sat (P1 W) F -> sat (Q1 W) F)
+                                    /\ (sat (Q1 W) F -> sat (P1 W) F)).
+% Proof.
+  skip.
+  /*
+  Similar argument to sateq_one_L.
+  */
+% Q.E.D.
+
+
+Theorem sat_bisim0 : forall P Q,
+  (forall F, (sat P F -> sat Q F) /\ (sat Q F -> sat P F)) -> bisim P Q.
+% Proof.
+  coinduction. intros. unfold.
+    % Subgoal 1
+    intros. apply sateq_one_L to H1 H2.
+    exists Q1. split. search. backchain CH.
+    % Subgoal 2
+    intros. apply sateq_oneb_dn_L to H1 H2. exists Q1. split. search.
+    intros. backchain CH. intros. backchain H4.
+    % Subgoal 3
+    intros. apply sateq_oneb_up_L to H1 H2. exists Q1. split. search.
+    intros. backchain CH.
+    % Subgoal 4
+    intros. apply sateq_one_R to H1 H2. exists P1. split. search.
+    assert forall F, (sat Q1 F -> sat P1 F) /\ (sat P1 F -> sat Q1 F).
+    intros. apply H4 with F = F. split. search. search. backchain CH.
+    % Subgoal 5
+    intros. apply sateq_oneb_dn_R to H1 H2.
+    assert forall W F, (sat (N W) F -> sat (P1 W) F) /\ (sat (P1 W) F -> sat (N W) F).
+      intros. apply H4 with F = F, W = W.
+      split. intros. backchain H6. intros. backchain H5.
+    exists P1. split. search. intros. backchain CH. intros. backchain H5.
+    % Subgoal 6
+    intros. apply sateq_oneb_up_R to H1 H2.
+    exists P1. split. search.
+    assert forall F, (sat (N n1) F -> sat (P1 n1) F) /\ (sat (P1 n1) F -> sat (N n1) F).
+      intros. apply H4 with F = F n1.
+      split. intros. backchain H6. intros. backchain H5.
+    intros. backchain CH.
+% Q.E.D.
+
+Theorem sateq_one_exists_L2 : forall (X : n) (Y : n) P Q A P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {one (P X Y) (A X Y) (P1 X Y)} -> exists Q1, {one (Q X Y) (A X Y) (Q1 X Y)}.
+  intros. case H2.
+  % Subgoal 1
+  assert sat (P1 X Y) tt.
+  assert sat (P X Y) (diaAct (A X Y) tt).
+    case H3. unfold. exists (P1 X Y). split.
+      case H4. clear H1.
+      assert P4 = P1. skip. case H9. % for rewriting P4 X Y with P1 X Y
+      assert P3 = A2. skip. case H10. % for rewriting P3 X Y with A2 X Y
+      assert P2 = A1. skip. case H11. % for rewriting P2 X Y with A1 X Y
+      search.
+      search.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H7.
+  apply H7 with X = X, Y = Y. case H8. exists x\ y\ P2. search.
+  % Subgoal 2
+  assert sat (P1 X Y) tt.
+  assert sat (P X Y) (diaAct tau tt). case H4. search.
+  apply H1 with F = x\ y\ diaAct tau tt.
+  assert forall X Y, sat (Q X Y) (diaAct tau tt).
+    apply H1 with F = x\ y\ diaAct tau tt. backchain H7.
+  apply H9 with X = X, Y = Y. case H10. exists x\ y\ P2. case H3. search.
+  % Subgoal 3
+  assert sat P2 (diaAct (A X Y) tt).
+  assert sat (P X Y) (diaAct (A X Y) tt).
+    clear H1. case H3.
+    assert P4 = P3. skip. case H7. % for rewriting P4 X Y with P3 X Y
+    search.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H7.
+  apply H7 with X = X, Y = Y. case H8. exists x\ y\ P3. search.
+  % Subgoal 4
+  case H3. assert sat (P3 X Y) (diaAct (A X Y) tt).
+  apply sat_diaAct_plus1 to H5 with P = P3 X Y, Q = P4 X Y, A = A X Y.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H7.
+  apply H7 with X1 = X, Y1 = Y. case H8. exists x\ y\ P5. search.
+  % Subgoal 5
+  case H3. assert sat (P4 X Y) (diaAct (A X Y) tt).
+  apply sat_diaAct_plus2 to H5 with P = P3 X Y, Q = P4 X Y, A = A X Y.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H7.
+  apply H7 with X1 = X, Y1 = Y. case H8. exists x\ y\ P5. search.
+  % Subgoal 6
+  assert sat P3 (diaAct (A X Y) tt).
+  assert sat (P X Y) (diaAct (A X Y) tt). case H4. search.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H8.
+  apply H8 with X = X, Y = Y. case H9. exists x\ y\ P4. search.
+  % Subgoal 7
+  assert sat Q2 (diaAct (A X Y) tt).
+  assert sat (P X Y) (diaAct (A X Y) tt). case H4. search.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H8.
+  apply H8 with X = X, Y = Y. case H9. exists x\ y\ P3. search.
+  % Subgoal 8
+  assert sat (nu P2) (diaAct (A X Y) tt).
+  assert sat (P X Y) (diaAct (A X Y) tt). case H4. search.
+  assert forall X Y, sat (Q X Y) (diaAct (A X Y) tt).
+    apply H1 with F = x\ y\ diaAct (A x y) tt. backchain H8.
+  apply H8 with X = X, Y = Y. case H9. exists x\ y\ P3. search.
+  % Subgoal 9
+  assert sat (par P2 Q1) (diaAct tau tt).
+  assert sat (P X Y) (diaAct tau tt). case H5. search.
+  assert forall X Y, sat (Q X Y) (diaAct tau tt).
+    apply H1 with F = x\ y\ diaAct tau tt. backchain H10.
+  apply H10 with X = X, Y = Y. case H11. exists x\ y\ P3. case H4. search.
+  % Subgoal 10
+  assert sat (par P2 Q1) (diaAct tau tt).
+  assert sat (P X Y) (diaAct tau tt). case H5. search.
+  assert forall X Y, sat (Q X Y) (diaAct tau tt).
+    apply H1 with F = x\ y\ diaAct tau tt. backchain H10.
+  apply H10 with X = X, Y = Y. case H11. exists x\ y\ P3. case H4. search.
+  % Subgoal 11
+  assert sat (par P2 Q1) (diaAct tau tt).
+  assert sat (P X Y) (diaAct tau tt). case H5. search.
+  assert forall X Y, sat (Q X Y) (diaAct tau tt).
+    apply H1 with F = x\ y\ diaAct tau tt. backchain H10.
+  apply H10 with X = X, Y = Y. case H11. exists x\ y\ P3. case H4. search.
+  % Subgoal 12
+  assert sat (par P2 Q1) (diaAct tau tt).
+  assert sat (P X Y) (diaAct tau tt). case H5. search.
+  assert forall X Y, sat (Q X Y) (diaAct tau tt).
+    apply H1 with F = x\ y\ diaAct tau tt. backchain H10.
+  apply H10 with X = X, Y = Y. case H11.
+  exists x\ y\ P3. case H4. search.
+% Q.E.D.
+
+Theorem sateq_one_exists_R2 : forall (X : n) (Y : n) P Q A Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {one (Q X Y) (A X Y) (Q1 X Y)} -> exists P1, {one (P X Y) (A X Y) (P1 X Y)}.
+% Proof.
+  intros.
+  assert forall F, (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) /\
+                   (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) .
+    intros. apply H1 with F = F. split.
+      intros. apply H4 to H5. backchain H6.
+      intros. apply H3 to H5. backchain H6.
+  backchain sateq_one_exists_L2 with P = Q, A = A, Q = P, P1 = Q1.
+% Q.E.D.
+
+Theorem sateq_one_L2 : forall (X : n) (Y : n) P Q A P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {one (P X Y) (A X Y) (P1 X Y)} -> (
+  exists Q1, {one (Q X Y) (A X Y) (Q1 X Y)} /\
+    forall F, (forall X Y, sat (P1 X Y) (F X Y) -> forall X Y, sat (Q1 X Y) (F X Y)) /\
+              (forall X Y, sat (Q1 X Y) (F X Y) -> forall X Y, sat (P1 X Y) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+Theorem sateq_one_R2 : forall (X : n) (Y : n) P Q A Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {one (Q X Y) (A X Y) (Q1 X Y)} -> (
+  exists P1, {one (P X Y) (A X Y) (P1 X Y)} /\
+    forall F, (forall X Y, sat (P1 X Y) (F X Y) -> forall X Y, sat (Q1 X Y) (F X Y)) /\
+              (forall X Y, sat (Q1 X Y) (F X Y) -> forall X Y, sat (P1 X Y) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_exists_L2 : forall (X : n) (Y : n) P Q Z P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (P X Y) (dn (Z X Y)) (P1 X Y)} -> exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)}.
+% Proof.
+  intros. case H2.
+  % Subgoal 1
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. clear H1.
+    assert P2 = Z. skip. case H6. % for rewriting P2 X Y with Z X Y
+    search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H5 to H4. apply H7 with X1 = X, Y1 = Y. case H8.
+  exists  x\ y\ Q1. search.
+  % Subgoal 2
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. clear H1.
+    assert P4 = P3. skip. case H7. % for rewriting P4 X Y with P3 X Y
+    search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
+  exists x\ y\ Q1. search.
+  % Subgoal 3
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. backchain sat_diaIn_plus1.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
+  exists x\ y\ Q2. search.
+  % Subgoal 4
+  assert sat Q1 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt).
+    case H3. backchain sat_diaIn_plus2.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
+  exists x\ y\ Q2. search.
+  % Subgoal 5
+  assert sat P2 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
+  exists x\ y\ Q2. search.
+
+  % Subgoal 6
+  assert sat Q1 (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
+  exists x\ y\ Q2. search.
+  % Subgoal 7
+  assert sat (nu P2) (diaIn (Z X Y) z\ tt).
+  assert sat (P X Y) (diaIn (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaIn (Z x y) z\ tt).
+  apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
+  exists x\ y\ Q2. search.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_exists_R2 : forall (X : n) (Y : n) P Q Z Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)} -> exists P1, {oneb (P X Y) (dn (Z X Y)) (P1 X Y)}.
+% Proof.
+  intros.
+  assert forall F, (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) /\
+                   (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) .
+    intros. apply H1 with F = F. split.
+      intros. apply H4 to H5. backchain H6.
+      intros. apply H3 to H5. backchain H6.
+  backchain sateq_oneb_dn_exists_L2 with P = Q, Q = P, P1 = Q1, Z = Z.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_L2 : forall (X : n) (Y : n) P Q Z P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (P X Y) (dn (Z X Y)) (P1 X Y)} -> (
+  exists Q1, {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)} /\
+    forall W F, (forall X Y, sat (P1 X Y W) (F X Y) -> forall X Y, sat (Q1 X Y W) (F X Y)) /\
+                (forall X Y, sat (Q1 X Y W) (F X Y) -> forall X Y, sat (P1 X Y W) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+Theorem sateq_oneb_dn_R2 : forall (X : n) (Y : n) P Q Z Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (Q X Y) (dn (Z X Y)) (Q1 X Y)} -> (
+  exists P1, {oneb (P X Y) (dn (Z X Y)) (P1 X Y)} /\
+    forall W F, (forall X Y, sat (P1 X Y W) (F X Y) -> forall X Y, sat (Q1 X Y W) (F X Y)) /\
+                (forall X Y, sat (Q1 X Y W) (F X Y) -> forall X Y, sat (P1 X Y W) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+Theorem sateq_oneb_up_exists_L2 : forall (X : n) (Y : n) P Q Z P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (P X Y) (up (Z X Y)) (P1 X Y)} -> exists Q1, {oneb (Q X Y) (up (Z X Y)) (Q1 X Y)}.
+% Proof.
+  intros. case H2.
+  % Subgoal 1
+  assert sat P2 (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt).
+    case H3. clear H1.
+    assert P4 = P3. skip. case H7.
+    search.
+  apply H1 with F = x\ y\ (diaOut (Z X Y) z\ tt).
+  apply H7 to H6. apply H9 with X2 = X, Y2 = Y. case H10.
+  exists x\ y\ Q1. search.
+  % Subgoal 2 
+  assert sat P2 (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt).
+    case H3. backchain sat_diaOut_plus1.
+  apply H1 with F = x\ y\ (diaOut (Z X Y) z\ tt).
+  apply H7 to H6. apply H9 with X2 = X, Y2 = Y. case H10.
+  exists x\ y\ Q2. search.
+  % Subgoal 3
+  assert sat Q1 (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt).
+    case H3. backchain sat_diaOut_plus2.
+  apply H1 with F = x\ y\ (diaOut (Z X Y) z\ tt).
+  apply H7 to H6. apply H9 with X2 = X, Y2 = Y. case H10.
+  exists x\ y\ Q2. search.
+  % Subgoal 4
+  assert sat P2 (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaOut (Z X Y) z\ tt).
+  apply H8 to H7. apply H10 with X2 = X, Y2 = Y. case H11.
+  exists x\ y\ Q2. search.
+  % Subgoal 5
+  assert sat Q1 (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaOut (Z X Y) z\ tt).
+  apply H8 to H7. apply H10 with X2 = X, Y2 = Y. case H11.
+  exists x\ y\ Q2. search.
+  % Subgoal 6
+  assert sat (nu P2) (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt). case H4. search.
+  apply H1 with F = x\ y\ (diaOut (Z x y) z\ tt).
+  apply H8 to H7. apply H10 with X1 = X, Y1 = Y. case H11.
+  exists x\ y\ Q2. search.
+  % Subgoal 7
+  assert sat (nu M) (diaOut (Z X Y) z\ tt).
+  assert sat (P X Y) (diaOut (Z X Y) z\ tt). case H3. search.
+  apply H1 with F = x\ y\ (diaOut (Z x y) z\ tt).
+  apply H7 to H6. apply H9 with X1 = X, Y1 = Y. case H10.
+  exists x\ y\ Q1. search.
+% Q.E.D.
+
+Theorem sateq_oneb_up_exists_R2 : forall (X : n) (Y : n) P Q Z Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (Q X Y) (up (Z X Y)) (Q1 X Y)} -> exists P1, {oneb (P X Y) (up (Z X Y)) (P1 X Y)}.
+% Proof.
+  intros.
+  assert forall F, (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) /\
+                   (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) .
+    intros. apply H1 with F = F. split.
+      intros. apply H4 to H5. backchain H6.
+      intros. apply H3 to H5. backchain H6.
+  backchain sateq_oneb_up_exists_L2 with P = Q, Q = P, P1 = Q1, Z = Z.
+% Q.E.D.
+
+Theorem sateq_oneb_up_L2 : forall (X : n) (Y : n) P Q Z P1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (P X Y) (up (Z X Y)) (P1 X Y)} -> (
+  exists Q1, {oneb (Q X Y) (up (Z X Y)) (Q1 X Y)} /\
+    nabla W, forall F, (forall X Y, sat (P1 X Y W) (F X Y) -> forall X Y, sat (Q1 X Y W) (F X Y)) /\
+                       (forall X Y, sat (Q1 X Y W) (F X Y) -> forall X Y, sat (P1 X Y W) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+Theorem sateq_oneb_up_R2 : forall (X : n) (Y : n) P Q Z Q1,
+  ( forall F, (forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)) /\
+              (forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y)) ) ->
+  {oneb (Q X Y) (up (Z X Y)) (Q1 X Y)} -> (
+  exists P1, {oneb (P X Y) (up (Z X Y)) (P1 X Y)} /\
+    nabla W, forall F, (forall X Y, sat (P1 X Y W) (F X Y) -> forall X Y, sat (Q1 X Y W) (F X Y)) /\
+                       (forall X Y, sat (Q1 X Y W) (F X Y) -> forall X Y, sat (P1 X Y W) (F X Y)) ).
+% Proof.
+  skip.
+% Q.E.D.
+
+
+Theorem sat_bisim2 : forall (X : n) (Y : n) P Q,
+  (forall F, ((forall X Y, sat (P X Y) (F X Y) -> forall X Y, sat (Q X Y) (F X Y)))
+          /\ ((forall X Y, sat (Q X Y) (F X Y) -> forall X Y, sat (P X Y) (F X Y))) ) ->
+  bisim (P X Y) (Q X Y).
+% Proof.
+  coinduction. intros. unfold.
+ 
+  % Subgoal 1
+  intros. apply sateq_one_L2 to H1 H2 with P1 = x\ y\ P1, A = x\ y\ A.
+  exists (Q1 X Y). split. search.
+  backchain CH with P = x\ y\ P1, Q = Q1.
+  % Subgoal 2
+  intros. apply sateq_oneb_dn_L2 to H1 H2 with P1 = x\ y\ M, Z = x\ y\ X1.
+  exists (Q1 X Y). split. search.
+  intros. backchain CH with P = x\ y\ M W, Q = x\ y\ Q1 x y W.
+  intros. apply H4 with W = W, F = F. split. search. search.
+  % Subgoal 3
+  intros. apply sateq_oneb_up_L2 to H1 H2 with P1 = x\ y\ M, Z = x\ y\ X1.
+  exists (Q1 X Y). split. search.
+  intros. backchain CH with P = x\ y\ M n1, Q = x\ y\ Q1 x y n1.
+  % Subgoal 4
+  intros. apply sateq_one_R2 to H1 H2 with Q1 = x\ y\ Q1, A = x\ y\ A.
+  exists (P1 X Y). split. search.
+  intros. backchain CH with P = x\ y\ Q1, Q = P1.
+  intros. apply H4 with F = F. split. search. search.
+  % Subgoal 5
+  intros. apply sateq_oneb_dn_R2 to H1 H2 with Q1 = x\ y\ N, Z = x\ y\ X1.
+  exists (P1 X Y). split. search.
+  intros. backchain CH with P = x\ y\ N W, Q = x\ y\ P1 x y W.
+  intros. apply H4 with W = W, F = F. split. search. search.
+  % Subgoal 6
+  intros. apply sateq_oneb_up_R2 to H1 H2 with Q1 = x\ y\ N, Z = x\ y\ X1.
+  exists (P1 X Y). split. search.
+  intros. backchain CH with P = x\ y\ N n1, Q = x\ y\ P1 x y n1.
+  intros. apply H4 with F = F n1. split. search. search.
+% Q.E.D.
+
+%% End of completenes proofs %%
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Example judgement that is necessary and suffficient
+%% to the Excluded Middle over names 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem excl_middle1 :
+  (forall (x : n) (y : n), x = y \/ (x = y -> false))
+  ->  
+  forall x y, sat (plus (taup null) (taup (taup null)))
+                  (diaAct tau (conj (boxAct tau (diaMatch x y tt) )
+                                    (boxMatch x y (diaAct tau tt)) ) ).
+intros.
+apply H1 with x = x, y = y.
+case H2.
+search.
+unfold.
+exists null.
+split.
+search.
+unfold.
+unfold.
+intros.
+case H4.
+unfold.
+intros.
+apply H3 to H4.
+
+Theorem excl_middle2 :
+  (forall x y, sat (plus (taup null) (taup (taup null)))
+                   (diaAct tau (conj (boxAct tau (diaMatch x y tt) )
+                                     (boxMatch x y (diaAct tau tt) ) ) ) )
+  ->
+  (forall (x : n) (y : n), x = y \/ (x = y -> false)).
+intros.
+apply H1 with x = x, y = y.
+case H2.
+case H3.
+case H5.
+case H4.
+right.
+intros.
+case H8.
+case H7.
+apply H9 to _.
+case H10.
+case H11.
+case H5.
+case H4.
+case H6.
+apply H8 to _ with P1 = null.
+case H9.
+search.
